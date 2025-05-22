@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Konsultasi Gangguan Hati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        accent: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'elegant': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap">
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-delay-100 { animation-delay: 0.1s; }
+        .animate-delay-200 { animation-delay: 0.2s; }
+        .animate-delay-300 { animation-delay: 0.3s; }
+        
+        /* Smooth transitions */
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-secondary-800 antialiased">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-xl font-semibold text-secondary-900">Konsultasi Gangguan Hati</span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Beranda</a>
+                    <a href="tentang.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Tentang Kami</a>
+                    <a href="layanan.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Layanan</a>
+                    <a href="konsultasi.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Konsultasi</a>
+                    <a href="artikel.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Artikel</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-md w-full animate-fade-in">
+                <div class="bg-white rounded-2xl shadow-elegant overflow-hidden">
+                    <div class="px-8 pt-8 pb-6 text-center">
+                        <h2 class="text-3xl font-bold text-secondary-900 mb-2">LOGIN</h2>
+                        <p class="text-secondary-600">Masuk ke akun Anda untuk mengakses layanan konsultasi</p>
+                    </div>
+                    
+                    <div class="p-8 pt-0">
+                        <form class="space-y-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-secondary-700 mb-1">Email</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                        </svg>
+                                    </div>
+                                    <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full pl-10 pr-3 py-3 border border-secondary-300 rounded-lg text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="nama@email.com">
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label for="password" class="block text-sm font-medium text-secondary-700">Password</label>
+                                    <a href="lupa-password.html" class="text-sm text-primary-600 hover:text-primary-500 transition-colors">Lupa password?</a>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full pl-10 pr-3 py-3 border border-secondary-300 rounded-lg text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="••••••••">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center">
+                                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded transition-colors">
+                                <label for="remember-me" class="ml-2 block text-sm text-secondary-700">Ingat saya</label>
+                            </div>
+
+                            <div>
+                                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                                    LOGIN
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-secondary-600">
+                                Belum memiliki akun? 
+                                <a href="register.html" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+                                    Daftar sekarang
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-primary-600 to-accent-700 p-8 text-white">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-white/20 p-2 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Butuh bantuan?</h3>
+                                <p class="text-primary-100 mt-1">Hubungi kami di (021) 1234-5678</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 py-8">
+            <div class="container mx-auto px-4 md:px-8 text-center">
+                <p class="text-secondary-600">&copy; 2025 GangguanHati. Hak Cipta Dilindungi.</p>
+                <div class="mt-2 space-x-4">
+                    <a href="kebijakan-privasi.html" class="text-sm text-primary-600 hover:text-primary-700 transition-colors">Kebijakan Privasi</a>
+                    <span class="text-secondary-300">|</span>
+                    <a href="syarat-ketentuan.html" class="text-sm text-primary-600 hover:text-primary-700 transition-colors">Syarat & Ketentuan</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
