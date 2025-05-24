@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Diagnosis - Sistem Konsultasi Gangguan Hati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        accent: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'elegant': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap">
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-slide-in {
+            animation: slideIn 0.6s ease-out forwards;
+        }
+        .animate-delay-100 { animation-delay: 0.1s; }
+        .animate-delay-200 { animation-delay: 0.2s; }
+        .animate-delay-300 { animation-delay: 0.3s; }
+        .animate-delay-400 { animation-delay: 0.4s; }
+        .animate-delay-500 { animation-delay: 0.5s; }
+        
+        /* Smooth transitions */
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+
+        /* Status indicators */
+        .status-high { @apply bg-red-100 text-red-800 border-red-200; }
+        .status-medium { @apply bg-yellow-100 text-yellow-800 border-yellow-200; }
+        .status-low { @apply bg-green-100 text-green-800 border-green-200; }
+        .status-normal { @apply bg-blue-100 text-blue-800 border-blue-200; }
+
+        /* Filter tabs */
+        .filter-tab.active {
+            @apply bg-primary-600 text-white border-primary-600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-secondary-800 antialiased">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="index.html" class="flex items-center mr-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-xl font-semibold text-secondary-900">GangguanHati</span>
+                </a>
+                <nav class="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                    <a href="index.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Beranda</a>
+                    <a href="konsultasi.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Konsultasi</a>
+                    <a href="riwayat.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Riwayat</a>
+                    <a href="tentang.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Tentang Kami</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center space-x-4">
+                    <span class="text-secondary-600">Selamat datang,</span>
+                    <span class="font-medium text-secondary-900">Ahmad Rizki</span>
+                    <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                        AR
+                    </div>
+                </div>
+                <div class="relative">
+                    <button class="text-secondary-600 hover:text-primary-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-primary-600 to-accent-700 text-white py-16">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] opacity-20 bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-accent-700/90"></div>
+        <div class="container mx-auto px-4 md:px-8 relative">
+            <div class="max-w-3xl mx-auto text-center animate-fade-in">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4">Riwayat Diagnosis Anda</h1>
+                <p class="text-xl text-primary-100">Lihat semua hasil diagnosis yang pernah Anda lakukan dan pantau perkembangan kesehatan hati Anda</p>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="w-full h-auto">
+                <path fill="#ffffff" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Summary Statistics -->
+    <section class="py-8 bg-white">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="grid md:grid-cols-4 gap-6 animate-fade-in">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">Total Diagnosis</p>
+                            <p class="text-3xl font-bold">7</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-red-100 text-sm">Risiko Tinggi</p>
+                            <p class="text-3xl font-bold">2</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-400 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-2xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm">Risiko Sedang</p>
+                            <p class="text-3xl font-bold">3</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">Normal/Rendah</p>
+                            <p class="text-3xl font-bold">2</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters and Controls -->
+    <section class="py-8">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="bg-white rounded-2xl shadow-elegant p-6 mb-8 animate-fade-in animate-delay-100">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <!-- Filter Tabs -->
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-tab active px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-all" data-filter="all">
+                            Semua
+                        </button>
+                        <button class="filter-tab px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-all" data-filter="high">
+                            Risiko Tinggi
+                        </button>
+                        <button class="filter-tab px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-all" data-filter="medium">
+                            Risiko Sedang
+                        </button>
+                        <button class="filter-tab px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-all" data-filter="low">
+                            Normal/Rendah
+                        </button>
+                    </div>
+
+                    <!-- Search and Sort -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Cari diagnosis..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option>Urutkan: Terbaru</option>
+                            <option>Urutkan: Terlama</option>
+                            <option>Urutkan: Risiko Tinggi</option>
+                            <option>Urutkan: Risiko Rendah</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diagnosis History List -->
+    <section class="py-8">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="space-y-6">
+                <!-- Diagnosis Entry 1 - Recent -->
+                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-200" data-risk="high">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <!-- Main Info -->
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Hepatitis B" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-secondary-900">Hepatitis B</h3>
+                                    <span class="status-high px-3 py-1 rounded-full text-xs font-medium border">Risiko Tinggi</span>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Terbaru</span>
+                                </div>
+                                <p class="text-secondary-600 mb-2">Infeksi virus yang menyerang hati dan dapat menyebabkan penyakit akut maupun kronis</p>
+                                <div class="flex items-center gap-4 text-sm text-secondary-500">
+                                    <span>📅 24 Mei 2025</span>
+                                    <span>🕒 14:33</span>
+                                    <span>🆔 DX-2025-0524-001</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Probability and Actions -->
+                        <div class="lg:text-right space-y-3">
+                            <div>
+                                <div class="text-2xl font-bold text-red-600 mb-1">87.3%</div>
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 87.3%"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="hasil-diagnosis.html" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                                    Lihat Detail
+                                </a>
+                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnosis Entry 2 -->
+                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-300" data-risk="medium">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Fatty Liver" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-secondary-900">Fatty Liver (Perlemakan Hati)</h3>
+                                    <span class="status-medium px-3 py-1 rounded-full text-xs font-medium border">Risiko Sedang</span>
+                                </div>
+                                <p class="text-secondary-600 mb-2">Penumpukan lemak berlebih di hati yang dapat menyebabkan peradangan</p>
+                                <div class="flex items-center gap-4 text-sm text-secondary-500">
+                                    <span>📅 18 Mei 2025</span>
+                                    <span>🕒 10:15</span>
+                                    <span>🆔 DX-2025-0518-003</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:text-right space-y-3">
+                            <div>
+                                <div class="text-2xl font-bold text-yellow-600 mb-1">64.2%</div>
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 64.2%"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                                    Lihat Detail
+                                </button>
+                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnosis Entry 3 -->
+                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-400" data-risk="high">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Hepatitis A" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-secondary-900">Hepatitis A</h3>
+                                    <span class="status-high px-3 py-1 rounded-full text-xs font-medium border">Risiko Tinggi</span>
+                                </div>
+                                <p class="text-secondary-600 mb-2">Infeksi virus akut pada hati yang bersifat menular</p>
+                                <div class="flex items-center gap-4 text-sm text-secondary-500">
+                                    <span>📅 12 Mei 2025</span>
+                                    <span>🕒 16:42</span>
+                                    <span>🆔 DX-2025-0512-007</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:text-right space-y-3">
+                            <div>
+                                <div class="text-2xl font-bold text-red-600 mb-1">78.9%</div>
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 78.9%"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                                    Lihat Detail
+                                </button>
+                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnosis Entry 4 -->
+                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-500" data-risk="medium">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1715529282082-87e4334283e2?q=80&w=1972&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Liver Function Test" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-secondary-900">Gangguan Fungsi Hati Ringan</h3>
+                                    <span class="status-medium px-3 py-1 rounded-full text-xs font-medium border">Risiko Sedang</span>
+                                </div>
+                                <p class="text-secondary-600 mb-2">Gangguan fungsi hati tingkat ringan yang perlu pemantauan</p>
+                                <div class="flex items-center gap-4 text-sm text-secondary-500">
+                                    <span>📅 08 Mei 2025</span>
+                                    <span>🕒 09:30</span>
+                                    <span>🆔 DX-2025-0508-012</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:text-right space-y-3">
+                            <div>
+                                <div class="text-2xl font-bold text-yellow-600 mb-1">52.7%</div>
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 52.7%"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                                    Lihat Detail
+                                </button>
+                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnosis Entry 5 -->
+                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-500" data-risk="low">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Normal Liver" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-bold text-secondary-900">Fungsi Hati Normal</h3>
+                                    <span class="status-normal px-3 py-1 rounded-full text-xs font-medium border">Normal</span>
+                                </div>
+                                <p class="text-secondary-600 mb-2">Hasil menunjukkan fungsi hati dalam kondisi normal dan sehat</p>
+                                <div class="flex items-center gap-4 text-sm text-secondary-500">
+                                    <span>📅 02 Mei 2025</span>
+                                    <span>🕒 11:20</span>
+                                    <span>🆔 DX-2025-0502-018</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:text-right space-y-3">
+                            <div>
+                                <div class="text-2xl font-bold text-green-600 mb-1">15.3%</div>
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 15.3%"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                                    Lihat Detail
+                                </button>
+                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-12 animate-fade-in">
+                <div class="text-sm text-secondary-600">
+                    Menampilkan 1-5 dari 7 diagnosis
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-secondary-600 hover:bg-gray-50 transition-colors" disabled>
+                        Sebelumnya
+                    </button>
+                    <button class="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">
+                        1
+                    </button>
+                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-secondary-600 hover:bg-gray-50 transition-colors">
+                        2
+                    </button>
+                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-secondary-600 hover:bg-gray-50 transition-colors">
+                        Selanjutnya
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-secondary-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="ml-2 text-xl font-semibold text-white">GangguanHati</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">Layanan konsultasi kesehatan hati terpercaya dengan dokter spesialis berpengalaman. Kami berkomitmen untuk memberikan perawatan terbaik untuk kesehatan hati Anda.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Tautan Cepat</h3>
+                    <ul class="space-y-4">
+                        <li><a href="index.html" class="text-gray-400 hover:text-primary-400 transition-colors">Beranda</a></li>
+                        <li><a href="konsultasi.html" class="text-gray-400 hover:text-primary-400 transition-colors">Konsultasi</a></li>
+                        <li><a href="riwayat.html" class="text-gray-400 hover:text-primary-400 transition-colors">Riwayat</a></li>
+                        <li><a href="tentang.html" class="text-gray-400 hover:text-primary-400 transition-colors">Tentang Kami</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Tim Kami</h3>
+                    <ul class="space-y-4">
+                        <li><a href="" class="text-gray-400 hover:text-primary-400 transition-colors">Lena</a></li>
+                        <li><a href="" class="text-gray-400 hover:text-primary-400 transition-colors">Brian</a></li>
+                        <li><a href="" class="text-gray-400 hover:text-primary-400 transition-colors">Afiftha</a></li>
+                        <li><a href="" class="text-gray-400 hover:text-primary-400 transition-colors">Sultan</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-6">Kontak Kami</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-primary-400 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span class="text-gray-400">Blater, Fakultas Teknik Unsoed</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-primary-400 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-400">(0281) 6596700</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-primary-400 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-400">ft.unsoed.ac.id</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-primary-400 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="text-gray-400">
+                                <p>Tersedia 24/7</p>
+                                <p>Kapanpun dan dimanapun</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 GangguanHati. Hak Cipta Dilindungi. <a href="" class="text-primary-400 hover:text-primary-300 transition-colors">LBAS</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            const diagnosisCards = document.querySelectorAll('.diagnosis-card');
+            
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Show/hide cards based on filter
+                    diagnosisCards.forEach(card => {
+                        if (filter === 'all' || card.getAttribute('data-risk') === filter) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('input[type="text"]');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                diagnosisCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

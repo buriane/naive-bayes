@@ -22,6 +22,10 @@ from diagnosis import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.homepage, name='homepage'),  # <- Ini halaman utama
+    path('login/', views.login, name='login'),  # <- Ini halaman login
+    path('konsultasi/', views.konsultasi, name='konsultasi'),  # <- Ini halaman konsultasi
+    path('register/', views.register, name='register'),  # <- Ini halaman register
+    path ('tentang/', views.tentang, name='tentang'),  # <- Ini halaman tentang
+    path ('hasil/', views.hasil, name='hasil'),  # <- Ini halaman hasil
+    path ('riwayat/', views.riwayat, name='riwayat'),  # <- Ini halaman riwayat
 ]
-
-
