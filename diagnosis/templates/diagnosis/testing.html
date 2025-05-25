@@ -1,6 +1,19 @@
-<h2>Data Gejala:</h2>
+<h2>Diagnosis</h2>
 <ul>
-  {% for gejala in gejala_list %}
-  <li>{{ gejala.kode_gejala }} - {{ gejala.nama_gejala }}</li>
+  {% for d in diagnosis_list %}
+  <li>{{ d.nama_diagnosis }}</li>
+  {% empty %}
+  <li>Tidak ada data diagnosis.</li>
   {% endfor %}
 </ul>
+
+<h2>Gejala</h2>
+<ul>
+  {% for g in gejala_list %}
+  <li>{{ g.nama_gejala }}</li>
+  {% empty %}
+  <li>Tidak ada data gejala.</li>
+  {% endfor %}
+</ul>
+
+<!-- ini halaman testing  -->
