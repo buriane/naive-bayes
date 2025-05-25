@@ -87,9 +87,17 @@
         .animate-delay-500 { animation-delay: 0.5s; }
         
         /* Progress bar animation */
-        .progress-bar {
+        .progress-fill {
             animation: progressBar 1.5s ease-out forwards;
             animation-delay: 0.5s;
+            width: 0;
+        }
+        
+        /* Progress bar styling */
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
         }
         
         /* Smooth transitions */
@@ -144,21 +152,23 @@
                     <div>
                         <h2 class="text-lg font-semibold text-secondary-900 mb-2">Informasi Pasien</h2>
                         <div class="grid md:grid-cols-3 gap-6 text-sm text-secondary-600">
+                            {% if request.session.user_name %}
                             <div>
-                                <span class="font-medium">Nama:</span> Ahmad Rizki Pratama
+                                <span class="font-medium">Nama:</span> {{ request.session.user_name }}
                             </div>
+                            {% else %}
                             <div>
-                                <span class="font-medium">Usia:</span> 35 tahun
+                                <span class="font-medium">Nama:</span> Pasien Tidak Teridentifikasi
                             </div>
+                            {% endif %}
                             <div>
-                                <span class="font-medium">Jenis Kelamin:</span> Laki-laki
+                                <span class="font-medium">Status:</span> Konsultasi Online
                             </div>
                         </div>
                     </div>
                     <div class="text-right">
                         <p class="text-sm text-secondary-600 mb-1">Tanggal Diagnosis</p>
-                        <p class="text-lg font-semibold text-secondary-900">24 Mei 2025</p>
-                        <p class="text-sm text-secondary-500">ID: DX-2025-0524-001</p>
+                        <p class="text-lg font-semibold text-secondary-900">{{ now|date:"d M Y" }}</p>
                     </div>
                 </div>
             </div>
@@ -175,17 +185,25 @@
                     <div class="bg-white rounded-2xl shadow-elegant p-8 mb-8 animate-fade-in animate-delay-100 print-page">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-2xl font-bold text-secondary-900">Hasil Diagnosis Utama</h2>
-                            <div class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                                Tinggi
+                            <div class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ probability|floatformat:1 }}%
                             </div>
                         </div>
                         
                         <div class="grid md:grid-cols-2 gap-8 items-center">
                             <!-- Diagnosis Image -->
                             <div class="text-center">
-                                <img src="https://images.unsplash.com/photo-1715529134972-221f23a6c701?q=80&w=2052&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Hepatitis B" class="w-full h-64 object-cover rounded-xl shadow-lg mb-4">
-                                <h3 class="text-2xl font-bold text-secondary-900 mb-2">Hepatitis B</h3>
-                                <p class="text-secondary-600">Infeksi virus yang menyerang hati dan dapat menyebabkan penyakit akut maupun kronis</p>
+                                {% if diagnosis.gambar_diagnosis %}
+                                <img src="{{ diagnosis.gambar_diagnosis }}" alt="{{ diagnosis.nama_diagnosis }}" class="w-full h-64 object-cover rounded-xl shadow-lg mb-4">
+                                {% else %}
+                                <div class="w-full h-64 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <h3 class="text-2xl font-bold text-secondary-900 mb-2">{{ diagnosis.nama_diagnosis }}</h3>
+                                <p class="text-secondary-600">{{ diagnosis.deskripsi_diagnosis|truncatewords:25 }}</p>
                             </div>
                             
                             <!-- Probability Results -->
@@ -195,23 +213,31 @@
                                 <!-- Main Probability -->
                                 <div class="mb-6">
                                     <div class="flex justify-between items-center mb-2">
-                                        <span class="font-medium text-secondary-900">Hepatitis B</span>
-                                        <span class="text-2xl font-bold text-red-600">87.3%</span>
+                                        <span class="font-medium text-secondary-900">{{ diagnosis.nama_diagnosis }}</span>
+                                        <span class="text-2xl font-bold text-primary-600">{{ probability|floatformat:1 }}%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-3">
-                                        <div class="progress-bar bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full" style="--progress-width: 87.3%"></div>
+                                        <div class="progress-fill bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full" style="--progress-width: {{ probability }}%"></div>
                                     </div>
                                 </div>
 
                                 <!-- Confidence Level -->
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-4">
                                     <div class="flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span class="font-medium text-red-800">Tingkat Kepercayaan Tinggi</span>
+                                        <span class="font-medium text-primary-800">
+                                            {% if probability > 75 %}
+                                                Tingkat Kepercayaan Tinggi
+                                            {% elif probability > 50 %}
+                                                Tingkat Kepercayaan Sedang
+                                            {% else %}
+                                                Tingkat Kepercayaan Rendah
+                                            {% endif %}
+                                        </span>
                                     </div>
-                                    <p class="text-red-700 text-sm mt-1">Berdasarkan gejala yang dilaporkan, terdapat indikasi kuat adanya infeksi Hepatitis B</p>
+                                    <p class="text-primary-700 text-sm mt-1">Berdasarkan gejala yang dilaporkan, terdapat indikasi {{ diagnosis.nama_diagnosis }}</p>
                                 </div>
 
                                 <!-- Algorithm Info -->
@@ -219,113 +245,60 @@
                                     <h5 class="font-medium text-blue-900 mb-2">Informasi Algoritma</h5>
                                     <ul class="text-blue-800 text-sm space-y-1">
                                         <li>• Model: Naive Bayes Classifier</li>
-                                        <li>• Dataset: 1,247 kasus medis</li>
-                                        <li>• Akurasi Model: 92.4%</li>
-                                        <li>• Fitur Dianalisis: 12 gejala</li>
+                                        <li>• Faktor yang Dianalisis: {{ selected_gejala|length }} gejala</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Alternative Diagnoses -->
-                    <div class="bg-white rounded-2xl shadow-elegant p-8 animate-fade-in animate-delay-200 print-page">
-                        <h3 class="text-xl font-bold text-secondary-900 mb-6">Diagnosis Alternatif</h3>
-                        
-                        <div class="space-y-4">
-                            <!-- Hepatitis A -->
-                            <div class="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Hepatitis A" class="w-12 h-12 object-cover rounded-lg mr-4">
-                                    <div>
-                                        <h4 class="font-semibold text-secondary-900">Hepatitis A</h4>
-                                        <p class="text-sm text-secondary-600">Infeksi virus akut pada hati</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-lg font-bold text-yellow-600">8.7%</span>
-                                    <div class="w-20 bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 8.7%"></div>
-                                    </div>
-                                </div>
-                            </div>
+                </div>
 
-                            <!-- Fatty Liver -->
-                            <div class="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Fatty Liver" class="w-12 h-12 object-cover rounded-lg mr-4">
-                                    <div>
-                                        <h4 class="font-semibold text-secondary-900">Fatty Liver (Perlemakan Hati)</h4>
-                                        <p class="text-sm text-secondary-600">Penumpukan lemak berlebih di hati</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-lg font-bold text-orange-600">3.2%</span>
-                                    <div class="w-20 bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-orange-500 h-2 rounded-full" style="width: 3.2%"></div>
-                                    </div>
-                                </div>
+                <!-- Symptoms Analyzed Sidebar -->
+                <div class="space-y-8">
+                    <!-- Symptoms -->
+                    <div class="bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-300">
+                        <h3 class="text-lg font-bold text-secondary-900 mb-4">Gejala yang Dialami</h3>
+                        <div class="space-y-3">
+                            {% for gejala in selected_gejala %}
+                            <div class="flex items-center justify-between p-3 bg-primary-50 border border-primary-200 rounded-lg">
+                                <span class="text-secondary-900 text-sm">{{ gejala.nama_gejala }}</span>
+                                <span class="text-primary-600 font-semibold text-sm">✓ Ada</span>
                             </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                            <!-- Cirrhosis -->
-                            <div class="flex items-center justify-between p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <img src="https://images.unsplash.com/photo-1715529282031-1d9967485bdd?q=80&w=2130&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Cirrhosis" class="w-12 h-12 object-cover rounded-lg mr-4">
-                                    <div>
-                                        <h4 class="font-semibold text-secondary-900">Sirosis Hati</h4>
-                                        <p class="text-sm text-secondary-600">Kerusakan hati stadium lanjut</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-lg font-bold text-purple-600">0.8%</span>
-                                    <div class="w-20 bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-purple-500 h-2 rounded-full" style="width: 0.8%"></div>
-                                    </div>
-                                </div>
+            <!-- Recommendations and Disclaimer Section -->
+            <div class="grid lg:grid-cols-2 gap-8 mt-8">
+                <!-- Disclaimer Section - Now on left -->
+                <div class="animate-fade-in animate-delay-300">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 h-full">
+                        <div class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600 mr-4 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <div>
+                                <h3 class="text-lg font-bold text-amber-800 mb-2">Penting untuk Diperhatikan</h3>
+                                <p class="text-amber-700 mb-4">
+                                    Hasil diagnosis ini merupakan analisis awal berdasarkan algoritma machine learning dan tidak dapat menggantikan diagnosis medis profesional. Hasil ini bertujuan untuk memberikan informasi awal dan panduan untuk langkah selanjutnya.
+                                </p>
+                                <ul class="text-amber-700 text-sm space-y-1">
+                                    <li>• Hasil diagnosis memerlukan konfirmasi melalui pemeriksaan medis lebih lanjut</li>
+                                    <li>• Konsultasikan hasil ini dengan dokter spesialis untuk diagnosis yang akurat</li>
+                                    <li>• Lakukan pemeriksaan laboratorium sesuai rekomendasi dokter</li>
+                                    <li>• Jangan melakukan pengobatan sendiri berdasarkan hasil ini</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sidebar Information -->
-                <div class="space-y-8">
-                    <!-- Symptoms Analyzed -->
-                    <div class="bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-300">
-                        <h3 class="text-lg font-bold text-secondary-900 mb-4">Gejala yang Dianalisis</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <span class="text-secondary-900 text-sm">Kuning (Jaundice)</span>
-                                <span class="text-red-600 font-semibold text-sm">✓ Ada</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <span class="text-secondary-900 text-sm">Kelelahan</span>
-                                <span class="text-red-600 font-semibold text-sm">✓ Ada</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <span class="text-secondary-900 text-sm">Mual dan Muntah</span>
-                                <span class="text-red-600 font-semibold text-sm">✓ Ada</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <span class="text-secondary-900 text-sm">Nyeri Perut Kanan Atas</span>
-                                <span class="text-red-600 font-semibold text-sm">✓ Ada</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                                <span class="text-secondary-900 text-sm">Urin Berwarna Gelap</span>
-                                <span class="text-red-600 font-semibold text-sm">✓ Ada</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                                <span class="text-secondary-600 text-sm">Demam</span>
-                                <span class="text-gray-500 font-semibold text-sm">✗ Tidak</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                                <span class="text-secondary-600 text-sm">Pembengkakan Kaki</span>
-                                <span class="text-gray-500 font-semibold text-sm">✗ Tidak</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recommendations -->
-                    <div class="bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-400">
+                <!-- Recommendations -->
+                <div class="animate-fade-in animate-delay-400">
+                    <div class="bg-white rounded-2xl shadow-elegant p-6 h-full">
                         <h3 class="text-lg font-bold text-secondary-900 mb-4">Rekomendasi</h3>
                         <div class="space-y-4">
                             <div class="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -335,7 +308,7 @@
                                     </svg>
                                     <div>
                                         <h4 class="font-semibold text-red-800 mb-1">Segera Konsultasi Dokter</h4>
-                                        <p class="text-red-700 text-sm">Hasil menunjukkan probabilitas tinggi Hepatitis B. Diperlukan pemeriksaan medis lebih lanjut.</p>
+                                        <p class="text-red-700 text-sm">Hasil menunjukkan probabilitas penyakit hati. Diperlukan pemeriksaan medis lebih lanjut.</p>
                                     </div>
                                 </div>
                             </div>
@@ -347,7 +320,7 @@
                                     </svg>
                                     <div>
                                         <h4 class="font-semibold text-blue-800 mb-1">Pemeriksaan Lab</h4>
-                                        <p class="text-blue-700 text-sm">HBsAg, Anti-HBc, ALT/AST, Bilirubin</p>
+                                        <p class="text-blue-700 text-sm">Tes fungsi hati, darah lengkap, dan penanda virus</p>
                                     </div>
                                 </div>
                             </div>
@@ -358,8 +331,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <div>
-                                        <h4 class="font-semibold text-green-800 mb-1">Langkah Pencegahan</h4>
-                                        <p class="text-green-700 text-sm">Hindari alkohol, istirahat cukup, jaga kebersihan</p>
+                                        <h4 class="font-semibold text-green-800 mb-1">Penanganan</h4>
+                                        <p class="text-green-700 text-sm">{{ diagnosis.solusi_diagnosis|truncatewords:30 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -370,27 +343,16 @@
         </div>
     </section>
 
-    <!-- Disclaimer Section -->
-    <section class="py-8 bg-gray-50">
+    <!-- Action Buttons -->
+    <section class="py-8">
         <div class="container mx-auto px-4 md:px-8">
-            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 animate-fade-in">
-                <div class="flex items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600 mr-4 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div>
-                        <h3 class="text-lg font-bold text-amber-800 mb-2">Penting untuk Diperhatikan</h3>
-                        <p class="text-amber-700 mb-4">
-                            Hasil diagnosis ini merupakan analisis awal berdasarkan algoritma machine learning dan tidak dapat menggantikan diagnosis medis profesional. Hasil ini bertujuan untuk memberikan informasi awal dan panduan untuk langkah selanjutnya.
-                        </p>
-                        <ul class="text-amber-700 text-sm space-y-1">
-                            <li>• Hasil diagnosis memerlukan konfirmasi melalui pemeriksaan medis lebih lanjut</li>
-                            <li>• Konsultasikan hasil ini dengan dokter spesialis untuk diagnosis yang akurat</li>
-                            <li>• Lakukan pemeriksaan laboratorium sesuai rekomendasi dokter</li>
-                            <li>• Jangan melakukan pengobatan sendiri berdasarkan hasil ini</li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="{% url 'konsultasi' %}" class="px-6 py-3 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors">
+                    Ulangi Konsultasi
+                </a>
+                <a href="#" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors" onclick="window.print(); return false;">
+                    Cetak Hasil
+                </a>
             </div>
         </div>
     </section>
@@ -400,21 +362,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Animate progress bars on scroll
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const progressBars = entry.target.querySelectorAll('.progress-bar');
-                        progressBars.forEach(bar => {
-                            bar.style.animationPlayState = 'running';
-                        });
-                    }
-                });
+            // Set the current date
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.querySelectorAll('.current-date').forEach(el => {
+                el.textContent = now.toLocaleDateString('id-ID', options);
             });
 
-            document.querySelectorAll('.progress-bar').forEach(bar => {
-                observer.observe(bar.parentElement);
-            });
+            // Animate progress bars
+            setTimeout(function() {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    const width = parseFloat(getComputedStyle(bar).getPropertyValue('--progress-width'));
+                    bar.style.width = width + '%';
+                });
+            }, 100);
         });
     </script>
 </body>
