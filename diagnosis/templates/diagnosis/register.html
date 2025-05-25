@@ -94,25 +94,8 @@
 </head>
 <body class="bg-gray-50 font-sans text-secondary-800 antialiased">
     <div class="min-h-screen flex flex-col">
-        <!-- Header -->
-        <header class="bg-white shadow-sm">
-            <div class="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
-                <div class="flex items-center">
-                    <a href="index.html" class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="ml-2 text-xl font-semibold text-secondary-900">Konsultasi Gangguan Hati</span>
-                    </a>
-                </div>
-                <nav class="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
-                    <a href="index.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Beranda</a>
-                    <a href="konsultasi.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Konsultasi</a>
-                    <a href="riwayat.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Riwayat</a>
-                    <a href="tentang.html" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Tentang Kami</a>
-                </nav>
-            </div>
-        </header>
+        <!-- Include Header -->
+        {% include "diagnosis/static/header.html" %}
 
         <!-- Main Content -->
         <main class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -257,7 +240,7 @@
                         <div class="mt-6 text-center">
                             <p class="text-sm text-secondary-600">
                                 Sudah memiliki akun? 
-                                <a href="login.html" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+                                <a href="{% url 'login' %}" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
                                     Login sekarang
                                 </a>
                             </p>

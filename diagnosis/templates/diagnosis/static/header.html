@@ -1,0 +1,30 @@
+<!-- Header -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center">
+            <a href="{% url 'homepage' %}">
+                <div class="flex items-center mr-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-xl font-semibold text-secondary-900">GangguanHati</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                <a href="{% url 'homepage' %}" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Beranda</a>
+                <a href="{% url 'konsultasi' %}" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Konsultasi</a>
+                <a href="{% url 'riwayat' %}" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Riwayat</a>
+                <a href="{% url 'tentang' %}" class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Tentang Kami</a>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'login' %}" class="hidden md:block text-primary-600 font-medium hover:text-primary-700 transition-colors">Masuk</a>
+            <a href="{% url 'register' %}" class="bg-primary-600 text-white px-5 py-2.5 rounded-lg hover:bg-primary-700 transition-colors shadow-sm hover:shadow">Daftar</a>
+            <button class="md:hidden text-secondary-600 hover:text-primary-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</header>
