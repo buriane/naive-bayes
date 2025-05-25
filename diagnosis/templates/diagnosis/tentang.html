@@ -86,18 +86,27 @@
     {% include "diagnosis/static/header.html" %}
 
     <!-- Hero Section -->
-    <section class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-accent-700 text-white">
+    <section class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-accent-700 text-white min-h-[60vh]">
+        <!-- Background image overlay -->
         <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] opacity-20 bg-cover bg-center"></div>
         <div class="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-accent-700/90"></div>
+        
+        <!-- Content -->
         <div class="container mx-auto px-4 md:px-8 py-20 md:py-28 relative">
             <div class="max-w-3xl animate-fade-in">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">Tentang Sistem Konsultasi Penyakit Hati</h1>
-                <p class="text-xl md:text-2xl text-primary-100 mb-10 leading-relaxed">Aplikasi inovatif yang menggunakan teknologi Naive Bayes untuk membantu diagnosa awal penyakit hati dengan akurat dan cepat.</p>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                    Tentang Sistem Konsultasi Penyakit Hati
+                </h1>
+                <p class="text-xl md:text-2xl text-primary-100 mb-10 leading-relaxed">
+                    Aplikasi inovatif yang menggunakan teknologi Naive Bayes untuk membantu diagnosa awal penyakit hati dengan akurat dan cepat.
+                </p>
             </div>
         </div>
+        
+        <!-- SVG Wave yang diperbaiki - lebih kecil dan subtle -->
         <div class="absolute bottom-0 left-0 right-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="w-full h-auto">
-                <path fill="#ffffff" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" class="w-full h-auto">
+                <path fill="#ffffff" fill-opacity="1" d="M0,32L48,37.3C96,43,192,53,288,53.3C384,53,480,43,576,42.7C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
             </svg>
         </div>
     </section>
