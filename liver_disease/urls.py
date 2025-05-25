@@ -28,4 +28,6 @@ urlpatterns = [
     path ('tentang/', views.tentang, name='tentang'),  # <- Ini halaman tentang
     path ('hasil/', views.hasil, name='hasil'),  # <- Ini halaman hasil
     path ('riwayat/', views.riwayat, name='riwayat'),  # <- Ini halaman riwayat
+    path('testing/', views.testing_view, name='testing'),  # <- Ini halaman testing
+    
 ]

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from .models import Gejala
 
 # Create your views here.
 def homepage(request):
@@ -21,3 +22,8 @@ def hasil(request):
 
 def riwayat(request):
     return render(request, 'diagnosis/riwayat.html')
+
+def testing_view(request):
+    gejala_list = Gejala.objects.all()
+    return render(request, 'diagnosis/testing.html', {'gejala_list': gejala_list})
+
