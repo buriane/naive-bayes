@@ -4,13 +4,59 @@ from django.db import connection
 import numpy as np
 from datetime import date
 import math
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
+import uuid
+from functools import wraps
 
 # Create your views here.
+
+
 def homepage(request):
     return render(request, 'diagnosis/index.html')
 
+
 def login(request):
+    if request.method == 'POST':
+        # Get form data
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        
+        # Validation
+        if not email or not password:
+            messages.error(request, 'Email dan password harus diisi.')
+            return render(request, 'diagnosis/login.html')
+        
+        try:
+            # Check if user exists
+            user = Pengguna.objects.get(email=email)
+            
+            # Verify password
+            if check_password(password, user.password):
+                # Login successful - store user info in session
+                request.session['user_id'] = user.id_pengguna
+                request.session['user_name'] = user.nama_pengguna
+                request.session['user_email'] = user.email
+                request.session['user_role'] = user.role
+                
+                return redirect('homepage')
+            else:
+                messages.error(request, 'Email atau password tidak valid.')
+                return render(request, 'diagnosis/login.html')
+                
+        except Pengguna.DoesNotExist:
+            messages.error(request, 'Email atau password tidak valid.')
+            return render(request, 'diagnosis/login.html')
+        except Exception as e:
+            messages.error(request, f'Terjadi kesalahan: {str(e)}')
+            return render(request, 'diagnosis/login.html')
+    
     return render(request, 'diagnosis/login.html')
+
+def logout(request):
+    request.session.flush()
+    messages.success(request, 'Anda telah berhasil logout.')
+    return redirect('login')
 
 def konsultasi(request):
     gejala_list = Gejala.objects.all()
@@ -19,33 +65,97 @@ def konsultasi(request):
     })
 
 def register(request):
+    if request.method == 'POST':
+        # Get form data
+        first_name = request.POST.get('firstName', '').strip()
+        last_name = request.POST.get('lastName', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirmPassword', '')
+        terms = request.POST.get('terms')
+
+        # Validation
+        if not all([first_name, last_name, email, password]):
+            messages.error(request, 'Semua field harus diisi.')
+            return render(request, 'diagnosis/register.html')
+
+        if password != confirm_password:
+            messages.error(
+                request, 'Password dan konfirmasi password tidak cocok.')
+            return render(request, 'diagnosis/register.html')
+
+        if not terms:
+            messages.error(
+                request, 'Anda harus menyetujui syarat dan ketentuan.')
+            return render(request, 'diagnosis/register.html')
+
+        # Check if email already exists
+        if Pengguna.objects.filter(email=email).exists():
+            messages.error(
+                request, 'Email sudah terdaftar. Silakan gunakan email lain.')
+            return render(request, 'diagnosis/register.html')
+
+        try:
+            last_user = Pengguna.objects.order_by('-id_pengguna').first()
+            if last_user:
+                user_id = last_user.id_pengguna + 1
+            else:
+                user_id = 1  # First user
+
+            # Combine first and last name
+            full_name = f"{first_name} {last_name}"
+
+            # Hash password
+            hashed_password = make_password(password)
+
+            # Create new user
+            new_user = Pengguna(
+                id_pengguna=user_id,
+                nama_pengguna=full_name,
+                email=email,
+                password=hashed_password,
+                role='user'  # Default role for registered users
+            )
+            new_user.save()
+
+            messages.success(
+                request, 'Registrasi berhasil! Silakan login dengan akun Anda.')
+            return redirect('register')
+
+        except Exception as e:
+            messages.error(
+                request, f'Terjadi kesalahan saat registrasi: {str(e)}')
+            return render(request, 'diagnosis/register.html')
+
     return render(request, 'diagnosis/register.html')
+
 
 def tentang(request):
     return render(request, 'diagnosis/tentang.html')
 
+
 def hasil(request):
     if request.method != 'POST':
         return redirect('konsultasi')
-    
+
     # Get selected symptoms from form
     gejala_ids = request.POST.getlist('gejala')
     if not gejala_ids:
         return redirect('konsultasi')
-    
+
     # Convert to integers
     gejala_ids = [int(gid) for gid in gejala_ids]
-    
+
     # Get all diagnoses and gejala
     all_diagnoses = list(Diagnosis.objects.all())
     all_gejala = list(Gejala.objects.all())
-    
+
     # Prepare data for Naive Bayes calculation
     # 1. Get prior probabilities (how frequently each diagnosis occurs)
     # We'll use a SQL query to get this information from existing records
     diagnosis_counts = {}
     total_records = 0
-    
+
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT id_diagnosis, COUNT(*) as count 
@@ -56,21 +166,22 @@ def hasil(request):
             diagnosis_id, count = row
             diagnosis_counts[diagnosis_id] = count
             total_records += count
-    
+
     # If we don't have enough records, use uniform probability
     if total_records < len(all_diagnoses):
-        prior_probabilities = {d.id_diagnosis: 1/len(all_diagnoses) for d in all_diagnoses}
+        prior_probabilities = {d.id_diagnosis: 1 /
+                               len(all_diagnoses) for d in all_diagnoses}
     else:
-        prior_probabilities = {d.id_diagnosis: diagnosis_counts.get(d.id_diagnosis, 0.1)/total_records 
-                             for d in all_diagnoses}
-    
+        prior_probabilities = {d.id_diagnosis: diagnosis_counts.get(d.id_diagnosis, 0.1)/total_records
+                               for d in all_diagnoses}
+
     # 2. Calculate conditional probabilities P(symptom | disease)
     # We'll use Laplace smoothing to handle unseen data
     conditional_probs = {}
-    
+
     for diagnosis in all_diagnoses:
         conditional_probs[diagnosis.id_diagnosis] = {}
-        
+
         # For each symptom, calculate P(symptom | disease)
         for gejala in all_gejala:
             # Count how many times this symptom appears with this disease
@@ -81,43 +192,48 @@ def hasil(request):
                     WHERE ld.id_diagnosis = %s AND lg.id_gejala = %s AND lg.value = 1
                 """, [diagnosis.id_diagnosis, gejala.id_gejala])
                 symptom_count = cursor.fetchone()[0]
-            
+
             # Get total number of records for this disease
             disease_total = diagnosis_counts.get(diagnosis.id_diagnosis, 0)
-            
+
             # Apply Laplace smoothing (add 1 to numerator, add 2 to denominator)
-            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = (symptom_count + 1) / (disease_total + 2)
-    
+            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = (
+                symptom_count + 1) / (disease_total + 2)
+
     # 3. Calculate posterior probabilities using Naive Bayes
     results = []
     for diagnosis in all_diagnoses:
         # Start with prior probability (in log space to avoid underflow)
-        log_posterior = math.log(prior_probabilities.get(diagnosis.id_diagnosis, 1/len(all_diagnoses)))
-        
+        log_posterior = math.log(prior_probabilities.get(
+            diagnosis.id_diagnosis, 1/len(all_diagnoses)))
+
         # Multiply by conditional probabilities
         for gejala_id in gejala_ids:
             # If we have this symptom, use P(symptom=1|disease)
-            log_posterior += math.log(conditional_probs[diagnosis.id_diagnosis].get(gejala_id, 0.1))
-        
+            log_posterior += math.log(
+                conditional_probs[diagnosis.id_diagnosis].get(gejala_id, 0.1))
+
         # For symptoms we don't have, use P(symptom=0|disease) = 1 - P(symptom=1|disease)
         for gejala in all_gejala:
             if gejala.id_gejala not in gejala_ids:
-                log_posterior += math.log(1 - conditional_probs[diagnosis.id_diagnosis].get(gejala.id_gejala, 0.1))
-        
+                log_posterior += math.log(
+                    1 - conditional_probs[diagnosis.id_diagnosis].get(gejala.id_gejala, 0.1))
+
         # Convert back from log space
         posterior = math.exp(log_posterior)
         results.append((diagnosis, posterior))
-    
+
     # Sort by probability (highest first)
     results.sort(key=lambda x: x[1], reverse=True)
-    
+
     # Get the top diagnosis
     top_diagnosis, probability = results[0]
-    
+
     # Normalize the probability to 0-100%
     total_prob = sum(prob for _, prob in results)
-    probability_percentage = (probability / total_prob) * 100 if total_prob > 0 else 0
-    
+    probability_percentage = (probability / total_prob) * \
+        100 if total_prob > 0 else 0
+
     # Store the diagnosis result if user is logged in
     user_id = request.session.get('user_id', None)
     if user_id:
@@ -129,10 +245,10 @@ def hasil(request):
             probabilitas=probability_percentage
         )
         new_report.save()
-        
+
         # Get the ID of the new report
         report_id = new_report.id_laporandiagnosis
-        
+
         # Store all the symptoms
         for gejala_id in all_gejala:
             value = 1 if gejala_id.id_gejala in gejala_ids else 0
@@ -142,18 +258,29 @@ def hasil(request):
                 value=value
             )
             laporangejala.save()
-    
+
     # Get selected symptoms
     selected_gejala = Gejala.objects.filter(id_gejala__in=gejala_ids)
-    
+
     return render(request, 'diagnosis/hasil.html', {
         'diagnosis': top_diagnosis,
         'probability': probability_percentage,
         'selected_gejala': selected_gejala,
     })
 
+def login_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get('user_id'):
+            messages.error(request, 'Silakan login terlebih dahulu.')
+            return redirect('login')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+@login_required
 def riwayat(request):
     return render(request, 'diagnosis/riwayat.html')
+
 
 def testing_view(request):
     diagnosis_list = Diagnosis.objects.all()
