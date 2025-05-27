@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'liver_disease.wsgi.application'
 DATABASES = {
      'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'liver-disease',
+        'NAME': 'db_expertsystem',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
@@ -121,7 +121,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Tambahkan ini agar Django tahu di mana mencari static files saat development
+STATICFILES_DIRS = [
+    BASE_DIR / "diagnosis" / "static",
+]
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
