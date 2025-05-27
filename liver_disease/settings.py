@@ -76,16 +76,28 @@ WSGI_APPLICATION = 'liver_disease.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-     'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_expertsystem',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'NAME': 'liver-disease',
+        'USER': 'myuser',
+        'PASSWORD': 'mypassword',
+        'HOST': 'db',
         'PORT': '3306',
     }
 }
 
+
+# Ini yang sebelumnya, buang komen terus pakai aja kalau lagi develop terus gantian yang diatas yang dijadiin komen soalnya buat develop di docker
+# DATABASES = {
+   #  'default': {
+    #    'ENGINE': 'django.db.backends.mysql',
+     #   'NAME': 'liver-disease',
+      #  'USER': 'root',
+       # 'PASSWORD': '',
+       # 'HOST': 'localhost',
+       # 'PORT': '3306',
+   # }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
