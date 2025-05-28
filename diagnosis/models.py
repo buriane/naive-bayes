@@ -1,4 +1,7 @@
 from django.db import models
+from django.db import transaction
+from django.contrib.auth.hashers import make_password
+
 
 
 class Aturangejala(models.Model):
@@ -180,12 +183,23 @@ class Laporangejala(models.Model):
 
 
 class Pengguna(models.Model):
-    id_pengguna = models.BigIntegerField(primary_key=True)
+    id_pengguna = models.BigAutoField(primary_key=True)
     nama_pengguna = models.CharField(max_length=255, blank=True, null=True)
     email = models.CharField(unique=True, max_length=255, blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
     role = models.CharField(max_length=5, blank=True, null=True)
-
+    
     class Meta:
         managed = False
         db_table = 'pengguna'
+
+    def save(self, *args, **kwargs):
+        if not self.id_pengguna:
+            with transaction.atomic():
+                last = Pengguna.objects.select_for_update().order_by('-id_pengguna').first()
+                self.id_pengguna = (last.id_pengguna + 1) if last else 1
+
+        if self.password and not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password)
+
+        super().save(*args, **kwargs)
