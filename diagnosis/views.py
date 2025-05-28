@@ -234,30 +234,44 @@ def hasil(request):
     probability_percentage = (probability / total_prob) * \
         100 if total_prob > 0 else 0
 
-    # Store the diagnosis result if user is logged in
+    # Store the diagnosis result (for both logged in and not logged in users)
     user_id = request.session.get('user_id', None)
-    if user_id:
-        # Create a new diagnosis report
-        new_report = Laporandiagnosis(
-            id_pengguna_id=user_id,
-            id_diagnosis=top_diagnosis,
-            tanggal_diagnosis=date.today(),
-            probabilitas=probability_percentage
+    
+    # Generate auto-increment ID for the report
+    last_report = Laporandiagnosis.objects.order_by('-id_laporandiagnosis').first()
+    if last_report:
+        new_report_id = last_report.id_laporandiagnosis + 1
+    else:
+        new_report_id = 1
+    
+    # Create a new diagnosis report
+    # If user is logged in, use user_id, otherwise set to None
+    new_report = Laporandiagnosis(
+        id_laporandiagnosis=new_report_id,
+        id_pengguna_id=user_id,  # This will be None if user is not logged in
+        id_diagnosis=top_diagnosis,
+        tanggal_diagnosis=date.today(),
+        probabilitas=probability_percentage
+    )
+    new_report.save()
+
+    # Store all the symptoms
+    for gejala in all_gejala:
+        # Generate auto-increment ID for each symptom record
+        last_gejala_report = Laporangejala.objects.order_by('-id_laporangejala').first()
+        if last_gejala_report:
+            new_gejala_id = last_gejala_report.id_laporangejala + 1
+        else:
+            new_gejala_id = 1
+        
+        value = 1 if gejala.id_gejala in gejala_ids else 0
+        laporangejala = Laporangejala(
+            id_laporangejala=new_gejala_id,  # Add primary key
+            id_laporandiagnosis=new_report,
+            id_gejala_id=gejala.id_gejala,
+            value=value
         )
-        new_report.save()
-
-        # Get the ID of the new report
-        report_id = new_report.id_laporandiagnosis
-
-        # Store all the symptoms
-        for gejala_id in all_gejala:
-            value = 1 if gejala_id.id_gejala in gejala_ids else 0
-            laporangejala = Laporangejala(
-                id_laporandiagnosis=new_report,
-                id_gejala_id=gejala_id.id_gejala,
-                value=value
-            )
-            laporangejala.save()
+        laporangejala.save()
 
     # Get selected symptoms
     selected_gejala = Gejala.objects.filter(id_gejala__in=gejala_ids)
@@ -280,7 +294,6 @@ def login_required(view_func):
 @login_required
 def riwayat(request):
     return render(request, 'diagnosis/riwayat.html')
-
 
 def testing_view(request):
     diagnosis_list = Diagnosis.objects.all()

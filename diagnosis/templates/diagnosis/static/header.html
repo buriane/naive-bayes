@@ -18,13 +18,13 @@
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
                 <a href="{% url 'homepage' %}"
-                    class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Beranda</a>
+                    class="{% if request.resolver_match.url_name == 'homepage' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Beranda</a>
                 <a href="{% url 'konsultasi' %}"
-                    class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Konsultasi</a>
+                    class="{% if request.resolver_match.url_name == 'konsultasi' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Konsultasi</a>
                 <a href="{% url 'riwayat' %}"
-                    class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Riwayat</a>
+                    class="{% if request.resolver_match.url_name == 'riwayat' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Riwayat</a>
                 <a href="{% url 'tentang' %}"
-                    class="text-secondary-600 hover:text-primary-600 transition-colors pb-1 border-b-2 border-transparent hover:border-primary-500">Tentang
+                    class="{% if request.resolver_match.url_name == 'tentang' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Tentang
                     Kami</a>
             </nav>
         </div>
@@ -74,13 +74,13 @@
     <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-100 shadow-lg">
         <div class="container mx-auto px-4 py-3 space-y-3">
             <a href="{% url 'homepage' %}"
-                class="block py-2 text-secondary-600 hover:text-primary-600 transition-colors">Beranda</a>
+                class="{% if request.resolver_match.url_name == 'homepage' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Beranda</a>
             <a href="{% url 'konsultasi' %}"
-                class="block py-2 text-secondary-600 hover:text-primary-600 transition-colors">Konsultasi</a>
+                class="{% if request.resolver_match.url_name == 'konsultasi' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Konsultasi</a>
             <a href="{% url 'riwayat' %}"
-                class="block py-2 text-secondary-600 hover:text-primary-600 transition-colors">Riwayat</a>
+                class="{% if request.resolver_match.url_name == 'riwayat' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Riwayat</a>
             <a href="{% url 'tentang' %}"
-                class="block py-2 text-secondary-600 hover:text-primary-600 transition-colors">Tentang Kami</a>
+                class="{% if request.resolver_match.url_name == 'tentang' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Tentang Kami</a>
 
             {% if request.session.user_id %}
             <!-- Mobile - User is logged in -->
