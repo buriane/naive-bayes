@@ -1,8 +1,10 @@
 from django.contrib import admin
+
 from .models import (
     Diagnosis, Gejala, Pengguna, Laporandiagnosis, 
     Laporangejala, Detailaturan, Aturangejala
 )
+
 
 # Diagnosis Admin
 @admin.register(Diagnosis)
@@ -34,20 +36,15 @@ class GejalaAdmin(admin.ModelAdmin):
 # Pengguna Admin
 @admin.register(Pengguna)
 class PenggunaAdmin(admin.ModelAdmin):
+    exclude = ('id_pengguna',)
     list_display = ('id_pengguna', 'nama_pengguna', 'email', 'role')
     list_filter = ('role',)
     search_fields = ('nama_pengguna', 'email')
     list_per_page = 20
-    readonly_fields = ('password',)  # Make password read-only for security
-    
+
     fieldsets = (
         ('Informasi Pengguna', {
-            'fields': ('nama_pengguna', 'email', 'role')
-        }),
-        ('Security', {
-            'fields': ('password',),
-            'classes': ('collapse',),
-            'description': 'Password is hashed and cannot be edited directly'
+            'fields': ('nama_pengguna', 'email', 'role', 'password')
         }),
     )
 
