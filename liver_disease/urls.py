@@ -21,6 +21,7 @@ urlpatterns = [
     path('tentang/', views.tentang, name='tentang'),
     path('hasil/', views.hasil, name='hasil'),
     path('riwayat/', views.riwayat, name='riwayat'),
+    path('hasil/<int:laporan_id>/', views.detail_hasil, name='detail_hasil'),
     path('testing/', views.testing_view, name='testing'),
 ]
 

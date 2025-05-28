@@ -90,6 +90,41 @@
           width: var(--progress-width);
         }
       }
+      
+      /* Progress bar color animations */
+      @keyframes progressBarGreen {
+        from {
+          width: 0%;
+          background: linear-gradient(to right, #10b981, #059669);
+        }
+        to {
+          width: var(--progress-width);
+          background: linear-gradient(to right, #10b981, #059669);
+        }
+      }
+      
+      @keyframes progressBarYellow {
+        from {
+          width: 0%;
+          background: linear-gradient(to right, #f59e0b, #d97706);
+        }
+        to {
+          width: var(--progress-width);
+          background: linear-gradient(to right, #f59e0b, #d97706);
+        }
+      }
+      
+      @keyframes progressBarRed {
+        from {
+          width: 0%;
+          background: linear-gradient(to right, #ef4444, #dc2626);
+        }
+        to {
+          width: var(--progress-width);
+          background: linear-gradient(to right, #ef4444, #dc2626);
+        }
+      }
+
       .animate-fade-in {
         animation: fadeIn 0.5s ease-out forwards;
       }
@@ -112,11 +147,29 @@
         animation-delay: 0.5s;
       }
 
-      /* Progress bar animation */
+      /* Progress bar animation with dynamic colors */
       .progress-fill {
-        animation: progressBar 1.5s ease-out forwards;
+        animation-duration: 1.5s;
+        animation-timing-function: ease-out;
+        animation-fill-mode: forwards;
         animation-delay: 0.5s;
         width: 0;
+        transition: all 0.3s ease;
+      }
+      
+      .progress-fill.low-risk {
+        animation-name: progressBarGreen;
+        background: linear-gradient(to right, #10b981, #059669);
+      }
+      
+      .progress-fill.medium-risk {
+        animation-name: progressBarYellow;
+        background: linear-gradient(to right, #f59e0b, #d97706);
+      }
+      
+      .progress-fill.high-risk {
+        animation-name: progressBarRed;
+        background: linear-gradient(to right, #ef4444, #dc2626);
       }
 
       /* Progress bar styling */
@@ -141,6 +194,22 @@
         .print-page {
           page-break-inside: avoid;
         }
+      }
+      
+      /* Dynamic probability badge colors */
+      .probability-badge.low-risk {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      
+      .probability-badge.medium-risk {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      
+      .probability-badge.high-risk {
+        background-color: #fee2e2;
+        color: #991b1b;
       }
     </style>
   </head>
@@ -168,7 +237,7 @@
             </div>
             <div class="text-right">
               <p class="text-sm text-secondary-600 mb-1">Tanggal Diagnosis</p>
-              <p class="text-lg font-semibold text-secondary-900">{{ now|date:"d M Y" }}</p>
+              <p class="text-lg font-semibold text-secondary-900">{{ date }}</p>
             </div>
           </div>
         </div>
@@ -185,7 +254,7 @@
             <div class="bg-white rounded-2xl shadow-elegant p-8 mb-8 animate-fade-in animate-delay-100 print-page">
               <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-secondary-900">Hasil Diagnosis Utama</h2>
-                <div class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">{{ probability|floatformat:1 }}%</div>
+                <div id="probability-badge" class="px-3 py-1 rounded-full text-sm font-medium">{{ probability|floatformat:1 }}%</div>
               </div>
 
               <div class="grid md:grid-cols-2 gap-8 items-center">
@@ -212,22 +281,22 @@
                   <div class="mb-6">
                     <div class="flex justify-between items-center mb-2">
                       <span class="font-medium text-secondary-900">{{ diagnosis.nama_diagnosis }}</span>
-                      <span class="text-2xl font-bold text-primary-600">{{ probability|floatformat:1 }}%</span>
+                      <span id="probability-text" class="text-2xl font-bold">{{ probability|floatformat:1 }}%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-3">
-                      <div class="progress-fill bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full" style="--progress-width: {{ probability }}%"></div>
+                      <div id="progress-fill" class="progress-fill h-3 rounded-full" style="--progress-width: {{ probability }}%"></div>
                     </div>
                   </div>
 
                   <!-- Confidence Level -->
-                  <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-4">
+                  <div id="confidence-level" class="border rounded-lg p-4 mb-4">
                     <div class="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span class="font-medium text-primary-800"> {% if probability > 75 %} Tingkat Kepercayaan Tinggi {% elif probability > 50 %} Tingkat Kepercayaan Sedang {% else %} Tingkat Kepercayaan Rendah {% endif %} </span>
+                      <span id="confidence-text" class="font-medium"></span>
                     </div>
-                    <p class="text-primary-700 text-sm mt-1">Berdasarkan gejala yang dilaporkan, terdapat indikasi {{ diagnosis.nama_diagnosis }}</p>
+                    <p id="confidence-description" class="text-sm mt-1">Berdasarkan gejala yang dilaporkan, terdapat indikasi {{ diagnosis.nama_diagnosis }}</p>
                   </div>
 
                   <!-- Algorithm Info -->
@@ -337,8 +406,18 @@
     <section class="py-8">
       <div class="container mx-auto px-4 md:px-8">
         <div class="flex flex-wrap gap-4 justify-center">
-          <a href="{% url 'konsultasi' %}" class="px-6 py-3 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors"> Ulangi Konsultasi </a>
-          <a href="#" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors" onclick="window.print(); return false;"> Cetak Hasil </a>
+          {% if is_detail_view %}
+          <a href="{% url 'riwayat' %}" class="px-6 py-3 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors"> 
+            Kembali ke Riwayat 
+          </a>
+          {% else %}
+          <a href="{% url 'konsultasi' %}" class="px-6 py-3 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors"> 
+            Ulangi Konsultasi 
+          </a>
+          {% endif %}
+          <a href="#" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors" onclick="window.print(); return false;"> 
+            Cetak Hasil 
+          </a>
         </div>
       </div>
     </section>
@@ -348,6 +427,55 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // Get probability value from Django template
+        const probability = parseFloat("{{ probability|floatformat:1 }}");
+        
+        // Get DOM elements
+        const progressFill = document.getElementById('progress-fill');
+        const probabilityBadge = document.getElementById('probability-badge');
+        const probabilityText = document.getElementById('probability-text');
+        const confidenceLevel = document.getElementById('confidence-level');
+        const confidenceText = document.getElementById('confidence-text');
+        const confidenceDescription = document.getElementById('confidence-description');
+        
+        // Function to set colors and text based on probability
+        function setProbabilityStyles(prob) {
+          if (prob > 70) {
+            // High risk - Red
+            progressFill.classList.add('high-risk');
+            probabilityBadge.classList.add('probability-badge', 'high-risk');
+            probabilityText.classList.add('text-red-600');
+            confidenceLevel.classList.add('bg-red-50', 'border-red-200');
+            confidenceText.classList.add('text-red-800');
+            confidenceText.textContent = 'Tingkat Kepercayaan Tinggi - Risiko Tinggi';
+            confidenceDescription.classList.add('text-red-700');
+            confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi TINGGI {{ diagnosis.nama_diagnosis }} (${prob}%). Segera konsultasi dengan dokter!`;
+          } else if (prob >= 40) {
+            // Medium risk - Yellow/Orange
+            progressFill.classList.add('medium-risk');
+            probabilityBadge.classList.add('probability-badge', 'medium-risk');
+            probabilityText.classList.add('text-yellow-600');
+            confidenceLevel.classList.add('bg-yellow-50', 'border-yellow-200');
+            confidenceText.classList.add('text-yellow-800');
+            confidenceText.textContent = 'Tingkat Kepercayaan Sedang - Risiko Sedang';
+            confidenceDescription.classList.add('text-yellow-700');
+            confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi SEDANG {{ diagnosis.nama_diagnosis }} (${prob}%). Disarankan untuk pemeriksaan lebih lanjut.`;
+          } else {
+            // Low risk - Green
+            progressFill.classList.add('low-risk');
+            probabilityBadge.classList.add('probability-badge', 'low-risk');
+            probabilityText.classList.add('text-green-600');
+            confidenceLevel.classList.add('bg-green-50', 'border-green-200');
+            confidenceText.classList.add('text-green-800');
+            confidenceText.textContent = 'Tingkat Kepercayaan Rendah - Risiko Rendah';
+            confidenceDescription.classList.add('text-green-700');
+            confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi RENDAH {{ diagnosis.nama_diagnosis }} (${prob}%). Tetap monitor gejala dan konsultasi jika memburuk.`;
+          }
+        }
+        
+        // Apply styles based on probability
+        setProbabilityStyles(probability);
+        
         // Set the current date
         const now = new Date();
         const options = { year: "numeric", month: "long", day: "numeric" };
@@ -355,13 +483,10 @@
           el.textContent = now.toLocaleDateString("id-ID", options);
         });
 
-        // Animate progress bars
+        // Animate progress bars with delay
         setTimeout(function () {
-          document.querySelectorAll(".progress-fill").forEach((bar) => {
-            const width = parseFloat(getComputedStyle(bar).getPropertyValue("--progress-width"));
-            bar.style.width = width + "%";
-          });
-        }, 100);
+          progressFill.style.width = probability + "%";
+        }, 600);
       });
     </script>
   </body>

@@ -95,9 +95,29 @@
         .status-low { @apply bg-green-100 text-green-800 border-green-200; }
         .status-normal { @apply bg-blue-100 text-blue-800 border-blue-200; }
         
-        /* Filter tabs */
+        /* Filter tabs - Enhanced styling */
+        .filter-tab {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .filter-tab:hover {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            border-color: #93c5fd;
+            transform: translateY(-1px);
+        }
         .filter-tab.active {
-            @apply bg-primary-600 text-white border-primary-600;
+            background-color: #2563eb !important;
+            color: white !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .filter-tab.active:hover {
+            background-color: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
         }
     </style>
 </head>
@@ -139,7 +159,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-blue-100 text-sm">Total Diagnosis</p>
-                            <p class="text-3xl font-bold">7</p>
+                            <p class="text-3xl font-bold">{{ total_count }}</p>
                         </div>
                         <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,12 +168,12 @@
                         </div>
                     </div>
                 </div>
-
+    
                 <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-red-100 text-sm">Risiko Tinggi</p>
-                            <p class="text-3xl font-bold">2</p>
+                            <p class="text-3xl font-bold">{{ high_risk }}</p>
                         </div>
                         <div class="w-12 h-12 bg-red-400 rounded-full flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -162,12 +182,12 @@
                         </div>
                     </div>
                 </div>
-
+    
                 <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-2xl">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-yellow-100 text-sm">Risiko Sedang</p>
-                            <p class="text-3xl font-bold">3</p>
+                            <p class="text-3xl font-bold">{{ medium_risk }}</p>
                         </div>
                         <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -176,12 +196,12 @@
                         </div>
                     </div>
                 </div>
-
+    
                 <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-green-100 text-sm">Normal/Rendah</p>
-                            <p class="text-3xl font-bold">2</p>
+                            <p class="text-green-100 text-sm">Rendah</p>
+                            <p class="text-3xl font-bold">{{ low_risk }}</p>
                         </div>
                         <div class="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,24 +231,35 @@
                             Risiko Sedang
                         </button>
                         <button class="filter-tab px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-all" data-filter="low">
-                            Normal/Rendah
+                            Rendah
                         </button>
                     </div>
 
                     <!-- Search and Sort -->
                     <div class="flex flex-col sm:flex-row gap-4">
                         <div class="relative">
-                            <input type="text" placeholder="Cari diagnosis..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <input type="text" 
+                                id="searchInput"
+                                placeholder="Cari diagnosis..." 
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
+                            
+                            <!-- Clear button -->
+                            <button type="button" 
+                                    id="clearSearch" 
+                                    class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
                         </div>
-                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                            <option>Urutkan: Terbaru</option>
-                            <option>Urutkan: Terlama</option>
-                            <option>Urutkan: Risiko Tinggi</option>
-                            <option>Urutkan: Risiko Rendah</option>
-                        </select>
+                        
+                        <!-- Search results info -->
+                        <div id="searchInfo" class="text-sm text-gray-600 flex items-center hidden">
+                            <span id="searchResults"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -238,24 +269,34 @@
     <!-- Diagnosis History List -->
     <section class="py-8">
         <div class="container mx-auto px-4 md:px-8">
+            {% if riwayat_diagnosis %}
             <div class="space-y-6">
-                <!-- Diagnosis Entry 1 - Recent -->
-                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-200" data-risk="high">
+                {% for diagnosis in riwayat_diagnosis %}
+                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-200" 
+                     data-risk="{% if diagnosis.probabilitas >= 70 %}high{% elif diagnosis.probabilitas >= 40 %}medium{% else %}low{% endif %}">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <!-- Main Info -->
                         <div class="flex items-start space-x-4">
-                            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Hepatitis B" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" 
+                                 alt="{{ diagnosis.id_diagnosis.nama_diagnosis }}" 
+                                 class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
                             <div class="flex-grow">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="text-lg font-bold text-secondary-900">Hepatitis B</h3>
-                                    <span class="status-high px-3 py-1 rounded-full text-xs font-medium border">Risiko Tinggi</span>
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Terbaru</span>
+                                    <h3 class="text-lg font-bold text-secondary-900">{{ diagnosis.id_diagnosis.nama_diagnosis }}</h3>
+                                    {% if diagnosis.probabilitas >= 70 %}
+                                        <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium border border-red-200">Risiko Tinggi</span>
+                                    {% elif diagnosis.probabilitas >= 40 %}
+                                        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium border border-yellow-200">Risiko Sedang</span>
+                                    {% else %}
+                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium border border-green-200">Rendah</span>
+                                    {% endif %}
+                                    {% if forloop.first %}
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Terbaru</span>
+                                    {% endif %}
                                 </div>
-                                <p class="text-secondary-600 mb-2">Infeksi virus yang menyerang hati dan dapat menyebabkan penyakit akut maupun kronis</p>
+                                <p class="text-secondary-600 mb-2">{{ diagnosis.id_diagnosis.deskripsi_diagnosis|default:"Deskripsi diagnosis tidak tersedia" }}</p>
                                 <div class="flex items-center gap-4 text-sm text-secondary-500">
-                                    <span>📅 24 Mei 2025</span>
-                                    <span>🕒 14:33</span>
-                                    <span>🆔 DX-2025-0524-001</span>
+                                    <span>📅 {{ diagnosis.tanggal_diagnosis|date:"d M Y" }}</span>
                                 </div>
                             </div>
                         </div>
@@ -263,241 +304,235 @@
                         <!-- Probability and Actions -->
                         <div class="lg:text-right space-y-3">
                             <div>
-                                <div class="text-2xl font-bold text-red-600 mb-1">87.3%</div>
+                                <div class="text-2xl font-bold {% if diagnosis.probabilitas >= 70 %}text-red-600{% elif diagnosis.probabilitas >= 40 %}text-yellow-600{% else %}text-green-600{% endif %} mb-1">
+                                    {{ diagnosis.probabilitas|floatformat:1 }}%
+                                </div>
                                 <div class="w-24 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-red-500 h-2 rounded-full" style="width: 87.3%"></div>
+                                    <div class="{% if diagnosis.probabilitas >= 70 %}bg-red-500{% elif diagnosis.probabilitas >= 40 %}bg-yellow-500{% else %}bg-green-500{% endif %} h-2 rounded-full" 
+                                         style="width: {{ diagnosis.probabilitas }}%"></div>
                                 </div>
                             </div>
                             <div class="flex gap-2">
-                                <a href="hasil-diagnosis.html" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                                <a href="{% url 'detail_hasil' diagnosis.id_laporandiagnosis %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
                                     Lihat Detail
                                 </a>
-                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
-                                    Download
-                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Diagnosis Entry 2 -->
-                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-300" data-risk="medium">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div class="flex items-start space-x-4">
-                            <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Fatty Liver" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="text-lg font-bold text-secondary-900">Fatty Liver (Perlemakan Hati)</h3>
-                                    <span class="status-medium px-3 py-1 rounded-full text-xs font-medium border">Risiko Sedang</span>
-                                </div>
-                                <p class="text-secondary-600 mb-2">Penumpukan lemak berlebih di hati yang dapat menyebabkan peradangan</p>
-                                <div class="flex items-center gap-4 text-sm text-secondary-500">
-                                    <span>📅 18 Mei 2025</span>
-                                    <span>🕒 10:15</span>
-                                    <span>🆔 DX-2025-0518-003</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="lg:text-right space-y-3">
-                            <div>
-                                <div class="text-2xl font-bold text-yellow-600 mb-1">64.2%</div>
-                                <div class="w-24 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 64.2%"></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
-                                    Lihat Detail
-                                </button>
-                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
-                                    Download
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Diagnosis Entry 3 -->
-                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-400" data-risk="high">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div class="flex items-start space-x-4">
-                            <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Hepatitis A" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="text-lg font-bold text-secondary-900">Hepatitis A</h3>
-                                    <span class="status-high px-3 py-1 rounded-full text-xs font-medium border">Risiko Tinggi</span>
-                                </div>
-                                <p class="text-secondary-600 mb-2">Infeksi virus akut pada hati yang bersifat menular</p>
-                                <div class="flex items-center gap-4 text-sm text-secondary-500">
-                                    <span>📅 12 Mei 2025</span>
-                                    <span>🕒 16:42</span>
-                                    <span>🆔 DX-2025-0512-007</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="lg:text-right space-y-3">
-                            <div>
-                                <div class="text-2xl font-bold text-red-600 mb-1">78.9%</div>
-                                <div class="w-24 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-red-500 h-2 rounded-full" style="width: 78.9%"></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
-                                    Lihat Detail
-                                </button>
-                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
-                                    Download
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Diagnosis Entry 4 -->
-                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-500" data-risk="medium">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div class="flex items-start space-x-4">
-                            <img src="https://images.unsplash.com/photo-1715529282082-87e4334283e2?q=80&w=1972&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Liver Function Test" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="text-lg font-bold text-secondary-900">Gangguan Fungsi Hati Ringan</h3>
-                                    <span class="status-medium px-3 py-1 rounded-full text-xs font-medium border">Risiko Sedang</span>
-                                </div>
-                                <p class="text-secondary-600 mb-2">Gangguan fungsi hati tingkat ringan yang perlu pemantauan</p>
-                                <div class="flex items-center gap-4 text-sm text-secondary-500">
-                                    <span>📅 08 Mei 2025</span>
-                                    <span>🕒 09:30</span>
-                                    <span>🆔 DX-2025-0508-012</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="lg:text-right space-y-3">
-                            <div>
-                                <div class="text-2xl font-bold text-yellow-600 mb-1">52.7%</div>
-                                <div class="w-24 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 52.7%"></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
-                                    Lihat Detail
-                                </button>
-                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
-                                    Download
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Diagnosis Entry 5 -->
-                <div class="diagnosis-card bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-500" data-risk="low">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div class="flex items-start space-x-4">
-                            <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Normal Liver" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="text-lg font-bold text-secondary-900">Fungsi Hati Normal</h3>
-                                    <span class="status-normal px-3 py-1 rounded-full text-xs font-medium border">Normal</span>
-                                </div>
-                                <p class="text-secondary-600 mb-2">Hasil menunjukkan fungsi hati dalam kondisi normal dan sehat</p>
-                                <div class="flex items-center gap-4 text-sm text-secondary-500">
-                                    <span>📅 02 Mei 2025</span>
-                                    <span>🕒 11:20</span>
-                                    <span>🆔 DX-2025-0502-018</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="lg:text-right space-y-3">
-                            <div>
-                                <div class="text-2xl font-bold text-green-600 mb-1">15.3%</div>
-                                <div class="w-24 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: 15.3%"></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition-colors">
-                                    Lihat Detail
-                                </button>
-                                <button class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
-                                    Download
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- No Data Message -->
+            <div class="text-center py-16">
+                <div class="max-w-md mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-gray-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Riwayat Diagnosis</h3>
+                    <p class="text-gray-500 mb-6">Anda belum memiliki riwayat diagnosis. Mulai konsultasi untuk mendapatkan diagnosis kesehatan hati Anda.</p>
+                    <a href="{% url 'konsultasi' %}" class="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Mulai Konsultasi
+                    </a>
                 </div>
             </div>
-
-            <!-- Pagination -->
-            <div class="flex items-center justify-between mt-12 animate-fade-in">
-                <div class="text-sm text-secondary-600">
-                    Menampilkan 1-5 dari 7 diagnosis
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-secondary-600 hover:bg-gray-50 transition-colors" disabled>
-                        Sebelumnya
-                    </button>
-                    <button class="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">
-                        1
-                    </button>
-                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-secondary-600 hover:bg-gray-50 transition-colors">
-                        2
-                    </button>
-                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-secondary-600 hover:bg-gray-50 transition-colors">
-                        Selanjutnya
-                    </button>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </section>
 
     <!-- Include Footer -->
     {% include "diagnosis/static/footer.html" %}
 
-    <script>
-        // Filter functionality
+<script>
+        // Enhanced search functionality
         document.addEventListener('DOMContentLoaded', function() {
             const filterTabs = document.querySelectorAll('.filter-tab');
             const diagnosisCards = document.querySelectorAll('.diagnosis-card');
+            const searchInput = document.getElementById('searchInput');
+            const clearButton = document.getElementById('clearSearch');
+            const searchInfo = document.getElementById('searchInfo');
+            const searchResults = document.getElementById('searchResults');
             
+            let currentFilter = 'all';
+            
+            // Filter functionality with improved active state handling
             filterTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
                     // Remove active class from all tabs
-                    filterTabs.forEach(t => t.classList.remove('active'));
+                    filterTabs.forEach(t => {
+                        t.classList.remove('active');
+                    });
                     
                     // Add active class to clicked tab
                     this.classList.add('active');
                     
-                    const filter = this.getAttribute('data-filter');
+                    // Update current filter
+                    currentFilter = this.getAttribute('data-filter');
                     
-                    // Show/hide cards based on filter
-                    diagnosisCards.forEach(card => {
-                        if (filter === 'all' || card.getAttribute('data-risk') === filter) {
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
+                    // Apply both filter and search
+                    applyFilters();
+                    
+                    // Add visual feedback
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
                 });
             });
 
-            // Search functionality
-            const searchInput = document.querySelector('input[type="text"]');
+            // Search functionality with debounce
+            let searchTimeout;
             searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                    
+                    // Show/hide clear button
+                    if (this.value.trim()) {
+                        clearButton.classList.remove('hidden');
+                    } else {
+                        clearButton.classList.add('hidden');
+                    }
+                }, 300); // 300ms debounce
+            });
+
+            // Clear search
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                clearButton.classList.add('hidden');
+                searchInfo.classList.add('hidden');
+                applyFilters();
+                searchInput.focus();
+            });
+
+            function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let visibleCount = 0;
+                let filteredCount = 0;
                 
                 diagnosisCards.forEach(card => {
                     const title = card.querySelector('h3').textContent.toLowerCase();
                     const description = card.querySelector('p').textContent.toLowerCase();
+                    const cardRisk = card.getAttribute('data-risk');
                     
-                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    // Check if card matches search
+                    const matchesSearch = !searchTerm || 
+                                        title.includes(searchTerm) || 
+                                        description.includes(searchTerm);
+                    
+                    // Check if card matches filter
+                    const matchesFilter = currentFilter === 'all' || cardRisk === currentFilter;
+                    
+                    if (matchesSearch && matchesFilter) {
                         card.style.display = 'block';
+                        card.style.opacity = '1';
+                        visibleCount++;
                     } else {
                         card.style.display = 'none';
+                        card.style.opacity = '0';
+                    }
+                    
+                    // Count cards that match filter (for search info)
+                    if (matchesFilter) {
+                        filteredCount++;
                     }
                 });
-            });
+                
+                // Update search info
+                if (searchTerm) {
+                    searchResults.textContent = `Menampilkan ${visibleCount} dari ${filteredCount} hasil`;
+                    searchInfo.classList.remove('hidden');
+                } else {
+                    searchInfo.classList.add('hidden');
+                }
+                
+                // Show "no results" message if needed
+                showNoResultsMessage(visibleCount === 0 && (searchTerm || currentFilter !== 'all'));
+                
+                // Update filter tab counters (optional enhancement)
+                updateFilterCounters();
+            }
+            
+            function updateFilterCounters() {
+                filterTabs.forEach(tab => {
+                    const filter = tab.getAttribute('data-filter');
+                    let count = 0;
+                    
+                    if (filter === 'all') {
+                        count = diagnosisCards.length;
+                    } else {
+                        diagnosisCards.forEach(card => {
+                            if (card.getAttribute('data-risk') === filter) {
+                                count++;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            function showNoResultsMessage(show) {
+                let noResultsMsg = document.getElementById('noResultsMessage');
+                
+                if (show && !noResultsMsg) {
+                    // Create no results message
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'noResultsMessage';
+                    noResultsMsg.className = 'text-center py-16 animate-fade-in';
+                    noResultsMsg.innerHTML = `
+                        <div class="max-w-md mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Tidak ada hasil ditemukan</h3>
+                            <p class="text-gray-500 mb-4">Coba ubah kata kunci pencarian atau filter yang dipilih.</p>
+                            <button onclick="resetFilters()" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                                Reset Filter
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Insert after the diagnosis cards container
+                    const cardsContainer = document.querySelector('.space-y-6');
+                    if (cardsContainer) {
+                        cardsContainer.parentNode.insertBefore(noResultsMsg, cardsContainer.nextSibling);
+                    }
+                } else if (!show && noResultsMsg) {
+                    // Remove no results message
+                    noResultsMsg.remove();
+                }
+            }
+            
+            // Reset filters function
+            window.resetFilters = function() {
+                // Reset search
+                searchInput.value = '';
+                clearButton.classList.add('hidden');
+                searchInfo.classList.add('hidden');
+                
+                // Reset filter to "all"
+                filterTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-filter="all"]').classList.add('active');
+                currentFilter = 'all';
+                
+                // Apply filters
+                applyFilters();
+                
+                // Focus search input
+                searchInput.focus();
+            };
+            
+            // Initialize filter counters
+            updateFilterCounters();
+            
+            // Initial load - ensure first tab is active
+            if (!document.querySelector('.filter-tab.active')) {
+                document.querySelector('[data-filter="all"]').classList.add('active');
+            }
         });
     </script>
 </body>

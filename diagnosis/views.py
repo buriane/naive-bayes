@@ -280,6 +280,7 @@ def hasil(request):
         'diagnosis': top_diagnosis,
         'probability': probability_percentage,
         'selected_gejala': selected_gejala,
+        'date': date.today(),
     })
 
 def login_required(view_func):
@@ -293,7 +294,59 @@ def login_required(view_func):
 
 @login_required
 def riwayat(request):
-    return render(request, 'diagnosis/riwayat.html')
+    # Get current logged-in user ID from session
+    user_id = request.session.get('user_id')
+    
+    # Retrieve diagnosis history for the current user, ordered by date (newest first)
+    riwayat_diagnosis = Laporandiagnosis.objects.filter(
+        id_pengguna=user_id
+    ).select_related('id_diagnosis').order_by('-tanggal_diagnosis')
+    
+    # Calculate statistics
+    total_count = riwayat_diagnosis.count()
+    high_risk = riwayat_diagnosis.filter(probabilitas__gte=70).count()
+    medium_risk = riwayat_diagnosis.filter(probabilitas__gte=40, probabilitas__lt=70).count()
+    low_risk = riwayat_diagnosis.filter(probabilitas__lt=40).count()
+    
+    return render(request, 'diagnosis/riwayat.html', {
+        'riwayat_diagnosis': riwayat_diagnosis,
+        'total_count': total_count,
+        'high_risk': high_risk,
+        'medium_risk': medium_risk,
+        'low_risk': low_risk,
+    })
+    
+def detail_hasil(request, laporan_id):
+    try:
+        # Get the specific diagnosis report
+        laporan = Laporandiagnosis.objects.get(id_laporandiagnosis=laporan_id)
+        
+        # Get the symptoms for this diagnosis
+        gejala_reports = Laporangejala.objects.filter(
+            id_laporandiagnosis=laporan,
+            value=1  # Only get symptoms that were present
+        )
+        
+        # Get the actual Gejala objects
+        selected_gejala = []
+        for gejala_report in gejala_reports:
+            gejala = Gejala.objects.get(id_gejala=gejala_report.id_gejala_id)
+            selected_gejala.append(gejala)
+        
+        return render(request, 'diagnosis/hasil.html', {
+            'diagnosis': laporan.id_diagnosis,
+            'probability': laporan.probabilitas,
+            'selected_gejala': selected_gejala,
+            'date': laporan.tanggal_diagnosis,
+            'is_detail_view': True,  # Flag to indicate this is a detail view
+        })
+        
+    except Laporandiagnosis.DoesNotExist:
+        # If diagnosis report doesn't exist, redirect to riwayat
+        return redirect('riwayat')
+    except Exception as e:
+        # Handle any other errors
+        return redirect('riwayat')
 
 def testing_view(request):
     diagnosis_list = Diagnosis.objects.all()
