@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default:"Admin Panel" }} - Sistem Diagnosis Penyakit Hati</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e' },
+                        sidebar: { DEFAULT: '#ffffff', hover: '#f1f5f9', active: '#e0f2fe', text: '#334155', border: '#e2e8f0' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' },
+                        green: { 50: '#f0fdf4', 100: '#dcfce7', 600: '#16a34a' },
+                        amber: { 50: '#fffbeb', 600: '#d97706' },
+                        purple: { 50: '#faf5ff', 600: '#9333ea' },
+                        red: { 50: '#fff1f2', 100: '#ffe4e6', 600: '#dc2626', 700: '#b91c1c' }
+                    },
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'] },
+                    boxShadow: { 
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                     }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --sidebar-width-collapsed: 80px; /* Lebar sidebar saat diciutkan */
+            --header-height: 64px;
+            --sidebar-bg: #ffffff;
+            --sidebar-hover-bg: #f1f5f9;
+            --sidebar-active-bg: #e0f2fe;
+            --sidebar-text-color: #334155;
+            --sidebar-border-color: #e2e8f0;
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --body-bg: #f1f5f9;
+            --scrollbar-track-bg: #f1f5f9;
+            --scrollbar-thumb-bg: #cbd5e1;
+            --scrollbar-thumb-hover-bg: #94a3b8;
+            --tw-shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body { background-color: var(--body-bg); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-bg); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-bg); }
+        
+        /* Penyesuaian kelas lebar sidebar & margin konten utama */
+        #admin-sidebar.sidebar-expanded { width: var(--sidebar-width); }
+        #admin-sidebar.sidebar-collapsed { width: var(--sidebar-width-collapsed); }
+        #main-content.main-content-expanded { margin-left: var(--sidebar-width); }
+        #main-content.main-content-collapsed { margin-left: var(--sidebar-width-collapsed); }
+        
+        @media (max-width: 1023px) { /* lg breakpoint */
+            #main-content.main-content-expanded, #main-content.main-content-collapsed { margin-left: 0; }
+            #admin-sidebar.sidebar-mobile-hidden { transform: translateX(-100%); }
+            #admin-sidebar.sidebar-mobile-visible { transform: translateX(0); }
+        }
+        
+        .transition-all { transition: all 0.3s ease-in-out; }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: var(--tw-shadow-card-hover); }
+
+        .menu-item { color: var(--sidebar-text-color); }
+        .menu-item.active { background-color: var(--sidebar-active-bg); }
+        .menu-item.active .menu-icon-wrapper {
+            background-color: var(--primary-100);
+            color: var(--primary-700);
+        }
+        .menu-item.active .sidebar-text {
+             color: var(--primary-700);
+             font-weight: 500;
+        }
+        .menu-item:not(.active) .menu-icon-wrapper {
+            background-color: var(--primary-50);
+            color: var(--primary-600);
+        }
+        .menu-item:not(.active):hover { background-color: var(--sidebar-hover-bg); }
+        .menu-item:not(.active):hover .menu-icon-wrapper { background-color: var(--primary-100); }
+
+        #collapse-sidebar i { transition: transform 0.3s ease; }
+        #admin-sidebar.sidebar-collapsed #collapse-sidebar i { transform: rotate(180deg); }
+
+        /* Menyembunyikan teks menggunakan kelas Tailwind pada JS */
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased">
+    <div class="flex h-screen">
+        <aside id="admin-sidebar" class="sidebar-expanded fixed inset-y-0 left-0 z-20 flex flex-col bg-[var(--sidebar-bg)] border-r border-[var(--sidebar-border-color)] shadow-sm transition-all lg:translate-x-0 sidebar-mobile-hidden">
+            <div class="flex items-center h-[var(--header-height)] px-6 border-b border-[var(--sidebar-border-color)]">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-primary-500 h-8 w-8 rounded-md flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-white"></i>
+                    </div>
+                    <h1 class="text-lg font-semibold text-slate-800 sidebar-text">Admin Panel</h1>
+                </div>
+                <button id="collapse-sidebar" class="ml-auto text-slate-400 hover:text-slate-600 lg:block hidden p-1 rounded-md hover:bg-slate-100">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <nav class="flex-1 py-6 px-4 overflow-y-auto">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2 sidebar-text">Menu Utama</div>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="{% url 'admin_beranda' %}" class="menu-item flex items-center space-x-3 px-3 py-2.5 rounded-md font-medium group {% if active_section == 'beranda' %}active{% endif %}">
+                            <span class="menu-icon-wrapper p-1.5 rounded-md">
+                                <i class="fas fa-home fa-fw"></i>
+                            </span>
+                            <span class="sidebar-text">Beranda</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_riwayat' %}" class="menu-item flex items-center space-x-3 px-3 py-2.5 rounded-md font-medium group {% if active_section == 'riwayat' %}active{% endif %}">
+                            <span class="menu-icon-wrapper p-1.5 rounded-md">
+                                <i class="fas fa-history fa-fw"></i>
+                            </span>
+                            <span class="sidebar-text">Riwayat Pasien</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_gejala' %}" class="menu-item flex items-center space-x-3 px-3 py-2.5 rounded-md font-medium group {% if active_section == 'gejala' %}active{% endif %}">
+                            <span class="menu-icon-wrapper p-1.5 rounded-md">
+                                <i class="fas fa-stethoscope fa-fw"></i>
+                            </span>
+                            <span class="sidebar-text">Gejala</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_penyakit' %}" class="menu-item flex items-center space-x-3 px-3 py-2.5 rounded-md font-medium group {% if active_section == 'penyakit' %}active{% endif %}">
+                            <span class="menu-icon-wrapper p-1.5 rounded-md">
+                                <i class="fas fa-virus fa-fw"></i>
+                            </span>
+                            <span class="sidebar-text">Penyakit</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:index' %}" class="menu-item flex items-center space-x-3 px-3 py-2.5 rounded-md font-medium group">
+                            <span class="menu-icon-wrapper p-1.5 rounded-md">
+                                <i class="fas fa-cog fa-fw"></i>
+                            </span>
+                            <span class="sidebar-text">Django Admin</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="p-4 mt-auto border-t border-[var(--sidebar-border-color)]">
+                {% if request.session.user_name %}
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
+                        {{ request.session.user_name|slice:":1"|upper|default:"A" }}
+                    </div>
+                    <div class="sidebar-text">
+                        <p class="text-sm font-medium text-slate-800">{{ request.session.user_name }}</p>
+                        <p class="text-xs text-slate-500">{{ request.session.user_email|default:"admin@example.com"|truncatechars:20 }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {# TOMBOL KELUAR DENGAN PERINGATAN #}
+                <a href="{% url 'logout' %}" 
+                   id="logout-button"  {# Tambahkan ID untuk JavaScript #}
+                   class="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center justify-center space-x-2 transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-text">Keluar</span>
+                </a>
+            </div>
+        </aside>
+
+        <div id="main-content" class="flex-1 flex flex-col main-content-expanded transition-all">
+            <header class="h-[var(--header-height)] bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center">
+                    <button id="mobile-menu-button" class="mr-3 text-slate-400 hover:text-slate-600 lg:hidden">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-slate-800">{{ page_title|default:"Dasbor" }}</h2>
+                </div>
+                
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    {% if request.session.user_name %}
+                        <span class="hidden sm:inline text-slate-700 font-medium text-sm">
+                            {{ request.session.user_name }}
+                        </span>
+                        <div class="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold text-sm sm:text-base" title="{{ request.session.user_name }}">
+                            {{ request.session.user_name|slice:":1"|upper|default:"A" }}
+                        </div>
+                    {% else %}
+                        <span class="text-slate-700 font-medium text-sm">Admin</span>
+                        <div class="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold text-sm sm:text-base">
+                            A
+                        </div>
+                    {% endif %}
+                </div>
+            </header>
+
+            <main class="flex-1 p-4 sm:p-6 overflow-y-auto">
+                {% if messages %}
+                    <div class="mb-4 space-y-2">
+                    {% for message in messages %}
+                        <div class="p-4 rounded-md text-sm 
+                            {% if message.tags == 'error' %} bg-red-50 text-red-700 border border-red-200
+                            {% elif message.tags == 'success' %} bg-green-50 text-green-700 border border-green-200
+                            {% elif message.tags == 'warning' %} bg-amber-50 text-yellow-700 border border-yellow-200
+                            {% else %} bg-primary-50 text-primary-700 border border-primary-200 {% endif %}"
+                             role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% block admin_content %}
+                    {% if active_section == 'beranda' %}
+                        {% include 'diagnosis/admin_partials/beranda_content.html' %}
+                    {% elif active_section == 'riwayat' %}
+                        {% include 'diagnosis/admin_partials/riwayat_content.html' %}
+                    {% elif active_section == 'gejala' %}
+                        {% include 'diagnosis/admin_partials/gejala_content.html' %}
+                    {% elif active_section == 'penyakit' %}
+                        {% include 'diagnosis/admin_partials/penyakit_content.html' %}
+                    {% else %}
+                         <div class="bg-white p-6 rounded-lg shadow-card">
+                            <p class="text-center text-slate-500">Selamat datang di Panel Admin. Silakan pilih menu di samping.</p>
+                         </div>
+                    {% endif %}
+                {% endblock admin_content %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const adminSidebar = document.getElementById('admin-sidebar');
+            const collapseSidebarBtn = document.getElementById('collapse-sidebar'); // Tombol chevron
+            const mainContent = document.getElementById('main-content');
+            
+            // Mobile menu toggle (ini untuk tombol hamburger)
+            if (mobileMenuButton && adminSidebar) {
+                mobileMenuButton.addEventListener('click', () => {
+                    adminSidebar.classList.toggle('sidebar-mobile-hidden');
+                    adminSidebar.classList.toggle('sidebar-mobile-visible');
+                });
+            }
+
+            // Sidebar collapse functionality (ini untuk tombol chevron di desktop)
+            let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+            function applySidebarState() {
+                const sidebarTexts = adminSidebar.querySelectorAll('.sidebar-text');
+                const menuIconWrappers = adminSidebar.querySelectorAll('.menu-icon-wrapper');
+
+                if (sidebarCollapsed) {
+                    adminSidebar.classList.remove('sidebar-expanded');
+                    adminSidebar.classList.add('sidebar-collapsed'); // CSS akan memutar ikon chevron di sini
+                    mainContent.classList.remove('main-content-expanded');
+                    mainContent.classList.add('main-content-collapsed');
+                    // Tidak perlu mengubah innerHTML ikon lagi
+                    
+                    sidebarTexts.forEach(el => { el.classList.add('lg:hidden', 'opacity-0'); }); 
+                    menuIconWrappers.forEach(el => { 
+                        el.classList.add('mx-auto');
+                        el.parentElement.classList.add('justify-center');
+                    });
+                } else {
+                    adminSidebar.classList.add('sidebar-expanded');
+                    adminSidebar.classList.remove('sidebar-collapsed'); // CSS akan mengembalikan rotasi ikon chevron
+                    mainContent.classList.add('main-content-expanded');
+                    mainContent.classList.remove('main-content-collapsed');
+                    // Tidak perlu mengubah innerHTML ikon lagi
+                    
+                    sidebarTexts.forEach(el => { el.classList.remove('lg:hidden', 'opacity-0'); });
+                    menuIconWrappers.forEach(el => { 
+                        el.classList.remove('mx-auto'); 
+                        el.parentElement.classList.remove('justify-center');
+                    });
+                }
+            }
+
+            if (collapseSidebarBtn && mainContent && adminSidebar) {
+                applySidebarState(); 
+
+                collapseSidebarBtn.addEventListener('click', () => {
+                    sidebarCollapsed = !sidebarCollapsed;
+                    localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+                    applySidebarState(); // Panggil fungsi untuk menerapkan perubahan kelas (dan rotasi CSS)
+                });
+            }
+
+            // Click outside to close mobile sidebar
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth < 1024 && adminSidebar) { 
+                    const isClickInsideSidebar = adminSidebar.contains(event.target);
+                    const isClickOnMobileButton = mobileMenuButton && mobileMenuButton.contains(event.target);
+
+                    if (!isClickInsideSidebar && !isClickOnMobileButton && adminSidebar.classList.contains('sidebar-mobile-visible')) {
+                        adminSidebar.classList.add('sidebar-mobile-hidden');
+                        adminSidebar.classList.remove('sidebar-mobile-visible');
+                    }
+                }
+            });
+
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (event) {
+                    // Mencegah aksi default dari link (langsung redirect)
+                    event.preventDefault(); 
+                    
+                    // Tampilkan dialog konfirmasi
+                    if (confirm('Anda yakin ingin keluar?')) {
+                        // Jika pengguna mengklik "OK", lanjutkan ke URL logout
+                        window.location.href = this.href;
+                    } else {
+                        // Jika pengguna mengklik "Cancel", tidak terjadi apa-apa
+                        return false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

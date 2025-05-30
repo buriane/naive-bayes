@@ -1,0 +1,73 @@
+{% comment %}
+Data yang diharapkan dari view admin_gejala:
+- page_obj (objek paginator untuk Gejala)
+- search_query (string)
+{% endcomment %}
+
+<div class="bg-white rounded-lg shadow-card p-4 sm:p-6 animate-fadeIn">
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h3 class="text-xl font-semibold text-slate-700">Manajemen Data Gejala</h3>
+        <div class="flex items-center space-x-3 w-full sm:w-auto">
+            <form method="GET" action="{% url 'admin_gejala' %}" class="flex-grow sm:flex-grow-0">
+                <div class="relative">
+                    <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Cari ID atau Nama Gejala..."
+                           class="w-full sm:w-64 pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-slate-400"></i>
+                    </div>
+                </div>
+            </form>
+            <a href="{% url 'admin:diagnosis_gejala_add' %}" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all flex items-center space-x-2 whitespace-nowrap">
+                <i class="fas fa-plus"></i>
+                <span>Tambah Gejala</span>
+            </a>
+        </div>
+    </div>
+
+    {% if page_obj.object_list %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID Gejala</th> {# Sesuaikan dengan field Anda #}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama Gejala</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-200">
+                {% for gejala_item in page_obj %} {# Ganti nama variabel loop #}
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900">{{ gejala_item.id_gejala }}</td> {# Sesuaikan dengan field Anda #}
+                    <td class="px-6 py-4 text-slate-700">{{ gejala_item.nama_gejala }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center space-x-3">
+                        <a href="{% url 'admin:diagnosis_gejala_change' gejala_item.pk %}" class="text-amber-500 hover:text-amber-700 transition-colors" title="Edit">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'admin:diagnosis_gejala_delete' gejala_item.pk %}" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus" onclick="return confirm('Anda yakin ingin menghapus gejala \'{{ gejala_item.nama_gejala|escapejs }}\'?')">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        {% include 'diagnosis/admin_partials/pagination.html' with page_obj=page_obj search_query=search_query %}
+    {% endif %}
+
+    {% else %}
+     <div class="text-center py-10">
+        <i class="fas fa-folder-open fa-3x text-slate-300 mb-3"></i>
+        <p class="text-slate-500">
+            {% if search_query %}
+                Tidak ada gejala yang cocok dengan pencarian "{{ search_query }}".
+            {% else %}
+                Belum ada data gejala.
+            {% endif %}
+            <a href="{% url 'admin:diagnosis_gejala_add' %}" class="text-primary-600 hover:underline ml-1">Tambah Baru</a>
+        </p>
+    </div>
+    {% endif %}
+</div>
