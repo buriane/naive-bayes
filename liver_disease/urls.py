@@ -22,6 +22,7 @@ urlpatterns = [
     # --- URL Admin Panel Kustom ---
     path('admin-panel/', diagnosis_views.admin_beranda, name='admin_beranda'),
     path('admin-panel/riwayat/', diagnosis_views.admin_riwayat, name='admin_riwayat'),
+    path('admin-panel/pengguna/', diagnosis_views.admin_pengguna, name='admin_pengguna'),
     path('admin-panel/gejala/', diagnosis_views.admin_gejala, name='admin_gejala'),
     path('admin-panel/penyakit/', diagnosis_views.admin_penyakit, name='admin_penyakit'),
 ]

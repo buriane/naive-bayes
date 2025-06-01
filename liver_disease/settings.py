@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'liver_disease.wsgi.application'
 DATABASES = {
     'default': {
        'ENGINE': 'django.db.backends.mysql',
-       'NAME': 'liver-disease',
+       'NAME': 'db_expertsystem',
        'USER': 'root',
        'PASSWORD': '',
        'HOST': 'localhost',
