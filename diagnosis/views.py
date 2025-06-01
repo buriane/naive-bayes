@@ -44,7 +44,7 @@ def login(request):
                 request.session['user_email'] = user.email
                 request.session['user_role'] = user.role
 
-                if user.role == 'admin':
+                if user.role in ['admin', 'pakar']:
                     return redirect('admin_beranda')
                 else:
                     return redirect('homepage')
@@ -331,15 +331,79 @@ def role_required(allowed_roles):
 @login_required_custom
 @role_required(['admin', 'pakar'])
 def admin_beranda(request):
+    # Get diagnosis distribution data
+    diagnosis_stats = Laporandiagnosis.objects.values(
+        'id_diagnosis__nama_diagnosis'
+    ).annotate(
+        count=Count('id_diagnosis')
+    ).order_by('-count')[:5]  # Top 5 diagnoses
+
+    # Get recent diagnosis trends (last 7 days)
+    today = timezone.now().date()
+    seven_days_ago = today - timezone.timedelta(days=6)
+    
+    daily_diagnoses = Laporandiagnosis.objects.filter(
+        tanggal_diagnosis__gte=seven_days_ago
+    ).values(
+        'tanggal_diagnosis'
+    ).annotate(
+        count=Count('id_laporandiagnosis')
+    ).order_by('tanggal_diagnosis')
+
+    # Fill in missing dates with zero counts
+    date_counts = {str(date): 0 for date in [seven_days_ago + timezone.timedelta(days=x) for x in range(7)]}
+    for item in daily_diagnoses:
+        date_counts[str(item['tanggal_diagnosis'])] = item['count']
+
+    # Get user statistics
+    total_users = Pengguna.objects.count()
+    total_diagnoses = Laporandiagnosis.objects.count()
+    total_gejala = Gejala.objects.count()
+    total_penyakit = Diagnosis.objects.count()
+
+    # Get recent diagnoses
+    recent_diagnoses = Laporandiagnosis.objects.select_related(
+        'id_pengguna', 'id_diagnosis'
+    ).order_by('-tanggal_diagnosis')[:5]
+
     context = {
         'page_title': 'Beranda Admin',
         'active_section': 'beranda',
+        'diagnosis_stats': list(diagnosis_stats),
+        'daily_diagnoses': {
+            'dates': list(date_counts.keys()),
+            'counts': list(date_counts.values())
+        },
+        'stats': {
+            'total_users': total_users,
+            'total_diagnoses': total_diagnoses,
+            'total_gejala': total_gejala,
+            'total_penyakit': total_penyakit
+        },
+        'recent_diagnoses': recent_diagnoses
     }
     return render(request, 'diagnosis/admin_base.html', context)
 
 @login_required_custom
 @role_required(['admin'])
 def admin_riwayat(request):
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        try:
+            laporan_id = request.POST.get('laporan_id')
+            laporan = Laporandiagnosis.objects.get(id_laporandiagnosis=laporan_id)
+            
+            # Delete related gejala reports first
+            Laporangejala.objects.filter(id_laporandiagnosis=laporan).delete()
+            # Then delete the diagnosis report
+            laporan.delete()
+            
+            messages.success(request, 'Riwayat diagnosis berhasil dihapus.')
+        except Laporandiagnosis.DoesNotExist:
+            messages.error(request, 'Riwayat diagnosis tidak ditemukan.')
+        except Exception as e:
+            messages.error(request, f'Gagal menghapus riwayat diagnosis: {str(e)}')
+        return redirect('admin_riwayat')
+
     riwayat_list = Laporandiagnosis.objects.all().select_related(
         'id_diagnosis', 'id_pengguna'
     ).order_by('-tanggal_diagnosis')
@@ -446,7 +510,12 @@ def admin_gejala(request):
                 if Gejala.objects.filter(kode_gejala=kode).exists():
                     messages.error(request, 'Kode gejala sudah ada.')
                 else:
+                    # Get the last ID and increment it
+                    last_gejala = Gejala.objects.order_by('-id_gejala').first()
+                    new_id = (last_gejala.id_gejala + 1) if last_gejala else 1
+                    
                     new_gejala = Gejala(
+                        id_gejala=new_id,
                         kode_gejala=kode,
                         nama_gejala=nama,
                         pertanyaan_gejala=pertanyaan
@@ -509,7 +578,12 @@ def admin_penyakit(request):
                 solusi = request.POST.get('solusi_diagnosis')
                 gambar = request.POST.get('gambar_diagnosis')
                 
+                # Get the last ID and increment it
+                last_penyakit = Diagnosis.objects.order_by('-id_diagnosis').first()
+                new_id = (last_penyakit.id_diagnosis + 1) if last_penyakit else 1
+                
                 new_penyakit = Diagnosis(
+                    id_diagnosis=new_id,
                     nama_diagnosis=nama,
                     deskripsi_diagnosis=deskripsi,
                     solusi_diagnosis=solusi,

@@ -4,84 +4,86 @@ Data yang diharapkan dari view admin_riwayat:
 - search_query (string, query pencarian saat ini)
 {% endcomment %}
 
-<div class="bg-white rounded-lg shadow-card p-4 sm:p-6 animate-fadeIn">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h3 class="text-xl font-semibold text-slate-700">Riwayat Konsultasi Pasien</h3>
-        <form method="GET" action="{% url 'admin_riwayat' %}" class="w-full sm:w-auto">
-            <div class="relative">
-                <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Cari ID, Nama, Penyakit..."
-                       class="w-full sm:w-64 pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-search text-slate-400"></i>
-                </div>
+<div class="bg-white rounded-lg shadow-card">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-slate-800">Riwayat Diagnosis</h3>
+        </div>
+
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama Pasien</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Diagnosis</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tanggal</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Probabilitas</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    {% for riwayat in page_obj %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">#{{ riwayat.id_laporandiagnosis }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ riwayat.id_pengguna.nama_pengguna|default:"Anonim" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ riwayat.id_diagnosis.nama_diagnosis }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ riwayat.tanggal_diagnosis|date:"d M Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if riwayat.probabilitas >= 80 %}bg-green-100 text-green-800
+                                {% elif riwayat.probabilitas >= 60 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ riwayat.probabilitas }}%
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{% url 'detail_hasil' riwayat.id_laporandiagnosis %}" 
+                               class="text-primary-600 hover:text-primary-900">
+                                <i class="fas fa-eye"></i> Detail
+                            </a>
+                            <form method="POST" action="{% url 'admin_riwayat' %}" class="inline" onsubmit="return confirmDelete(event)">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="laporan_id" value="{{ riwayat.id_laporandiagnosis }}">
+                                <button type="submit" class="text-red-600 hover:text-red-900 ml-2">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include 'diagnosis/admin_partials/pagination.html' %}
+
+        {% else %}
+        <div class="text-center py-8">
+            <div class="text-slate-400 mb-2">
+                <i class="fas fa-history text-4xl"></i>
             </div>
-        </form>
+            <p class="text-slate-500">Belum ada riwayat diagnosis.</p>
+        </div>
+        {% endif %}
     </div>
-
-    {% if page_obj.object_list %}
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID Laporan</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Pasien</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tanggal</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Diagnosis</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Probabilitas</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-slate-200">
-                {% for laporan in page_obj %}
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900">{{ laporan.id_laporandiagnosis }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold text-xs">
-                                {{ laporan.id_pengguna.nama_pengguna|slice:":1"|upper|default:"N" }}
-                            </div>
-                            <div class="ml-3">
-                                <p class="font-medium text-slate-800">{{ laporan.id_pengguna.nama_pengguna|default:"Anonim"|truncatechars:20 }}</p>
-                                {% if laporan.id_pengguna %}
-                                <p class="text-xs text-slate-500">ID Pengguna: {{ laporan.id_pengguna.id_pengguna }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-slate-700">{{ laporan.tanggal_diagnosis|date:"d M Y" }}</td> {# Format tanggal tanpa waktu #}
-                    <td class="px-6 py-4 whitespace-nowrap font-medium text-primary-700">{{ laporan.id_diagnosis.nama_diagnosis|truncatechars:25 }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-slate-700 text-center">{{ laporan.probabilitas|floatformat:1 }}%</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
-                        <a href="{% url 'detail_hasil' laporan.id_laporandiagnosis %}" class="text-primary-600 hover:text-primary-800 transition-colors" title="Lihat Detail">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{% url 'admin:diagnosis_laporandiagnosis_change' laporan.pk %}" class="text-amber-500 hover:text-amber-700 transition-colors" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{% url 'admin:diagnosis_laporandiagnosis_delete' laporan.pk %}" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus" onclick="return confirm('Anda yakin ingin menghapus laporan ini?')">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {% if page_obj.has_other_pages %}
-        {% include 'diagnosis/admin_partials/pagination.html' with page_obj=page_obj search_query=search_query %}
-    {% endif %}
-
-    {% else %}
-    <div class="text-center py-10">
-        <i class="fas fa-folder-open fa-3x text-slate-300 mb-3"></i>
-        <p class="text-slate-500">
-            {% if search_query %}
-                Tidak ada riwayat konsultasi yang cocok dengan pencarian "{{ search_query }}".
-            {% else %}
-                Belum ada riwayat konsultasi.
-            {% endif %}
-        </p>
-    </div>
-    {% endif %}
 </div>
+
+<script>
+function confirmDelete(event) {
+    event.preventDefault();
+    const form = event.target;
+    if (confirm('Apakah Anda yakin ingin menghapus riwayat diagnosis ini?')) {
+        form.submit();
+    }
+    return false;
+}
+</script>
