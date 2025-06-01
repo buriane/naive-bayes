@@ -134,16 +134,25 @@ def hasil(request):
     all_diagnoses = list(Diagnosis.objects.all())
     all_gejala = list(Gejala.objects.all())
 
-    # Define knowledge base rules
+    # Define knowledge base rules (This will now also serve as static data for Naive Bayes 'nc')
+    # Pastikan ID Gejala (angka) di sini sesuai dengan ID_gejala di database Anda.
+    # Nama diagnosis harus persis sama dengan nama_diagnosis di model Diagnosis Anda.
     knowledge_base = {
-        'Hepatitis A': [1, 3, 4, 5, 7],  # G01, G03, G04, G05, G07
-        'Hepatitis B': [3, 6, 7, 8, 9],  # G03, G06, G07, G08, G09
-        'Hepatitis C': [1, 2, 3, 10],    # G01, G02, G03, G10
-        'Sirosis Hati': [7, 11, 12],     # G07, G11, G12
-        'Kolestatis': [8, 9, 13]         # G08, G09, G13
+        'Hepatitis A': [1, 3, 4, 5, 7],    # G01, G03, G04, G05, G07
+        'Hepatitis B': [3, 6, 7, 8, 9],    # G03, G06, G07, G08, G09
+        'Hepatitis C': [1, 2, 3, 10],      # G01, G02, G03, G10
+        'Sirosis Hati': [7, 11, 12],       # G07, G11, G12
+        'Kolestasis': [8, 9, 13],          # G08, G09, G13
+        # Tambahkan penyakit lain sesuai PDF jika belum ada di sini,
+        # misalnya 'Kanker Hati' dan 'Perlemakan Hati'
+        'Kanker Hati': [1, 14, 15, 16],    # Contoh: Sesuaikan dengan gejala kanker hati
+        'Perlemakan Hati': [1, 17, 18],    # Contoh: Sesuaikan dengan gejala perlemakan hati
     }
 
-    # Calculate rule-based scores first
+
+    # --- START OF HYBRID (RULE-BASED + STATIC NAIVE BAYES) CALCULATION ---
+
+    # Calculate rule-based scores (This part remains unchanged)
     rule_scores = {}
     for diagnosis in all_diagnoses:
         diagnosis_name = diagnosis.nama_diagnosis
@@ -158,51 +167,42 @@ def hasil(request):
         else:
             rule_scores[diagnosis.id_diagnosis] = 0
 
-    # Prepare data for Naive Bayes calculation
-    # 1. Get prior probabilities (how frequently each diagnosis occurs)
-    diagnosis_counts = {}
-    total_records = 0
+    # PDF-SPECIFIC CONSTANTS (from your PDF report)
+    # "Nilai gejala untuk setiap kelas (n) = 1"
+    N_VALUE_FOR_EACH_CLASS = 1
+    # "Nilai gejala dibagi banyak kelas penyakit (p) = 1/6 = 0,1667"
+    P_VALUE = 0.1667
+    # "Total gejala (m) = 18"
+    TOTAL_SYMPTOMS_M = 18 # Total jumlah gejala yang mungkin
 
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT id_diagnosis, COUNT(*) as count 
-            FROM laporandiagnosis 
-            GROUP BY id_diagnosis
-        """)
-        for row in cursor.fetchall():
-            diagnosis_id, count = row
-            diagnosis_counts[diagnosis_id] = count
-            total_records += count
+    # 1. Perhitungan Prior Probability (P(disease))
+    # Mengikuti PDF: Prior Probability adalah uniform (1/jumlah_total_diagnosis)
+    total_diagnoses_count = len(all_diagnoses)
+    prior_probabilities = {d.id_diagnosis: 1/total_diagnoses_count for d in all_diagnoses}
 
-    # If we don't have enough records, use uniform probability
-    if total_records < len(all_diagnoses):
-        prior_probabilities = {d.id_diagnosis: 1 / len(all_diagnoses) for d in all_diagnoses}
-    else:
-        prior_probabilities = {d.id_diagnosis: diagnosis_counts.get(d.id_diagnosis, 0.1)/total_records
-                               for d in all_diagnoses}
-
-    # 2. Calculate conditional probabilities P(symptom | disease)
+    # 2. Perhitungan Conditional Probability (P(symptom|disease))
     conditional_probs = {}
 
     for diagnosis in all_diagnoses:
         conditional_probs[diagnosis.id_diagnosis] = {}
-
-        # For each symptom, calculate P(symptom | disease)
+        diagnosis_name = diagnosis.nama_diagnosis # Get diagnosis name for knowledge_base lookup
+        
         for gejala in all_gejala:
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT COUNT(*) FROM laporangejala lg
-                    JOIN laporandiagnosis ld ON lg.id_laporanDiagnosis = ld.id_laporanDiagnosis
-                    WHERE ld.id_diagnosis = %s AND lg.id_gejala = %s AND lg.value = 1
-                """, [diagnosis.id_diagnosis, gejala.id_gejala])
-                symptom_count = cursor.fetchone()[0]
-
-            # Get total number of records for this disease
-            disease_total = diagnosis_counts.get(diagnosis.id_diagnosis, 0)
-
-            # Apply Laplace smoothing
-            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = (
-                symptom_count + 1) / (disease_total + 2)
+            # --- Perbaikan: Penentuan nc menggunakan knowledge_base statis ---
+            # nc = 1 jika gejala ini ada dalam daftar gejala untuk penyakit ini di knowledge_base
+            # nc = 0 jika tidak ada
+            if diagnosis_name in knowledge_base and gejala.id_gejala in knowledge_base[diagnosis_name]:
+                nc = 1
+            else:
+                nc = 0
+            # --- END Perbaikan ---
+            
+            # Use the exact formula from the PDF for P(ai|vj)
+            # P(ai|vj) = (nc + m * p) / (n + m)
+            prob_symptom_given_disease = (nc + (TOTAL_SYMPTOMS_M * P_VALUE)) / \
+                                         (N_VALUE_FOR_EACH_CLASS + TOTAL_SYMPTOMS_M)
+            
+            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = prob_symptom_given_disease
 
     # 3. Calculate Naive Bayes probabilities
     nb_results = []
@@ -211,16 +211,23 @@ def hasil(request):
         log_posterior = math.log(prior_probabilities.get(
             diagnosis.id_diagnosis, 1/len(all_diagnoses)))
 
-        # Multiply by conditional probabilities
-        for gejala_id in gejala_ids:
-            log_posterior += math.log(
-                conditional_probs[diagnosis.id_diagnosis].get(gejala_id, 0.1))
-
-        # For symptoms we don't have, use P(symptom=0|disease)
-        for gejala in all_gejala:
-            if gejala.id_gejala not in gejala_ids:
-                log_posterior += math.log(
-                    1 - conditional_probs[diagnosis.id_diagnosis].get(gejala.id_gejala, 0.1))
+        # Multiply by conditional probabilities ONLY for the symptoms the patient has,
+        # as demonstrated in the PDF's calculation examples.
+        for patient_gejala_id in gejala_ids:
+            prob = conditional_probs[diagnosis.id_diagnosis].get(patient_gejala_id)
+            if prob is not None:
+                log_posterior += math.log(prob)
+        
+        # --- Penting: Untuk menjaga kesesuaian dengan PDF (yang hanya mengalikan gejala yang ada),
+        #     kita TIDAK akan mengalikan (1 - P(symptom|disease)) untuk gejala yang TIDAK ada.
+        #     Jika Anda ingin Naive Bayes yang lebih "lengkap" (mempertimbangkan gejala tidak ada),
+        #     maka bagian ini perlu dikembalikan.
+        #     Kode sebelumnya (yang Anda berikan):
+        #     for gejala in all_gejala:
+        #         if gejala.id_gejala not in gejala_ids:
+        #             log_posterior += math.log(1 - conditional_probs[diagnosis.id_diagnosis].get(gejala.id_gejala, 0.1))
+        #     Bagian ini dihapus untuk konsistensi PDF.
+        # ---
 
         # Convert back from log space
         nb_posterior = math.exp(log_posterior)
@@ -233,7 +240,7 @@ def hasil(request):
         nb_probabilities[diagnosis.id_diagnosis] = (prob / total_nb_prob) * 100 if total_nb_prob > 0 else 0
 
     # 4. Combine rule-based scores with Naive Bayes probabilities
-    # Using weighted combination: 60% rule-based, 40% Naive Bayes
+    # Using weighted combination: 60% rule-based, 40% Naive Bayes (as per your original code)
     rule_weight = 0.6
     nb_weight = 0.4
     
@@ -252,7 +259,7 @@ def hasil(request):
     # Get the top diagnosis
     top_diagnosis, final_probability, rule_prob, nb_prob = final_results[0]
 
-    # Store the diagnosis result
+    # Store the diagnosis result (this part remains unchanged, saving to database)
     user_id = request.session.get('user_id', None)
     
     # Generate auto-increment ID for the report
