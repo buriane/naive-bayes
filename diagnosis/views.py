@@ -134,9 +134,32 @@ def hasil(request):
     all_diagnoses = list(Diagnosis.objects.all())
     all_gejala = list(Gejala.objects.all())
 
+    # Define knowledge base rules
+    knowledge_base = {
+        'Hepatitis A': [1, 3, 4, 5, 7],  # G01, G03, G04, G05, G07
+        'Hepatitis B': [3, 6, 7, 8, 9],  # G03, G06, G07, G08, G09
+        'Hepatitis C': [1, 2, 3, 10],    # G01, G02, G03, G10
+        'Sirosis Hati': [7, 11, 12],     # G07, G11, G12
+        'Kolestatis': [8, 9, 13]         # G08, G09, G13
+    }
+
+    # Calculate rule-based scores first
+    rule_scores = {}
+    for diagnosis in all_diagnoses:
+        diagnosis_name = diagnosis.nama_diagnosis
+        if diagnosis_name in knowledge_base:
+            required_symptoms = knowledge_base[diagnosis_name]
+            matched_symptoms = len(set(gejala_ids) & set(required_symptoms))
+            total_required = len(required_symptoms)
+            
+            # Calculate rule confidence (percentage of required symptoms present)
+            rule_confidence = (matched_symptoms / total_required) * 100 if total_required > 0 else 0
+            rule_scores[diagnosis.id_diagnosis] = rule_confidence
+        else:
+            rule_scores[diagnosis.id_diagnosis] = 0
+
     # Prepare data for Naive Bayes calculation
     # 1. Get prior probabilities (how frequently each diagnosis occurs)
-    # We'll use a SQL query to get this information from existing records
     diagnosis_counts = {}
     total_records = 0
 
@@ -153,14 +176,12 @@ def hasil(request):
 
     # If we don't have enough records, use uniform probability
     if total_records < len(all_diagnoses):
-        prior_probabilities = {d.id_diagnosis: 1 /
-                               len(all_diagnoses) for d in all_diagnoses}
+        prior_probabilities = {d.id_diagnosis: 1 / len(all_diagnoses) for d in all_diagnoses}
     else:
         prior_probabilities = {d.id_diagnosis: diagnosis_counts.get(d.id_diagnosis, 0.1)/total_records
                                for d in all_diagnoses}
 
     # 2. Calculate conditional probabilities P(symptom | disease)
-    # We'll use Laplace smoothing to handle unseen data
     conditional_probs = {}
 
     for diagnosis in all_diagnoses:
@@ -168,7 +189,6 @@ def hasil(request):
 
         # For each symptom, calculate P(symptom | disease)
         for gejala in all_gejala:
-            # Count how many times this symptom appears with this disease
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT COUNT(*) FROM laporangejala lg
@@ -180,12 +200,12 @@ def hasil(request):
             # Get total number of records for this disease
             disease_total = diagnosis_counts.get(diagnosis.id_diagnosis, 0)
 
-            # Apply Laplace smoothing (add 1 to numerator, add 2 to denominator)
+            # Apply Laplace smoothing
             conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = (
                 symptom_count + 1) / (disease_total + 2)
 
-    # 3. Calculate posterior probabilities using Naive Bayes
-    results = []
+    # 3. Calculate Naive Bayes probabilities
+    nb_results = []
     for diagnosis in all_diagnoses:
         # Start with prior probability (in log space to avoid underflow)
         log_posterior = math.log(prior_probabilities.get(
@@ -193,32 +213,46 @@ def hasil(request):
 
         # Multiply by conditional probabilities
         for gejala_id in gejala_ids:
-            # If we have this symptom, use P(symptom=1|disease)
             log_posterior += math.log(
                 conditional_probs[diagnosis.id_diagnosis].get(gejala_id, 0.1))
 
-        # For symptoms we don't have, use P(symptom=0|disease) = 1 - P(symptom=1|disease)
+        # For symptoms we don't have, use P(symptom=0|disease)
         for gejala in all_gejala:
             if gejala.id_gejala not in gejala_ids:
                 log_posterior += math.log(
                     1 - conditional_probs[diagnosis.id_diagnosis].get(gejala.id_gejala, 0.1))
 
         # Convert back from log space
-        posterior = math.exp(log_posterior)
-        results.append((diagnosis, posterior))
+        nb_posterior = math.exp(log_posterior)
+        nb_results.append((diagnosis, nb_posterior))
 
-    # Sort by probability (highest first)
-    results.sort(key=lambda x: x[1], reverse=True)
+    # Normalize Naive Bayes probabilities
+    total_nb_prob = sum(prob for _, prob in nb_results)
+    nb_probabilities = {}
+    for diagnosis, prob in nb_results:
+        nb_probabilities[diagnosis.id_diagnosis] = (prob / total_nb_prob) * 100 if total_nb_prob > 0 else 0
+
+    # 4. Combine rule-based scores with Naive Bayes probabilities
+    # Using weighted combination: 60% rule-based, 40% Naive Bayes
+    rule_weight = 0.6
+    nb_weight = 0.4
+    
+    final_results = []
+    for diagnosis in all_diagnoses:
+        rule_score = rule_scores.get(diagnosis.id_diagnosis, 0)
+        nb_score = nb_probabilities.get(diagnosis.id_diagnosis, 0)
+        
+        # Combined score
+        combined_score = (rule_weight * rule_score) + (nb_weight * nb_score)
+        final_results.append((diagnosis, combined_score, rule_score, nb_score))
+
+    # Sort by combined score (highest first)
+    final_results.sort(key=lambda x: x[1], reverse=True)
 
     # Get the top diagnosis
-    top_diagnosis, probability = results[0]
+    top_diagnosis, final_probability, rule_prob, nb_prob = final_results[0]
 
-    # Normalize the probability to 0-100%
-    total_prob = sum(prob for _, prob in results)
-    probability_percentage = (probability / total_prob) * \
-        100 if total_prob > 0 else 0
-
-    # Store the diagnosis result (for both logged in and not logged in users)
+    # Store the diagnosis result
     user_id = request.session.get('user_id', None)
     
     # Generate auto-increment ID for the report
@@ -229,19 +263,17 @@ def hasil(request):
         new_report_id = 1
     
     # Create a new diagnosis report
-    # If user is logged in, use user_id, otherwise set to None
     new_report = Laporandiagnosis(
         id_laporandiagnosis=new_report_id,
-        id_pengguna_id=user_id,  # This will be None if user is not logged in
+        id_pengguna_id=user_id,
         id_diagnosis=top_diagnosis,
         tanggal_diagnosis=date.today(),
-        probabilitas=probability_percentage
+        probabilitas=final_probability
     )
     new_report.save()
 
     # Store all the symptoms
     for gejala in all_gejala:
-        # Generate auto-increment ID for each symptom record
         last_gejala_report = Laporangejala.objects.order_by('-id_laporangejala').first()
         if last_gejala_report:
             new_gejala_id = last_gejala_report.id_laporangejala + 1
@@ -250,7 +282,7 @@ def hasil(request):
         
         value = 1 if gejala.id_gejala in gejala_ids else 0
         laporangejala = Laporangejala(
-            id_laporangejala=new_gejala_id,  # Add primary key
+            id_laporangejala=new_gejala_id,
             id_laporandiagnosis=new_report,
             id_gejala_id=gejala.id_gejala,
             value=value
@@ -262,7 +294,7 @@ def hasil(request):
 
     return render(request, 'diagnosis/hasil.html', {
         'diagnosis': top_diagnosis,
-        'probability': probability_percentage,
+        'probability': final_probability,
         'selected_gejala': selected_gejala,
         'date': date.today(),
     })
