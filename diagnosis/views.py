@@ -218,30 +218,44 @@ def hasil(request):
     probability_percentage = (probability / total_prob) * \
         100 if total_prob > 0 else 0
 
-    # Store the diagnosis result if user is logged in
+    # Store the diagnosis result (for both logged in and not logged in users)
     user_id = request.session.get('user_id', None)
-    if user_id:
-        # Create a new diagnosis report
-        new_report = Laporandiagnosis(
-            id_pengguna_id=user_id,
-            id_diagnosis=top_diagnosis,
-            tanggal_diagnosis=date.today(),
-            probabilitas=probability_percentage
+    
+    # Generate auto-increment ID for the report
+    last_report = Laporandiagnosis.objects.order_by('-id_laporandiagnosis').first()
+    if last_report:
+        new_report_id = last_report.id_laporandiagnosis + 1
+    else:
+        new_report_id = 1
+    
+    # Create a new diagnosis report
+    # If user is logged in, use user_id, otherwise set to None
+    new_report = Laporandiagnosis(
+        id_laporandiagnosis=new_report_id,
+        id_pengguna_id=user_id,  # This will be None if user is not logged in
+        id_diagnosis=top_diagnosis,
+        tanggal_diagnosis=date.today(),
+        probabilitas=probability_percentage
+    )
+    new_report.save()
+
+    # Store all the symptoms
+    for gejala in all_gejala:
+        # Generate auto-increment ID for each symptom record
+        last_gejala_report = Laporangejala.objects.order_by('-id_laporangejala').first()
+        if last_gejala_report:
+            new_gejala_id = last_gejala_report.id_laporangejala + 1
+        else:
+            new_gejala_id = 1
+        
+        value = 1 if gejala.id_gejala in gejala_ids else 0
+        laporangejala = Laporangejala(
+            id_laporangejala=new_gejala_id,  # Add primary key
+            id_laporandiagnosis=new_report,
+            id_gejala_id=gejala.id_gejala,
+            value=value
         )
-        new_report.save()
-
-        # Get the ID of the new report
-        report_id = new_report.id_laporandiagnosis
-
-        # Store all the symptoms
-        for gejala_id in all_gejala:
-            value = 1 if gejala_id.id_gejala in gejala_ids else 0
-            laporangejala = Laporangejala(
-                id_laporandiagnosis=new_report,
-                id_gejala_id=gejala_id.id_gejala,
-                value=value
-            )
-            laporangejala.save()
+        laporangejala.save()
 
     # Get selected symptoms
     selected_gejala = Gejala.objects.filter(id_gejala__in=gejala_ids)
@@ -255,20 +269,27 @@ def hasil(request):
 
 @login_required_custom
 def riwayat(request):
-    user_id_session = request.session.get('user_id')
-    riwayat_diagnosis_list = Laporandiagnosis.objects.filter(
-        id_pengguna_id=user_id_session
-    ).select_related('id_diagnosis', 'id_pengguna').order_by('-tanggal_diagnosis')
+    # Get current logged-in user ID from session
+    user_id = request.session.get('user_id')
     
-    paginator = Paginator(riwayat_diagnosis_list, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        'page_title': 'Riwayat Diagnosismu',
-        'page_obj': page_obj,
-    }
-    return render(request, 'diagnosis/riwayat.html', context)
+    # Retrieve diagnosis history for the current user, ordered by date (newest first)
+    riwayat_diagnosis = Laporandiagnosis.objects.filter(
+        id_pengguna=user_id
+    ).select_related('id_diagnosis').order_by('-tanggal_diagnosis')
+    
+    # Calculate statistics
+    total_count = riwayat_diagnosis.count()
+    high_risk = riwayat_diagnosis.filter(probabilitas__gte=70).count()
+    medium_risk = riwayat_diagnosis.filter(probabilitas__gte=40, probabilitas__lt=70).count()
+    low_risk = riwayat_diagnosis.filter(probabilitas__lt=40).count()
+    
+    return render(request, 'diagnosis/riwayat.html', {
+        'riwayat_diagnosis': riwayat_diagnosis,
+        'total_count': total_count,
+        'high_risk': high_risk,
+        'medium_risk': medium_risk,
+        'low_risk': low_risk,
+    })
     
 def detail_hasil(request, laporan_id):
     try:
