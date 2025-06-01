@@ -44,7 +44,7 @@ def login(request):
                 request.session['user_email'] = user.email
                 request.session['user_role'] = user.role
 
-                if user.role == 'admin':
+                if user.role in ['admin', 'pakar']:
                     return redirect('admin_beranda')
                 else:
                     return redirect('homepage')
@@ -120,124 +120,137 @@ def tentang(request):
 
 def hasil(request):
     if request.method != 'POST':
-        messages.warning(request, 'Silakan mulai konsultasi terlebih dahulu.')
         return redirect('konsultasi')
 
-    gejala_ids_str = request.POST.getlist('gejala')
-    if not gejala_ids_str:
-        messages.warning(request, 'Anda belum memilih gejala apapun.')
+    # Get selected symptoms from form
+    gejala_ids = request.POST.getlist('gejala')
+    if not gejala_ids:
         return redirect('konsultasi')
 
-    try:
-        gejala_ids = [int(gid) for gid in gejala_ids_str]
-    except ValueError:
-        messages.error(request, 'Input gejala tidak valid.')
-        return redirect('konsultasi')
+    # Convert to integers
+    gejala_ids = [int(gid) for gid in gejala_ids]
 
+    # Get all diagnoses and gejala
     all_diagnoses = list(Diagnosis.objects.all())
-    all_gejala_objects = list(Gejala.objects.all())
+    all_gejala = list(Gejala.objects.all())
 
-    if not all_diagnoses or not all_gejala_objects:
-        messages.error(request, 'Data master penyakit atau gejala tidak ditemukan. Hubungi admin.')
-        return redirect('konsultasi')
-
+    # Prepare data for Naive Bayes calculation
+    # 1. Get prior probabilities (how frequently each diagnosis occurs)
+    # We'll use a SQL query to get this information from existing records
     diagnosis_counts = {}
     total_records = 0
+
     with connection.cursor() as cursor:
-        cursor.execute("SELECT id_diagnosis_id, COUNT(*) as count FROM laporandiagnosis GROUP BY id_diagnosis_id")
+        cursor.execute("""
+            SELECT id_diagnosis, COUNT(*) as count 
+            FROM laporandiagnosis 
+            GROUP BY id_diagnosis
+        """)
         for row in cursor.fetchall():
-            diagnosis_counts[row[0]] = row[1]
-            total_records += row[1]
-    
-    if total_records == 0 or len(all_diagnoses) == 0:
-        messages.info(request, "Belum cukup data historis untuk diagnosis akurat. Hasil mungkin kurang presisi.")
+            diagnosis_id, count = row
+            diagnosis_counts[diagnosis_id] = count
+            total_records += count
 
-    if total_records < len(all_diagnoses) or total_records == 0:
-        default_prob = 1 / len(all_diagnoses) if len(all_diagnoses) > 0 else 0.01
-        prior_probabilities = {d.id_diagnosis: default_prob for d in all_diagnoses}
+    # If we don't have enough records, use uniform probability
+    if total_records < len(all_diagnoses):
+        prior_probabilities = {d.id_diagnosis: 1 /
+                               len(all_diagnoses) for d in all_diagnoses}
     else:
-        prior_probabilities = {
-            d.id_diagnosis: diagnosis_counts.get(d.id_diagnosis, 0.01) / total_records
-            for d in all_diagnoses
-        }
+        prior_probabilities = {d.id_diagnosis: diagnosis_counts.get(d.id_diagnosis, 0.1)/total_records
+                               for d in all_diagnoses}
 
+    # 2. Calculate conditional probabilities P(symptom | disease)
+    # We'll use Laplace smoothing to handle unseen data
     conditional_probs = {}
-    epsilon = 1e-9
-    for diagnosis_obj in all_diagnoses:
-        conditional_probs[diagnosis_obj.id_diagnosis] = {}
-        disease_total_reports = diagnosis_counts.get(diagnosis_obj.id_diagnosis, 0)
-        for gejala_obj in all_gejala_objects:
+
+    for diagnosis in all_diagnoses:
+        conditional_probs[diagnosis.id_diagnosis] = {}
+
+        # For each symptom, calculate P(symptom | disease)
+        for gejala in all_gejala:
+            # Count how many times this symptom appears with this disease
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT COUNT(*) FROM laporangejala lg
-                    JOIN laporandiagnosis ld ON lg.id_laporanDiagnosis_id = ld.id_laporandiagnosis
-                    WHERE ld.id_diagnosis_id = %s AND lg.id_gejala_id = %s AND lg.value = 1
-                """, [diagnosis_obj.id_diagnosis, gejala_obj.id_gejala])
-                symptom_count_with_disease = cursor.fetchone()[0]
-            conditional_probs[diagnosis_obj.id_diagnosis][gejala_obj.id_gejala] = \
-                (symptom_count_with_disease + 1) / (disease_total_reports + 2)
+                    JOIN laporandiagnosis ld ON lg.id_laporanDiagnosis = ld.id_laporanDiagnosis
+                    WHERE ld.id_diagnosis = %s AND lg.id_gejala = %s AND lg.value = 1
+                """, [diagnosis.id_diagnosis, gejala.id_gejala])
+                symptom_count = cursor.fetchone()[0]
 
+            # Get total number of records for this disease
+            disease_total = diagnosis_counts.get(diagnosis.id_diagnosis, 0)
+
+            # Apply Laplace smoothing (add 1 to numerator, add 2 to denominator)
+            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = (
+                symptom_count + 1) / (disease_total + 2)
+
+    # 3. Calculate posterior probabilities using Naive Bayes
     results = []
-    for diagnosis_obj in all_diagnoses:
-        log_prior = math.log(prior_probabilities.get(diagnosis_obj.id_diagnosis, epsilon))
-        log_likelihood = 0
-        for gejala_obj in all_gejala_objects:
-            prob_symptom_given_disease = conditional_probs[diagnosis_obj.id_diagnosis].get(gejala_obj.id_gejala, epsilon)
-            if gejala_obj.id_gejala in gejala_ids:
-                log_likelihood += math.log(max(prob_symptom_given_disease, epsilon))
-            else:
-                prob_not_symptom = 1.0 - prob_symptom_given_disease
-                log_likelihood += math.log(max(prob_not_symptom, epsilon))
-        log_posterior = log_prior + log_likelihood
-        results.append((diagnosis_obj, log_posterior))
+    for diagnosis in all_diagnoses:
+        # Start with prior probability (in log space to avoid underflow)
+        log_posterior = math.log(prior_probabilities.get(
+            diagnosis.id_diagnosis, 1/len(all_diagnoses)))
 
-    if not results:
-        messages.error(request, "Tidak dapat menghitung hasil diagnosis.")
-        return redirect('konsultasi')
+        # Multiply by conditional probabilities
+        for gejala_id in gejala_ids:
+            # If we have this symptom, use P(symptom=1|disease)
+            log_posterior += math.log(
+                conditional_probs[diagnosis.id_diagnosis].get(gejala_id, 0.1))
 
+        # For symptoms we don't have, use P(symptom=0|disease) = 1 - P(symptom=1|disease)
+        for gejala in all_gejala:
+            if gejala.id_gejala not in gejala_ids:
+                log_posterior += math.log(
+                    1 - conditional_probs[diagnosis.id_diagnosis].get(gejala.id_gejala, 0.1))
+
+        # Convert back from log space
+        posterior = math.exp(log_posterior)
+        results.append((diagnosis, posterior))
+
+    # Sort by probability (highest first)
     results.sort(key=lambda x: x[1], reverse=True)
-    top_diagnosis_obj, top_log_prob = results[0]
-    
-    max_log_prob = results[0][1] 
-    scaled_probs_sum = sum(math.exp(r_log_p - max_log_prob) for _, r_log_p in results)
-    
-    probability_percentage = 0
-    if scaled_probs_sum > 0:
-        top_scaled_prob = math.exp(top_log_prob - max_log_prob)
-        probability_percentage = (top_scaled_prob / scaled_probs_sum) * 100
-    elif len(all_diagnoses) > 0 :
-        probability_percentage = 100 / len(all_diagnoses)
-    
-    user_id_session = request.session.get('user_id', None)
-    new_report_id_val = (Laporandiagnosis.objects.order_by('-id_laporandiagnosis').first().id_laporandiagnosis + 1) \
-        if Laporandiagnosis.objects.exists() else 1
-    
-    new_report = Laporandiagnosis(
-        id_laporandiagnosis=new_report_id_val,
-        id_pengguna_id=user_id_session,
-        id_diagnosis_id=top_diagnosis_obj.id_diagnosis,
-        tanggal_diagnosis=date.today(), # Ini akan menjadi objek date
-        probabilitas=round(probability_percentage, 2)
-    )
-    new_report.save()
 
-    for gejala_obj_loop in all_gejala_objects:
-        new_gejala_report_id_val = (Laporangejala.objects.order_by('-id_laporangejala').first().id_laporangejala + 1) \
-            if Laporangejala.objects.exists() else 1
-        value_for_report = 1 if gejala_obj_loop.id_gejala in gejala_ids else 0
-        Laporangejala.objects.create(
-            id_laporangejala=new_gejala_report_id_val,
-            id_laporanDiagnosis_id=new_report.id_laporandiagnosis,
-            id_gejala_id=gejala_obj_loop.id_gejala,
-            value=value_for_report
+    # Get the top diagnosis
+    top_diagnosis, probability = results[0]
+
+    # Normalize the probability to 0-100%
+    total_prob = sum(prob for _, prob in results)
+    probability_percentage = (probability / total_prob) * \
+        100 if total_prob > 0 else 0
+
+    # Store the diagnosis result if user is logged in
+    user_id = request.session.get('user_id', None)
+    if user_id:
+        # Create a new diagnosis report
+        new_report = Laporandiagnosis(
+            id_pengguna_id=user_id,
+            id_diagnosis=top_diagnosis,
+            tanggal_diagnosis=date.today(),
+            probabilitas=probability_percentage
         )
+        new_report.save()
 
-    selected_gejala_objects = Gejala.objects.filter(id_gejala__in=gejala_ids)
+        # Get the ID of the new report
+        report_id = new_report.id_laporandiagnosis
+
+        # Store all the symptoms
+        for gejala_id in all_gejala:
+            value = 1 if gejala_id.id_gejala in gejala_ids else 0
+            laporangejala = Laporangejala(
+                id_laporandiagnosis=new_report,
+                id_gejala_id=gejala_id.id_gejala,
+                value=value
+            )
+            laporangejala.save()
+
+    # Get selected symptoms
+    selected_gejala = Gejala.objects.filter(id_gejala__in=gejala_ids)
+
     return render(request, 'diagnosis/hasil.html', {
-        'diagnosis': top_diagnosis_obj,
-        'probability': round(probability_percentage, 2),
-        'selected_gejala': selected_gejala_objects,
-        'date': new_report.tanggal_diagnosis,
+        'diagnosis': top_diagnosis,
+        'probability': probability_percentage,
+        'selected_gejala': selected_gejala,
+        'date': date.today(),
     })
 
 @login_required_custom
@@ -331,15 +344,79 @@ def role_required(allowed_roles):
 @login_required_custom
 @role_required(['admin', 'pakar'])
 def admin_beranda(request):
+    # Get diagnosis distribution data
+    diagnosis_stats = Laporandiagnosis.objects.values(
+        'id_diagnosis__nama_diagnosis'
+    ).annotate(
+        count=Count('id_diagnosis')
+    ).order_by('-count')[:5]  # Top 5 diagnoses
+
+    # Get recent diagnosis trends (last 7 days)
+    today = timezone.now().date()
+    seven_days_ago = today - timezone.timedelta(days=6)
+    
+    daily_diagnoses = Laporandiagnosis.objects.filter(
+        tanggal_diagnosis__gte=seven_days_ago
+    ).values(
+        'tanggal_diagnosis'
+    ).annotate(
+        count=Count('id_laporandiagnosis')
+    ).order_by('tanggal_diagnosis')
+
+    # Fill in missing dates with zero counts
+    date_counts = {str(date): 0 for date in [seven_days_ago + timezone.timedelta(days=x) for x in range(7)]}
+    for item in daily_diagnoses:
+        date_counts[str(item['tanggal_diagnosis'])] = item['count']
+
+    # Get user statistics
+    total_users = Pengguna.objects.count()
+    total_diagnoses = Laporandiagnosis.objects.count()
+    total_gejala = Gejala.objects.count()
+    total_penyakit = Diagnosis.objects.count()
+
+    # Get recent diagnoses
+    recent_diagnoses = Laporandiagnosis.objects.select_related(
+        'id_pengguna', 'id_diagnosis'
+    ).order_by('-tanggal_diagnosis')[:5]
+
     context = {
         'page_title': 'Beranda Admin',
         'active_section': 'beranda',
+        'diagnosis_stats': list(diagnosis_stats),
+        'daily_diagnoses': {
+            'dates': list(date_counts.keys()),
+            'counts': list(date_counts.values())
+        },
+        'stats': {
+            'total_users': total_users,
+            'total_diagnoses': total_diagnoses,
+            'total_gejala': total_gejala,
+            'total_penyakit': total_penyakit
+        },
+        'recent_diagnoses': recent_diagnoses
     }
     return render(request, 'diagnosis/admin_base.html', context)
 
 @login_required_custom
 @role_required(['admin'])
 def admin_riwayat(request):
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        try:
+            laporan_id = request.POST.get('laporan_id')
+            laporan = Laporandiagnosis.objects.get(id_laporandiagnosis=laporan_id)
+            
+            # Delete related gejala reports first
+            Laporangejala.objects.filter(id_laporandiagnosis=laporan).delete()
+            # Then delete the diagnosis report
+            laporan.delete()
+            
+            messages.success(request, 'Riwayat diagnosis berhasil dihapus.')
+        except Laporandiagnosis.DoesNotExist:
+            messages.error(request, 'Riwayat diagnosis tidak ditemukan.')
+        except Exception as e:
+            messages.error(request, f'Gagal menghapus riwayat diagnosis: {str(e)}')
+        return redirect('admin_riwayat')
+
     riwayat_list = Laporandiagnosis.objects.all().select_related(
         'id_diagnosis', 'id_pengguna'
     ).order_by('-tanggal_diagnosis')
@@ -446,7 +523,12 @@ def admin_gejala(request):
                 if Gejala.objects.filter(kode_gejala=kode).exists():
                     messages.error(request, 'Kode gejala sudah ada.')
                 else:
+                    # Get the last ID and increment it
+                    last_gejala = Gejala.objects.order_by('-id_gejala').first()
+                    new_id = (last_gejala.id_gejala + 1) if last_gejala else 1
+                    
                     new_gejala = Gejala(
+                        id_gejala=new_id,
                         kode_gejala=kode,
                         nama_gejala=nama,
                         pertanyaan_gejala=pertanyaan
@@ -509,7 +591,12 @@ def admin_penyakit(request):
                 solusi = request.POST.get('solusi_diagnosis')
                 gambar = request.POST.get('gambar_diagnosis')
                 
+                # Get the last ID and increment it
+                last_penyakit = Diagnosis.objects.order_by('-id_diagnosis').first()
+                new_id = (last_penyakit.id_diagnosis + 1) if last_penyakit else 1
+                
                 new_penyakit = Diagnosis(
+                    id_diagnosis=new_id,
                     nama_diagnosis=nama,
                     deskripsi_diagnosis=deskripsi,
                     solusi_diagnosis=solusi,
@@ -558,3 +645,32 @@ def admin_penyakit(request):
         'page_obj': page_obj,
     }
     return render(request, 'diagnosis/admin_base.html', context)
+
+@login_required_custom
+@role_required(['admin'])
+def update_diagnosis_images(request):
+    # Dictionary mapping diagnosis names to their image files
+    diagnosis_images = {
+        'Hepatitis A': '/static/diagnosis/hepatitis-a.jpg',
+        'Hepatitis B': '/static/diagnosis/hepatitis-b.jpg',
+        'Hepatitis C': '/static/diagnosis/hepatitis-c.jpg',
+        'Kanker Hati': '/static/diagnosis/kanker-hati.jpg',
+        'Perlemakan Hati': '/static/diagnosis/perlemakan-hati.jpg',
+        'Sirosis Hati': '/static/diagnosis/sirosis.png'
+    }
+    
+    try:
+        for diagnosis_name, image_path in diagnosis_images.items():
+            diagnosis = Diagnosis.objects.filter(nama_diagnosis__icontains=diagnosis_name).first()
+            if diagnosis:
+                diagnosis.gambar_diagnosis = image_path
+                diagnosis.save()
+                messages.success(request, f'Berhasil memperbarui gambar untuk {diagnosis_name}')
+            else:
+                messages.warning(request, f'Diagnosis {diagnosis_name} tidak ditemukan')
+        
+        messages.success(request, 'Semua gambar diagnosis berhasil diperbarui')
+    except Exception as e:
+        messages.error(request, f'Terjadi kesalahan: {str(e)}')
+    
+    return redirect('admin_penyakit')
