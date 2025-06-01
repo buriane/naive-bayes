@@ -49,11 +49,11 @@ Data yang diharapkan dari view admin_riwayat:
                                class="text-primary-600 hover:text-primary-900">
                                 <i class="fas fa-eye"></i> Detail
                             </a>
-                            <form method="POST" action="{% url 'admin_riwayat' %}" class="inline" onsubmit="return confirmDelete(event)">
+                            <form method="POST" action="{% url 'admin_riwayat' %}" class="inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="laporan_id" value="{{ riwayat.id_laporandiagnosis }}">
-                                <button type="submit" class="text-red-600 hover:text-red-900 ml-2">
+                                <button type="button" onclick="openDeleteRiwayatModal(this, '{{ riwayat.id_laporandiagnosis }}')" class="text-red-600 hover:text-red-900 ml-2">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </form>
@@ -77,13 +77,88 @@ Data yang diharapkan dari view admin_riwayat:
     </div>
 </div>
 
+<div id="deleteRiwayatModal" class="fixed inset-0 z-50 items-center justify-center bg-slate-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800">Konfirmasi Hapus Riwayat</h3>
+            <button id="closeDeleteRiwayatModalButton" class="text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+        </div>
+        <div class="py-4">
+            <p class="text-slate-600">Anda yakin ingin menghapus riwayat diagnosis ini? Tindakan ini tidak dapat diurungkan.</p>
+            <p class="text-sm text-slate-500 mt-2">Riwayat ID: <span id="deleteRiwayatIdText"></span></p>
+        </div>
+        <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
+            <button id="cancelDeleteRiwayatButton" type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors">
+                Batal
+            </button>
+            <button id="confirmDeleteRiwayatButton" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center space-x-2">
+                <i class="fas fa-trash-alt"></i>
+                <span>Ya, Hapus</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-function confirmDelete(event) {
+let formToDeleteRiwayat = null;
+
+function openDeleteRiwayatModal(buttonElement, laporanId) {
     event.preventDefault();
-    const form = event.target;
-    if (confirm('Apakah Anda yakin ingin menghapus riwayat diagnosis ini?')) {
-        form.submit();
+    formToDeleteRiwayat = buttonElement.closest('form');
+    if (!formToDeleteRiwayat) {
+        console.error('Form tidak ditemukan untuk penghapusan riwayat.');
+        return;
     }
-    return false;
+    const deleteRiwayatIdText = document.getElementById('deleteRiwayatIdText');
+    if (deleteRiwayatIdText) {
+        deleteRiwayatIdText.textContent = "#" + laporanId;
+    }
+
+    const modal = document.getElementById('deleteRiwayatModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
 }
+
+function closeDeleteRiwayatModal() {
+    const modal = document.getElementById('deleteRiwayatModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    formToDeleteRiwayat = null; // Reset form
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmDelRiwayatBtn = document.getElementById('confirmDeleteRiwayatButton');
+    if (confirmDelRiwayatBtn) {
+        confirmDelRiwayatBtn.addEventListener('click', function() {
+            if (formToDeleteRiwayat) {
+                formToDeleteRiwayat.submit();
+            } else {
+                console.error('Tidak ada form yang tersimpan untuk penghapusan riwayat.');
+                closeDeleteRiwayatModal();
+            }
+        });
+    }
+
+    const closeDelRiwayatBtn = document.getElementById('closeDeleteRiwayatModalButton');
+    if (closeDelRiwayatBtn) {
+        closeDelRiwayatBtn.addEventListener('click', closeDeleteRiwayatModal);
+    }
+
+    const cancelDelRiwayatBtn = document.getElementById('cancelDeleteRiwayatButton');
+    if (cancelDelRiwayatBtn) {
+        cancelDelRiwayatBtn.addEventListener('click', closeDeleteRiwayatModal);
+    }
+    
+    const deleteRiwayatModalOverlay = document.getElementById('deleteRiwayatModal');
+    if (deleteRiwayatModalOverlay) {
+        deleteRiwayatModalOverlay.addEventListener('click', function(event) {
+            if (event.target === deleteRiwayatModalOverlay) { // Jika klik pada backdrop
+                closeDeleteRiwayatModal();
+            }
+        });
+    }
+});
+
 </script>

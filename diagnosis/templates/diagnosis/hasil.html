@@ -1,514 +1,519 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hasil Diagnosis - Sistem Diagnosis Penyakit Gangguan Hati</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: "#f0f9ff",
-                100: "#e0f2fe",
-                200: "#bae6fd",
-                300: "#7dd3fc",
-                400: "#38bdf8",
-                500: "#0ea5e9",
-                600: "#0284c7",
-                700: "#0369a1",
-                800: "#075985",
-                900: "#0c4a6e",
-              },
-              secondary: {
-                50: "#f8fafc",
-                100: "#f1f5f9",
-                200: "#e2e8f0",
-                300: "#cbd5e1",
-                400: "#94a3b8",
-                500: "#64748b",
-                600: "#475569",
-                700: "#334155",
-                800: "#1e293b",
-                900: "#0f172a",
-              },
-              accent: {
-                50: "#eff6ff",
-                100: "#dbeafe",
-                200: "#bfdbfe",
-                300: "#93c5fd",
-                400: "#60a5fa",
-                500: "#3b82f6",
-                600: "#2563eb",
-                700: "#1d4ed8",
-                800: "#1e40af",
-                900: "#1e3a8a",
-              },
-            },
-            fontFamily: {
-              sans: ["Inter", "sans-serif"],
-              serif: ["Merriweather", "serif"],
-            },
-            boxShadow: {
-              soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
-              elegant: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01)",
-            },
-          },
-        },
-      };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'pulse-slow': 'pulse 3s ease-in-out infinite',
+                        'progress': 'progress 1.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        progress: {
+                            '0%': { width: '0%' },
+                            '100%': { width: 'var(--progress-width)' }
+                        }
+                    }
+                }
+            }
+        }
     </script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      /* Custom animations */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
+        .progress-fill {
+            animation: progress 1.5s ease-out forwards;
+            animation-delay: 0.5s;
+            width: 0;
+            transition: all 0.3s ease;
         }
-        to {
-          opacity: 1;
-          transform: translateY(0);
+        
+        .progress-fill.low-risk {
+            background: linear-gradient(to right, #22c55e, #16a34a);
         }
-      }
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateX(-20px);
+        
+        .progress-fill.medium-risk {
+            background: linear-gradient(to right, #f59e0b, #d97706);
         }
-        to {
-          opacity: 1;
-          transform: translateX(0);
+        
+        .progress-fill.high-risk {
+            background: linear-gradient(to right, #ef4444, #dc2626);
         }
-      }
-      @keyframes progressBar {
-        from {
-          width: 0%;
-        }
-        to {
-          width: var(--progress-width);
-        }
-      }
-      
-      /* Progress bar color animations */
-      @keyframes progressBarGreen {
-        from {
-          width: 0%;
-          background: linear-gradient(to right, #10b981, #059669);
-        }
-        to {
-          width: var(--progress-width);
-          background: linear-gradient(to right, #10b981, #059669);
-        }
-      }
-      
-      @keyframes progressBarYellow {
-        from {
-          width: 0%;
-          background: linear-gradient(to right, #f59e0b, #d97706);
-        }
-        to {
-          width: var(--progress-width);
-          background: linear-gradient(to right, #f59e0b, #d97706);
-        }
-      }
-      
-      @keyframes progressBarRed {
-        from {
-          width: 0%;
-          background: linear-gradient(to right, #ef4444, #dc2626);
-        }
-        to {
-          width: var(--progress-width);
-          background: linear-gradient(to right, #ef4444, #dc2626);
-        }
-      }
 
-      .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
-      }
-      .animate-slide-in {
-        animation: slideIn 0.6s ease-out forwards;
-      }
-      .animate-delay-100 {
-        animation-delay: 0.1s;
-      }
-      .animate-delay-200 {
-        animation-delay: 0.2s;
-      }
-      .animate-delay-300 {
-        animation-delay: 0.3s;
-      }
-      .animate-delay-400 {
-        animation-delay: 0.4s;
-      }
-      .animate-delay-500 {
-        animation-delay: 0.5s;
-      }
-
-      /* Progress bar animation with dynamic colors */
-      .progress-fill {
-        animation-duration: 1.5s;
-        animation-timing-function: ease-out;
-        animation-fill-mode: forwards;
-        animation-delay: 0.5s;
-        width: 0;
-        transition: all 0.3s ease;
-      }
-      
-      .progress-fill.low-risk {
-        animation-name: progressBarGreen;
-        background: linear-gradient(to right, #10b981, #059669);
-      }
-      
-      .progress-fill.medium-risk {
-        animation-name: progressBarYellow;
-        background: linear-gradient(to right, #f59e0b, #d97706);
-      }
-      
-      .progress-fill.high-risk {
-        animation-name: progressBarRed;
-        background: linear-gradient(to right, #ef4444, #dc2626);
-      }
-
-      /* Progress bar styling */
-      .progress-bar {
-        height: 10px;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-
-      /* Smooth transitions */
-      .transition-all {
-        transition-property: all;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 300ms;
-      }
-
-      /* Print styles */
-      @media print {
-        .no-print {
-          display: none !important;
+        .probability-badge.low-risk {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
         }
-        .print-page {
-          page-break-inside: avoid;
+        
+        .probability-badge.medium-risk {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
         }
-      }
-      
-      /* Dynamic probability badge colors */
-      .probability-badge.low-risk {
-        background-color: #d1fae5;
-        color: #065f46;
-      }
-      
-      .probability-badge.medium-risk {
-        background-color: #fef3c7;
-        color: #92400e;
-      }
-      
-      .probability-badge.high-risk {
-        background-color: #fee2e2;
-        color: #991b1b;
-      }
+        
+        .probability-badge.high-risk {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-page {
+                page-break-inside: avoid;
+            }
+        }
     </style>
-  </head>
-  <body class="bg-gray-50 font-sans text-secondary-800 antialiased">
+</head>
+
+<body class="bg-neutral-50 font-sans text-neutral-800 antialiased">
     <!-- Include Header -->
     {% include "diagnosis/static/header.html" %}
 
     <!-- Hero Section -->
+    <section class="relative bg-gradient-to-br from-primary-50 via-white to-primary-100 py-20">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center animate-fade-in">
+                <div class="w-20 h-20 bg-primary-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h1 class="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">
+                    Hasil <span class="text-primary-600">Diagnosis Anda</span>
+                </h1>
+                <p class="text-xl text-neutral-600 leading-relaxed">
+                    Berikut adalah analisis awal berdasarkan gejala yang Anda alami
+                </p>
+            </div>
+        </div>
+    </section>
 
     <!-- Patient Information Section -->
     <section class="py-8 bg-white print-page">
-      <div class="container mx-auto px-4 md:px-8">
-        <div class="bg-gray-50 rounded-2xl p-6 mb-8 animate-fade-in">
-          <div class="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h2 class="text-lg font-semibold text-secondary-900 mb-2">Informasi Pasien</h2>
-              <div class="grid md:grid-cols-3 gap-6 text-sm text-secondary-600">
-                {% if request.session.user_name %}
-                <div><span class="font-medium">Nama:</span> {{ request.session.user_name }}</div>
-                {% else %}
-                <div><span class="font-medium">Nama:</span> Pasien Tidak Teridentifikasi</div>
-                {% endif %}
-                <div><span class="font-medium">Status:</span> Konsultasi Online</div>
-              </div>
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-neutral-50 to-white rounded-3xl border border-neutral-200 p-8 mb-8 animate-fade-in shadow-lg">
+                <div class="flex items-center justify-between flex-wrap gap-6">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mr-6">
+                            <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-neutral-900 mb-3">Informasi Pasien</h2>
+                            <div class="grid md:grid-cols-2 gap-6 text-neutral-600">
+                                {% if request.session.user_name %}
+                                <div class="flex items-center">
+                                    <span class="font-semibold text-neutral-700 mr-2">Nama:</span> 
+                                    <span>{{ request.session.user_name }}</span>
+                                </div>
+                                {% else %}
+                                <div class="flex items-center">
+                                    <span class="font-semibold text-neutral-700 mr-2">Nama:</span> 
+                                    <span>Pasien Tidak Teridentifikasi</span>
+                                </div>
+                                {% endif %}
+                                <div class="flex items-center">
+                                    <span class="font-semibold text-neutral-700 mr-2">Status:</span> 
+                                    <span class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">Konsultasi Online</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-neutral-500 mb-2">Tanggal Diagnosis</p>
+                        <p class="text-2xl font-bold text-neutral-900">{{ date }}</p>
+                        <div class="w-12 h-1 bg-primary-500 rounded-full mt-2 ml-auto"></div>
+                    </div>
+                </div>
             </div>
-            <div class="text-right">
-              <p class="text-sm text-secondary-600 mb-1">Tanggal Diagnosis</p>
-              <p class="text-lg font-semibold text-secondary-900">{{ date }}</p>
-            </div>
-          </div>
         </div>
-      </div>
     </section>
 
     <!-- Main Diagnosis Result Section -->
-    <section class="py-8">
-      <div class="container mx-auto px-4 md:px-8">
-        <div class="grid lg:grid-cols-3 gap-8">
-          <!-- Primary Diagnosis -->
-          <div class="lg:col-span-2">
-            <!-- Main Result Card -->
-            <div class="bg-white rounded-2xl shadow-elegant p-8 mb-8 animate-fade-in animate-delay-100 print-page">
-              <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-secondary-900">Hasil Diagnosis Utama</h2>
-                <div id="probability-badge" class="px-3 py-1 rounded-full text-sm font-medium">{{ probability|floatformat:1 }}%</div>
-              </div>
+    <section class="py-8 bg-neutral-50">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Primary Diagnosis -->
+                <div class="lg:col-span-2">
+                    <!-- Main Result Card -->
+                    <div class="bg-white rounded-3xl border border-neutral-200 shadow-2xl p-8 lg:p-12 mb-8 animate-slide-up print-page">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-3xl font-bold text-neutral-900">Hasil Diagnosis Utama</h2>
+                            <div id="probability-badge" class="px-6 py-3 rounded-2xl text-lg font-bold">{{ probability|floatformat:1 }}%</div>
+                        </div>
 
-              <div class="grid md:grid-cols-2 gap-8 items-center">
-                <!-- Diagnosis Image -->
-                <div class="text-center">
-                  {% if diagnosis.gambar_diagnosis %}
-                  <img src="{{ diagnosis.gambar_diagnosis }}" alt="{{ diagnosis.nama_diagnosis }}" class="w-full h-64 object-cover rounded-xl shadow-lg mb-4" />
-                  {% else %}
-                  <div class="w-full h-64 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  </div>
-                  {% endif %}
-                  <h3 class="text-2xl font-bold text-secondary-900 mb-2">{{ diagnosis.nama_diagnosis }}</h3>
-                  <p class="text-secondary-600">{{ diagnosis.deskripsi_diagnosis }}</p>
+                        <div class="grid md:grid-cols-2 gap-12 items-center">
+                            <!-- Diagnosis Image -->
+                            <div class="text-center">
+                                {% if diagnosis.gambar_diagnosis %}
+                                <div class="relative group">
+                                    <img src="{{ diagnosis.gambar_diagnosis }}" alt="{{ diagnosis.nama_diagnosis }}" class="w-full h-80 object-cover rounded-3xl shadow-xl mb-6 group-hover:shadow-2xl transition-all duration-300" />
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </div>
+                                {% else %}
+                                <div class="w-full h-80 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mb-6 shadow-xl">
+                                    <svg class="h-20 w-20 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                {% endif %}
+                                <h3 class="text-3xl font-bold text-neutral-900 mb-4">{{ diagnosis.nama_diagnosis }}</h3>
+                                <p class="text-lg text-neutral-600 leading-relaxed">{{ diagnosis.deskripsi_diagnosis }}</p>
+                            </div>
+
+                            <!-- Probability Results -->
+                            <div>
+                                <h4 class="text-2xl font-bold text-neutral-900 mb-6 flex items-center">
+                                    <div class="w-8 h-8 bg-primary-100 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                        </svg>
+                                    </div>
+                                    Probabilitas Naive Bayes
+                                </h4>
+
+                                <!-- Main Probability -->
+                                <div class="mb-8">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-lg font-semibold text-neutral-900">{{ diagnosis.nama_diagnosis }}</span>
+                                        <span id="probability-text" class="text-4xl font-bold">{{ probability|floatformat:1 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-neutral-200 rounded-full h-4 overflow-hidden">
+                                        <div id="progress-fill" class="progress-fill h-4 rounded-full" style="--progress-width: {{ probability }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Confidence Level -->
+                                <div id="confidence-level" class="border-2 rounded-2xl p-6 mb-6">
+                                    <div class="flex items-center mb-3">
+                                        <svg class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span id="confidence-text" class="text-lg font-bold"></span>
+                                    </div>
+                                    <p id="confidence-description" class="leading-relaxed">Berdasarkan gejala yang dilaporkan, terdapat indikasi {{ diagnosis.nama_diagnosis }}</p>
+                                </div>
+
+                                <!-- Algorithm Info -->
+                                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-6">
+                                    <h5 class="text-lg font-bold text-blue-900 mb-4 flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                        Informasi Algoritma
+                                    </h5>
+                                    <ul class="text-blue-800 space-y-2">
+                                        <li class="flex items-center">
+                                            <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                                            Model: Naive Bayes Classifier
+                                        </li>
+                                        <li class="flex items-center">
+                                            <span class="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                                            Faktor yang Dianalisis: {{ selected_gejala|length }} gejala
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solution Card -->
+                    <div class="bg-white rounded-3xl border border-neutral-200 shadow-2xl p-8 lg:p-12 mb-8 animate-slide-up print-page" style="animation-delay: 0.2s;">
+                        <div class="flex items-center mb-8">
+                            <div class="w-12 h-12 bg-primary-100 rounded-2xl flex items-center justify-center mr-4">
+                                <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-3xl font-bold text-neutral-900">Solusi dan Pengobatan</h2>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200 rounded-3xl p-8">
+                            <h3 class="text-xl font-bold text-primary-800 mb-6 flex items-center">
+                                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                </svg>
+                                Rekomendasi Pengobatan untuk {{ diagnosis.nama_diagnosis }}
+                            </h3>
+                            <div class="text-primary-700 leading-relaxed text-lg">
+                                {% if diagnosis.solusi_diagnosis %}
+                                    {{ diagnosis.solusi_diagnosis|linebreaks }}
+                                {% else %}
+                                    <p>Solusi pengobatan belum tersedia. Harap konsultasikan dengan dokter spesialis untuk mendapatkan penanganan yang tepat.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Probability Results -->
-                <div>
-                  <h4 class="text-lg font-semibold text-secondary-900 mb-4">Probabilitas Naive Bayes</h4>
-
-                  <!-- Main Probability -->
-                  <div class="mb-6">
-                    <div class="flex justify-between items-center mb-2">
-                      <span class="font-medium text-secondary-900">{{ diagnosis.nama_diagnosis }}</span>
-                      <span id="probability-text" class="text-2xl font-bold">{{ probability|floatformat:1 }}%</span>
+                <!-- Symptoms Analyzed Sidebar -->
+                <div class="space-y-8">
+                    <!-- Symptoms -->
+                    <div class="bg-white rounded-3xl border border-neutral-200 shadow-xl p-8 animate-slide-up" style="animation-delay: 0.3s;">
+                        <h3 class="text-2xl font-bold text-neutral-900 mb-6 flex items-center">
+                            <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center mr-4">
+                                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h2m0 0h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m0 0V3"/>
+                                </svg>
+                            </div>
+                            Gejala yang Dialami
+                        </h3>
+                        <div class="space-y-4">
+                            {% for gejala in selected_gejala %}
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-primary-100 border-2 border-primary-200 rounded-2xl group hover:shadow-lg transition-all duration-300">
+                                <span class="text-neutral-900 font-medium">{{ gejala.nama_gejala }}</span>
+                                <div class="flex items-center text-primary-600 font-bold">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Ada
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3">
-                      <div id="progress-fill" class="progress-fill h-3 rounded-full" style="--progress-width: {{ probability }}%"></div>
-                    </div>
-                  </div>
-
-                  <!-- Confidence Level -->
-                  <div id="confidence-level" class="border rounded-lg p-4 mb-4">
-                    <div class="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span id="confidence-text" class="font-medium"></span>
-                    </div>
-                    <p id="confidence-description" class="text-sm mt-1">Berdasarkan gejala yang dilaporkan, terdapat indikasi {{ diagnosis.nama_diagnosis }}</p>
-                  </div>
-
-                  <!-- Algorithm Info -->
-                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h5 class="font-medium text-blue-900 mb-2">Informasi Algoritma</h5>
-                    <ul class="text-blue-800 text-sm space-y-1">
-                      <li>• Model: Naive Bayes Classifier</li>
-                      <li>• Faktor yang Dianalisis: {{ selected_gejala|length }} gejala</li>
-                    </ul>
-                  </div>
                 </div>
-              </div>
             </div>
 
-            <!-- Solution Card  -->
-            <div class="bg-white rounded-2xl shadow-elegant p-8 mb-8 animate-fade-in animate-delay-200 print-page">
-              <div class="flex items-center mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h2 class="text-2xl font-bold text-secondary-900">Solusi dan Pengobatan</h2>
-              </div>
-              
-              <div class="bg-green-50 border border-green-200 rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-green-800 mb-4">Rekomendasi Pengobatan untuk {{ diagnosis.nama_diagnosis }}</h3>
-                <div class="text-green-700 leading-relaxed">
-                  {% if diagnosis.solusi_diagnosis %}
-                    {{ diagnosis.solusi_diagnosis|linebreaks }}
-                  {% else %}
-                    <p>Solusi pengobatan belum tersedia. Harap konsultasikan dengan dokter spesialis untuk mendapatkan penanganan yang tepat.</p>
-                  {% endif %}
+            <!-- Recommendations and Disclaimer Section -->
+            <div class="grid lg:grid-cols-2 gap-8 mt-8">
+                <!-- Disclaimer Section -->
+                <div class="animate-slide-up" style="animation-delay: 0.4s;">
+                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-3xl p-8 h-full">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mr-6 flex-shrink-0">
+                                <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-amber-800 mb-4">Penting untuk Diperhatikan</h3>
+                                <p class="text-amber-700 mb-6 leading-relaxed text-lg">
+                                    Hasil diagnosis ini merupakan analisis awal berdasarkan algoritma machine learning dan tidak dapat menggantikan diagnosis medis profesional. Hasil ini bertujuan untuk memberikan informasi awal dan panduan untuk langkah selanjutnya.
+                                </p>
+                                <ul class="text-amber-700 space-y-3">
+                                    <li class="flex items-start">
+                                        <span class="w-2 h-2 bg-amber-600 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                                        Hasil diagnosis memerlukan konfirmasi melalui pemeriksaan medis lebih lanjut
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-2 h-2 bg-amber-600 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                                        Konsultasikan hasil ini dengan dokter spesialis untuk diagnosis yang akurat
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-2 h-2 bg-amber-600 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                                        Lakukan pemeriksaan laboratorium sesuai rekomendasi dokter
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-2 h-2 bg-amber-600 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                                        Jangan melakukan pengobatan sendiri berdasarkan hasil ini
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Symptoms Analyzed Sidebar -->
-          <div class="space-y-8">
-            <!-- Symptoms -->
-            <div class="bg-white rounded-2xl shadow-elegant p-6 animate-fade-in animate-delay-300">
-              <h3 class="text-lg font-bold text-secondary-900 mb-4">Gejala yang Dialami</h3>
-              <div class="space-y-3">
-                {% for gejala in selected_gejala %}
-                <div class="flex items-center justify-between p-3 bg-primary-50 border border-primary-200 rounded-lg">
-                  <span class="text-secondary-900 text-sm">{{ gejala.nama_gejala }}</span>
-                  <span class="text-primary-600 font-semibold text-sm">✓ Ada</span>
+                <!-- Recommendations -->
+                <div class="animate-slide-up" style="animation-delay: 0.5s;">
+                    <div class="bg-white rounded-3xl border border-neutral-200 shadow-xl p-8 h-full">
+                        <h3 class="text-2xl font-bold text-neutral-900 mb-6 flex items-center">
+                            <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center mr-4">
+                                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                            </div>
+                            Rekomendasi
+                        </h3>
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-200 rounded-2xl p-6">
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-red-800 mb-2">Segera Konsultasi Dokter</h4>
+                                        <p class="text-red-700 leading-relaxed">Hasil menunjukkan probabilitas penyakit hati. Diperlukan pemeriksaan medis lebih lanjut.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-6">
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-blue-800 mb-2">Pemeriksaan Lab</h4>
+                                        <p class="text-blue-700 leading-relaxed">Tes fungsi hati, darah lengkap, dan penanda virus</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 border-2 border-primary-200 rounded-2xl p-6">
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                        <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-bold text-primary-800 mb-2">Penanganan Awal</h4>
+                                        <p class="text-primary-700 leading-relaxed">Lihat solusi lengkap di bagian "Solusi dan Pengobatan" di atas untuk panduan detail.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                {% endfor %}
-              </div>
             </div>
-          </div>
         </div>
-
-        <!-- Recommendations and Disclaimer Section -->
-        <div class="grid lg:grid-cols-2 gap-8 mt-8">
-          <!-- Disclaimer Section - Now on left -->
-          <div class="animate-fade-in animate-delay-300">
-            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 h-full">
-              <div class="flex items-start">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600 mr-4 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-                <div>
-                  <h3 class="text-lg font-bold text-amber-800 mb-2">Penting untuk Diperhatikan</h3>
-                  <p class="text-amber-700 mb-4">
-                    Hasil diagnosis ini merupakan analisis awal berdasarkan algoritma machine learning dan tidak dapat menggantikan diagnosis medis profesional. Hasil ini bertujuan untuk memberikan informasi awal dan panduan untuk langkah
-                    selanjutnya.
-                  </p>
-                  <ul class="text-amber-700 text-sm space-y-1">
-                    <li>• Hasil diagnosis memerlukan konfirmasi melalui pemeriksaan medis lebih lanjut</li>
-                    <li>• Konsultasikan hasil ini dengan dokter spesialis untuk diagnosis yang akurat</li>
-                    <li>• Lakukan pemeriksaan laboratorium sesuai rekomendasi dokter</li>
-                    <li>• Jangan melakukan pengobatan sendiri berdasarkan hasil ini</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recommendations -->
-          <div class="animate-fade-in animate-delay-400">
-            <div class="bg-white rounded-2xl shadow-elegant p-6 h-full">
-              <h3 class="text-lg font-bold text-secondary-900 mb-4">Rekomendasi</h3>
-              <div class="space-y-4">
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div class="flex items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div>
-                      <h4 class="font-semibold text-red-800 mb-1">Segera Konsultasi Dokter</h4>
-                      <p class="text-red-700 text-sm">Hasil menunjukkan probabilitas penyakit hati. Diperlukan pemeriksaan medis lebih lanjut.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div class="flex items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <div>
-                      <h4 class="font-semibold text-blue-800 mb-1">Pemeriksaan Lab</h4>
-                      <p class="text-blue-700 text-sm">Tes fungsi hati, darah lengkap, dan penanda virus</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div class="flex items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div>
-                      <h4 class="font-semibold text-green-800 mb-1">Penanganan Awal</h4>
-                      <p class="text-green-700 text-sm">Lihat solusi lengkap di bagian "Solusi dan Pengobatan" di atas untuk panduan detail.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- Action Buttons -->
-    <section class="py-8">
-      <div class="container mx-auto px-4 md:px-8">
-        <div class="flex flex-wrap gap-4 justify-center">
-          {% if is_detail_view %}
-          <a href="{% url 'riwayat' %}" class="px-6 py-3 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors"> 
-            Kembali ke Riwayat 
-          </a>
-          {% else %}
-          <a href="{% url 'konsultasi' %}" class="px-6 py-3 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors"> 
-            Ulangi Konsultasi 
-          </a>
-          {% endif %}
-          <a href="#" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors" onclick="window.print(); return false;"> 
-            Cetak Hasil 
-          </a>
+    <section class="py-12 bg-white no-print">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="flex flex-wrap gap-6 justify-center animate-slide-up" style="animation-delay: 0.6s;">
+                {% if is_detail_view %}
+                <a href="{% url 'riwayat' %}" class="inline-flex items-center gap-3 px-8 py-4 bg-neutral-100 text-neutral-700 rounded-2xl font-semibold hover:bg-neutral-200 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"> 
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Kembali ke Riwayat 
+                </a>
+                {% else %}
+                <a href="{% url 'konsultasi' %}" class="inline-flex items-center gap-3 px-8 py-4 bg-neutral-100 text-neutral-700 rounded-2xl font-semibold hover:bg-neutral-200 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"> 
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Ulangi Konsultasi 
+                </a>
+                {% endif %}
+                <a href="#" class="inline-flex items-center gap-3 px-8 py-4 bg-primary-600 text-white rounded-2xl font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1" onclick="window.print(); return false;"> 
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    Cetak Hasil 
+                </a>
+            </div>
         </div>
-      </div>
     </section>
 
     <!-- Include Footer -->
     {% include "diagnosis/static/footer.html" %}
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Get probability value from Django template
-        const probability = parseFloat("{{ probability|floatformat:1 }}");
-        
-        // Get DOM elements
-        const progressFill = document.getElementById('progress-fill');
-        const probabilityBadge = document.getElementById('probability-badge');
-        const probabilityText = document.getElementById('probability-text');
-        const confidenceLevel = document.getElementById('confidence-level');
-        const confidenceText = document.getElementById('confidence-text');
-        const confidenceDescription = document.getElementById('confidence-description');
-        
-        // Function to set colors and text based on probability
-        function setProbabilityStyles(prob) {
-          if (prob > 70) {
-            // High risk - Red
-            progressFill.classList.add('high-risk');
-            probabilityBadge.classList.add('probability-badge', 'high-risk');
-            probabilityText.classList.add('text-red-600');
-            confidenceLevel.classList.add('bg-red-50', 'border-red-200');
-            confidenceText.classList.add('text-red-800');
-            confidenceText.textContent = 'Tingkat Kepercayaan Tinggi - Risiko Tinggi';
-            confidenceDescription.classList.add('text-red-700');
-            confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi TINGGI {{ diagnosis.nama_diagnosis }} (${prob}%). Segera konsultasi dengan dokter!`;
-          } else if (prob >= 40) {
-            // Medium risk - Yellow/Orange
-            progressFill.classList.add('medium-risk');
-            probabilityBadge.classList.add('probability-badge', 'medium-risk');
-            probabilityText.classList.add('text-yellow-600');
-            confidenceLevel.classList.add('bg-yellow-50', 'border-yellow-200');
-            confidenceText.classList.add('text-yellow-800');
-            confidenceText.textContent = 'Tingkat Kepercayaan Sedang - Risiko Sedang';
-            confidenceDescription.classList.add('text-yellow-700');
-            confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi SEDANG {{ diagnosis.nama_diagnosis }} (${prob}%). Disarankan untuk pemeriksaan lebih lanjut.`;
-          } else {
-            // Low risk - Green
-            progressFill.classList.add('low-risk');
-            probabilityBadge.classList.add('probability-badge', 'low-risk');
-            probabilityText.classList.add('text-green-600');
-            confidenceLevel.classList.add('bg-green-50', 'border-green-200');
-            confidenceText.classList.add('text-green-800');
-            confidenceText.textContent = 'Tingkat Kepercayaan Rendah - Risiko Rendah';
-            confidenceDescription.classList.add('text-green-700');
-            confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi RENDAH {{ diagnosis.nama_diagnosis }} (${prob}%). Tetap monitor gejala dan konsultasi jika memburuk.`;
-          }
-        }
-        
-        // Apply styles based on probability
-        setProbabilityStyles(probability);
-        
-        // Set the current date
-        const now = new Date();
-        const options = { year: "numeric", month: "long", day: "numeric" };
-        document.querySelectorAll(".current-date").forEach((el) => {
-          el.textContent = now.toLocaleDateString("id-ID", options);
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get probability value from Django template
+            const probability = parseFloat("{{ probability|floatformat:1 }}");
+            
+            // Get DOM elements
+            const progressFill = document.getElementById('progress-fill');
+            const probabilityBadge = document.getElementById('probability-badge');
+            const probabilityText = document.getElementById('probability-text');
+            const confidenceLevel = document.getElementById('confidence-level');
+            const confidenceText = document.getElementById('confidence-text');
+            const confidenceDescription = document.getElementById('confidence-description');
+            
+            // Function to set colors and text based on probability
+            function setProbabilityStyles(prob) {
+                if (prob > 70) {
+                    // High risk - Red
+                    progressFill.classList.add('high-risk');
+                    probabilityBadge.classList.add('probability-badge', 'high-risk');
+                    probabilityText.classList.add('text-red-600');
+                    confidenceLevel.classList.add('bg-red-50', 'border-red-200');
+                    confidenceText.classList.add('text-red-800');
+                    confidenceText.textContent = 'Tingkat Kepercayaan Tinggi - Risiko Tinggi';
+                    confidenceDescription.classList.add('text-red-700');
+                    confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi TINGGI {{ diagnosis.nama_diagnosis }} (${prob}%). Segera konsultasi dengan dokter!`;
+                } else if (prob >= 40) {
+                    // Medium risk - Yellow/Orange
+                    progressFill.classList.add('medium-risk');
+                    probabilityBadge.classList.add('probability-badge', 'medium-risk');
+                    probabilityText.classList.add('text-yellow-600');
+                    confidenceLevel.classList.add('bg-yellow-50', 'border-yellow-200');
+                    confidenceText.classList.add('text-yellow-800');
+                    confidenceText.textContent = 'Tingkat Kepercayaan Sedang - Risiko Sedang';
+                    confidenceDescription.classList.add('text-yellow-700');
+                    confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi SEDANG {{ diagnosis.nama_diagnosis }} (${prob}%). Disarankan untuk pemeriksaan lebih lanjut.`;
+                } else {
+                    // Low risk - Green
+                    progressFill.classList.add('low-risk');
+                    probabilityBadge.classList.add('probability-badge', 'low-risk');
+                    probabilityText.classList.add('text-primary-600');
+                    confidenceLevel.classList.add('bg-primary-50', 'border-primary-200');
+                    confidenceText.classList.add('text-primary-800');
+                    confidenceText.textContent = 'Tingkat Kepercayaan Rendah - Risiko Rendah';
+                    confidenceDescription.classList.add('text-primary-700');
+                    confidenceDescription.textContent = `Berdasarkan gejala yang dilaporkan, terdapat indikasi RENDAH {{ diagnosis.nama_diagnosis }} (${prob}%). Tetap monitor gejala dan konsultasi jika memburuk.`;
+                }
+            }
+            
+            // Apply styles based on probability
+            setProbabilityStyles(probability);
+            
+            // Animate progress bars with delay
+            setTimeout(function () {
+                progressFill.style.width = probability + "%";
+            }, 600);
         });
-
-        // Animate progress bars with delay
-        setTimeout(function () {
-          progressFill.style.width = probability + "%";
-        }, 600);
-      });
     </script>
-  </body>
+</body>
+
 </html>

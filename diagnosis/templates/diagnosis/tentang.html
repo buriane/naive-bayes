@@ -12,282 +12,241 @@
         extend: {
           colors: {
             primary: {
-              50: "#f0f9ff",
-              100: "#e0f2fe",
-              200: "#bae6fd",
-              300: "#7dd3fc",
-              400: "#38bdf8",
-              500: "#0ea5e9",
-              600: "#0284c7",
-              700: "#0369a1",
-              800: "#075985",
-              900: "#0c4a6e",
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
             },
-            secondary: {
-              50: "#f8fafc",
-              100: "#f1f5f9",
-              200: "#e2e8f0",
-              300: "#cbd5e1",
-              400: "#94a3b8",
-              500: "#64748b",
-              600: "#475569",
-              700: "#334155",
-              800: "#1e293b",
-              900: "#0f172a",
-            },
-            accent: {
-              50: "#eff6ff",
-              100: "#dbeafe",
-              200: "#bfdbfe",
-              300: "#93c5fd",
-              400: "#60a5fa",
-              500: "#3b82f6",
-              600: "#2563eb",
-              700: "#1d4ed8",
-              800: "#1e40af",
-              900: "#1e3a8a",
-            },
+            neutral: {
+              50: '#fafafa',
+              100: '#f5f5f5',
+              200: '#e5e5e5',
+              300: '#d4d4d4',
+              400: '#a3a3a3',
+              500: '#737373',
+              600: '#525252',
+              700: '#404040',
+              800: '#262626',
+              900: '#171717',
+            }
           },
           fontFamily: {
-            sans: ["Inter", "sans-serif"],
-            serif: ["Merriweather", "serif"],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
           },
-          boxShadow: {
-            soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
-            elegant: "0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01)",
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out forwards',
+            'slide-up': 'slideUp 0.6s ease-out forwards',
           },
-        },
-      },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            }
+          }
+        }
+      }
     };
   </script>
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap" />
-  <style>
-    /* Custom animations */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .animate-fade-in {
-      animation: fadeIn 0.5s ease-out forwards;
-    }
-
-    .animate-delay-100 {
-      animation-delay: 0.1s;
-    }
-
-    .animate-delay-200 {
-      animation-delay: 0.2s;
-    }
-
-    .animate-delay-300 {
-      animation-delay: 0.3s;
-    }
-
-    /* Smooth transitions */
-    .transition-all {
-      transition-property: all;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      transition-duration: 300ms;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="bg-gray-50 font-sans text-secondary-800 antialiased">
+<body class="bg-neutral-50 font-sans text-neutral-800 antialiased">
   <!-- Include Header -->
   {% include "diagnosis/static/header.html" %}
 
   <!-- Hero Section -->
-  <section class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-accent-700 text-white min-h-[60vh]">
-    <!-- Background image overlay -->
-    <div
-      class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] opacity-20 bg-cover bg-center">
-    </div>
-    <div class="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-accent-700/90"></div>
-
-    <!-- Content -->
-    <div class="container mx-auto px-4 md:px-8 py-20 md:py-28 relative">
-      <div class="max-w-3xl animate-fade-in">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">Sistem Diagnosis Penyakit Gangguan
-          Hati</h1>
-        <p class="text-xl md:text-2xl text-primary-100 mb-10 leading-relaxed">Solusi Cerdas untuk Deteksi Dini Penyakit
-          Gangguan Hati</p>
+  <section class="relative bg-gradient-to-br from-primary-50 via-white to-primary-100 py-20">
+    <div class="container mx-auto px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto text-center animate-fade-in">
+        <h1 class="text-4xl lg:text-6xl font-bold text-neutral-900 mb-6 leading-tight">
+          Sistem Diagnosis <span class="text-primary-600">Penyakit Gangguan Hati</span>
+        </h1>
+        <p class="text-xl lg:text-2xl text-neutral-600 leading-relaxed">
+          Solusi Cerdas untuk Deteksi Dini Penyakit Gangguan Hati
+        </p>
       </div>
-    </div>
-
-    <!-- SVG Wave yang diperbaiki - lebih kecil dan subtle -->
-    <div class="absolute bottom-0 left-0 right-0">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" class="w-full h-auto">
-        <path fill="#ffffff" fill-opacity="1"
-          d="M0,32L48,37.3C96,43,192,53,288,53.3C384,53,480,43,576,42.7C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z">
-        </path>
-      </svg>
     </div>
   </section>
 
   <!-- About Application Section -->
-  <section class="py-20 bg-white">
-    <div class="container mx-auto px-4 md:px-8">
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-16 items-center">
         <div class="animate-fade-in">
-          <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-6">Mengenal Sistem Kami</h2>
-          <p class="text-xl text-secondary-600 mb-8 leading-relaxed">
-            Sistem Diagnosis Penyakit Gangguan Hati adalah aplikasi web inovatif yang menggabungkan teknologi machine
-            learning dengan keahlian medis untuk memberikan layanan diagnosa awal penyakit gangguan hati yang akurat dan
-            mudah
-            diakses.
-          </p>
-          <p class="text-xl text-secondary-600 mb-8 leading-relaxed">
-            Dikembangkan menggunakan algoritma Naive Bayes, aplikasi ini dapat menganalisis gejala-gejala yang dialami
-            pasien dan memberikan prediksi kemungkinan penyakit hati dengan tingkat akurasi yang tinggi. Sistem ini
-            dirancang untuk
-            membantu masyarakat mendapatkan informasi kesehatan hati secara cepat dan mudah.
-          </p>
-          <div class="flex flex-wrap gap-4">
+          <h2 class="text-3xl lg:text-4xl font-bold text-neutral-900 mb-8">Mengenal Sistem Kami</h2>
+          <div class="space-y-6 text-lg text-neutral-600 leading-relaxed">
+            <p>
+              Sistem Diagnosis Penyakit Gangguan Hati adalah aplikasi web inovatif yang menggabungkan teknologi machine
+              learning dengan keahlian medis untuk memberikan layanan diagnosa awal penyakit gangguan hati yang akurat dan mudah
+              diakses.
+            </p>
+            <p>
+              Dikembangkan menggunakan algoritma Naive Bayes, aplikasi ini dapat menganalisis gejala-gejala yang dialami
+              pasien dan memberikan prediksi kemungkinan penyakit hati dengan tingkat akurasi yang tinggi. Sistem ini
+              dirancang untuk membantu masyarakat mendapatkan informasi kesehatan hati secara cepat dan mudah.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-4 mt-10">
             <a href="konsultasi.html"
-              class="bg-primary-600 text-white px-8 py-4 rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-              Coba Sekarang </a>
+              class="bg-primary-600 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-3">
+              <span>Coba Sekarang</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </a>
             <a href="#penyakit"
-              class="bg-transparent border-2 border-primary-600 text-primary-600 px-8 py-4 rounded-lg font-medium hover:bg-primary-50 transition-colors">
-              Pelajari Penyakit Hati </a>
+              class="bg-transparent border-2 border-primary-600 text-primary-600 px-8 py-4 rounded-2xl font-semibold hover:bg-primary-50 transition-all duration-300">
+              Pelajari Penyakit Hati
+            </a>
           </div>
         </div>
-        <div class="animate-fade-in animate-delay-200">
-          <img
-            src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Medical Technology" class="w-full h-auto rounded-2xl shadow-elegant" />
+        <div class="animate-slide-up" style="animation-delay: 0.2s;">
+          <div class="relative">
+            <img
+              src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Medical Technology" class="w-full h-auto rounded-3xl shadow-2xl" />
+            <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-primary-100 rounded-3xl flex items-center justify-center">
+              <svg class="w-12 h-12 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Educational Section -->
-  <section id="penyakit" class="py-20 bg-white">
-    <div class="container mx-auto px-4 md:px-8">
-      <div class="text-left max-w-3xl mb-16 mb-16 animate-fade-in">
-        <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">Kenali Penyakit Gangguan Hati</h2>
-        <p class="text-xl text-secondary-600">Pelajari jenis-jenis gangguan hati yang umum terjadi agar Anda
-          lebih waspada dan dapat melakukan deteksi dini.</p>
+  <section id="penyakit" class="py-24 bg-neutral-50">
+    <div class="container mx-auto px-6 lg:px-8">
+      <div class="max-w-3xl mb-16 animate-fade-in">
+        <h2 class="text-3xl lg:text-4xl font-bold text-neutral-900 mb-6">Kenali Penyakit Gangguan Hati</h2>
+        <p class="text-xl text-neutral-600 leading-relaxed">
+          Pelajari jenis-jenis gangguan hati yang umum terjadi agar Anda lebih waspada dan dapat melakukan deteksi dini.
+        </p>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Hepatitis A -->
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-100">
-          <div class="h-48 bg-primary-600 relative overflow-hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-slide-up">
+          <div class="h-64 bg-gradient-to-br from-primary-400 to-primary-600 relative overflow-hidden">
             {% load static %}
             <img src="{% static 'diagnosis/hepatitis-a.jpg' %}" alt="Hepatitis A"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div class="absolute bottom-4 left-6">
-              <h3 class="text-xl font-bold text-white">Hepatitis A</h3>
+            <div class="absolute bottom-6 left-6 right-6">
+              <h3 class="text-2xl font-bold text-white mb-2">Hepatitis A</h3>
+              <p class="text-primary-100 text-sm">Infeksi hati akut</p>
             </div>
           </div>
-          <div class="p-6">
-            <p class="text-secondary-600 mb-4">Merupakan infeksi hati akut yang disebabkan oleh virus
-              hepatitis A. Penularannya terjadi melalui makanan dan minuman yang terkontaminasi. Biasanya
-              sembuh tanpa komplikasi jangka panjang.</p>
+          <div class="p-8">
+            <p class="text-neutral-600 leading-relaxed">
+              Merupakan infeksi hati akut yang disebabkan oleh virus hepatitis A. Penularannya terjadi melalui makanan dan minuman yang terkontaminasi. Biasanya sembuh tanpa komplikasi jangka panjang.
+            </p>
           </div>
         </div>
 
         <!-- Hepatitis B -->
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-200">
-          <div class="h-48 bg-primary-600 relative overflow-hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-slide-up" style="animation-delay: 0.1s;">
+          <div class="h-64 bg-gradient-to-br from-primary-500 to-primary-700 relative overflow-hidden">
             <img src="{% static 'diagnosis/hepatitis-b.jpg' %}" alt="Hepatitis B"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div class="absolute bottom-4 left-6">
-              <h3 class="text-xl font-bold text-white">Hepatitis B</h3>
+            <div class="absolute bottom-6 left-6 right-6">
+              <h3 class="text-2xl font-bold text-white mb-2">Hepatitis B</h3>
+              <p class="text-primary-100 text-sm">Infeksi kronis berbahaya</p>
             </div>
           </div>
-          <div class="p-6">
-            <p class="text-secondary-600 mb-4">Virus ini menyerang hati dan dapat menyebabkan infeksi
-              kronis. Penularannya terjadi melalui darah dan cairan tubuh. Vaksinasi merupakan langkah
-              utama pencegahan.</p>
+          <div class="p-8">
+            <p class="text-neutral-600 leading-relaxed">
+              Virus ini menyerang hati dan dapat menyebabkan infeksi kronis. Penularannya terjadi melalui darah dan cairan tubuh. Vaksinasi merupakan langkah utama pencegahan.
+            </p>
           </div>
         </div>
 
         <!-- Hepatitis C -->
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-300">
-          <div class="h-48 bg-primary-600 relative overflow-hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-slide-up" style="animation-delay: 0.2s;">
+          <div class="h-64 bg-gradient-to-br from-primary-600 to-primary-800 relative overflow-hidden">
             <img src="{% static 'diagnosis/hepatitis-c.jpg' %}" alt="Hepatitis C"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div class="absolute bottom-4 left-6">
-              <h3 class="text-xl font-bold text-white">Hepatitis C</h3>
+            <div class="absolute bottom-6 left-6 right-6">
+              <h3 class="text-2xl font-bold text-white mb-2">Hepatitis C</h3>
+              <p class="text-primary-100 text-sm">Silent killer</p>
             </div>
           </div>
-          <div class="p-6">
-            <p class="text-secondary-600 mb-4">Seringkali tidak menimbulkan gejala di tahap awal. Jika tidak
-              diobati, dapat berkembang menjadi sirosis atau kanker hati. Kini tersedia pengobatan dengan
-              tingkat kesembuhan tinggi.</p>
+          <div class="p-8">
+            <p class="text-neutral-600 leading-relaxed">
+              Seringkali tidak menimbulkan gejala di tahap awal. Jika tidak diobati, dapat berkembang menjadi sirosis atau kanker hati. Kini tersedia pengobatan dengan tingkat kesembuhan tinggi.
+            </p>
           </div>
         </div>
 
         <!-- Sirosis -->
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-400">
-          <div class="h-48 bg-primary-600 relative overflow-hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-slide-up" style="animation-delay: 0.3s;">
+          <div class="h-64 bg-gradient-to-br from-red-500 to-red-700 relative overflow-hidden">
             <img src="{% static 'diagnosis/sirosis-hati.png' %}" alt="Sirosis"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div class="absolute bottom-4 left-6">
-              <h3 class="text-xl font-bold text-white">Sirosis</h3>
+            <div class="absolute bottom-6 left-6 right-6">
+              <h3 class="text-2xl font-bold text-white mb-2">Sirosis</h3>
+              <p class="text-red-100 text-sm">Kerusakan permanen</p>
             </div>
           </div>
-          <div class="p-6">
-            <p class="text-secondary-600 mb-4">Kondisi kronis di mana jaringan hati yang sehat tergantikan
-              oleh jaringan parut. Biasanya disebabkan oleh hepatitis kronis atau konsumsi alkohol
-              berlebih.</p>
+          <div class="p-8">
+            <p class="text-neutral-600 leading-relaxed">
+              Kondisi kronis di mana jaringan hati yang sehat tergantikan oleh jaringan parut. Biasanya disebabkan oleh hepatitis kronis atau konsumsi alkohol berlebih.
+            </p>
           </div>
         </div>
 
         <!-- Kolestasis -->
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-500">
-          <div class="h-48 bg-primary-600 relative overflow-hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-slide-up" style="animation-delay: 0.4s;">
+          <div class="h-64 bg-gradient-to-br from-yellow-500 to-yellow-700 relative overflow-hidden">
             <img src="{% static 'diagnosis/kolestasis.png' %}" alt="Kolestasis"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div class="absolute bottom-4 left-6">
-              <h3 class="text-xl font-bold text-white">Kolestasis</h3>
+            <div class="absolute bottom-6 left-6 right-6">
+              <h3 class="text-2xl font-bold text-white mb-2">Kolestasis</h3>
+              <p class="text-yellow-100 text-sm">Gangguan aliran empedu</p>
             </div>
           </div>
-          <div class="p-6">
-            <p class="text-secondary-600 mb-4">Gangguan di mana aliran empedu dari hati
-              terganggu. Hal ini dapat disebabkan oleh berbagai faktor, termasuk batu empedu atau penyakit
-              autoimun. Gejala utama adalah kulit dan mata yang menguning.</p>
+          <div class="p-8">
+            <p class="text-neutral-600 leading-relaxed">
+              Gangguan di mana aliran empedu dari hati terganggu. Hal ini dapat disebabkan oleh berbagai faktor, termasuk batu empedu atau penyakit autoimun. Gejala utama adalah kulit dan mata yang menguning.
             </p>
           </div>
         </div>
 
         <!-- Pentingnya Deteksi Dini -->
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-600">
-          <div class="h-48 bg-primary-600 relative overflow-hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-slide-up" style="animation-delay: 0.5s;">
+          <div class="h-64 bg-gradient-to-br from-blue-500 to-blue-700 relative overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Deteksi Dini"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div class="absolute bottom-4 left-6">
-              <h3 class="text-xl font-bold text-white">Pentingnya Deteksi Dini</h3>
+            <div class="absolute bottom-6 left-6 right-6">
+              <h3 class="text-2xl font-bold text-white mb-2">Pentingnya Deteksi Dini</h3>
+              <p class="text-blue-100 text-sm">Pencegahan terbaik</p>
             </div>
           </div>
-          <div class="p-6">
-            <p class="text-secondary-600 mb-4">Gangguan hati dapat berkembang tanpa gejala. Dengan memahami
-              risikonya, Anda bisa melakukan langkah awal seperti skrining atau konsultasi untuk mencegah
-              kerusakan lebih lanjut.</p>
+          <div class="p-8">
+            <p class="text-neutral-600 leading-relaxed">
+              Gangguan hati dapat berkembang tanpa gejala. Dengan memahami risikonya, Anda bisa melakukan langkah awal seperti skrining atau konsultasi untuk mencegah kerusakan lebih lanjut.
+            </p>
           </div>
         </div>
       </div>
@@ -295,33 +254,32 @@
   </section>
 
   <!-- FAQ Section -->
-  <section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-4 md:px-8">
-      <div class="text-left max-w-full mb-12 animate-fade-in">
-        <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">Pertanyaan Umum</h2>
-        <p class="text-xl text-secondary-600">Beberapa pertanyaan yang sering ditanyakan tentang layanan konsultasi
-          kami.</p>
-      </div>
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-16 animate-fade-in">
+          <h2 class="text-3xl lg:text-4xl font-bold text-neutral-900 mb-6">Pertanyaan Umum</h2>
+          <p class="text-xl text-neutral-600 leading-relaxed">
+            Beberapa pertanyaan yang sering ditanyakan tentang layanan konsultasi kami.
+          </p>
+        </div>
 
-      <div class="max-w-full">
-        <div class="space-y-4 animate-fade-in animate-delay-100">
-          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="space-y-4 animate-slide-up">
+          <div class="bg-neutral-50 rounded-3xl border border-neutral-200 overflow-hidden">
             <button
-              class="faq-button flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none hover:bg-gray-50 transition-colors"
+              class="faq-button flex justify-between items-center w-full px-8 py-6 text-left focus:outline-none hover:bg-neutral-100 transition-colors"
               data-target="faq-1">
-              <span class="text-lg font-medium text-secondary-900">Apa itu GangguanHati dan bagaimana cara
-                kerjanya?</span>
-              <svg xmlns="http://www.w3.org/2000/svg"
-                class="faq-icon h-5 w-5 text-primary-600 transform transition-transform duration-200"
+              <span class="text-lg font-semibold text-neutral-900">Apa itu PeduliHati dan bagaimana cara kerjanya?</span>
+              <svg class="faq-icon w-6 h-6 text-primary-600 transform transition-transform duration-200"
                 viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                   clip-rule="evenodd" />
               </svg>
             </button>
-            <div id="faq-1" class="faq-content hidden px-6 pb-4">
-              <p class="text-secondary-600">
-                GangguanHati adalah platform online yang dirancang untuk membantu Anda mendapatkan diagnosis awal atau
+            <div id="faq-1" class="faq-content hidden px-8 pb-6">
+              <p class="text-neutral-600 leading-relaxed">
+                PeduliHati adalah platform online yang dirancang untuk membantu Anda mendapatkan diagnosis awal atau
                 pemahaman awal tentang potensi gangguan hati berdasarkan gejala yang Anda alami. Anda cukup memasukkan
                 gejala yang relevan, dan sistem kami akan menganalisisnya menggunakan algoritma dan data medis
                 terpercaya dari jurnal untuk memberikan hasil awal.
@@ -329,46 +287,39 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-neutral-50 rounded-3xl border border-neutral-200 overflow-hidden">
             <button
-              class="faq-button flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none hover:bg-gray-50 transition-colors"
+              class="faq-button flex justify-between items-center w-full px-8 py-6 text-left focus:outline-none hover:bg-neutral-100 transition-colors"
               data-target="faq-2">
-              <span class="text-lg font-medium text-secondary-900">Apakah hasil diagnosis dari GangguanHati
-                akurat?</span>
-              <svg xmlns="http://www.w3.org/2000/svg"
-                class="faq-icon h-5 w-5 text-primary-600 transform transition-transform duration-200"
+              <span class="text-lg font-semibold text-neutral-900">Apakah hasil diagnosis dari PeduliHati akurat?</span>
+              <svg class="faq-icon w-6 h-6 text-primary-600 transform transition-transform duration-200"
                 viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                   clip-rule="evenodd" />
               </svg>
             </button>
-            <div id="faq-2" class="faq-content hidden px-6 pb-4">
-              <p class="text-secondary-600">Sistem kami menggunakan metode Naive Bayes yang merupakan algoritma
-                klasifikasi probabilistik. Metode ini membantu kami menganalisis gejala yang Anda masukkan berdasarkan
-                pola data yang telah dipelajari dari jurnal medis terpercaya. Meskipun demikian, hasil yang kami berikan
-                adalah analisis awal yang informatif dan bukan diagnosis medis definitif. Kami sangat menganjurkan Anda
-                untuk selalu berkonsultasi dengan dokter spesialis untuk diagnosis yang akurat dan penanganan yang
-                tepat.</p>
+            <div id="faq-2" class="faq-content hidden px-8 pb-6">
+              <p class="text-neutral-600 leading-relaxed">
+                Sistem kami menggunakan metode Naive Bayes yang merupakan algoritma klasifikasi probabilistik. Metode ini membantu kami menganalisis gejala yang Anda masukkan berdasarkan pola data yang telah dipelajari dari jurnal medis terpercaya. Meskipun demikian, hasil yang kami berikan adalah analisis awal yang informatif dan bukan diagnosis medis definitif. Kami sangat menganjurkan Anda untuk selalu berkonsultasi dengan dokter spesialis untuk diagnosis yang akurat dan penanganan yang tepat.
+              </p>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-neutral-50 rounded-3xl border border-neutral-200 overflow-hidden">
             <button
-              class="faq-button flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none hover:bg-gray-50 transition-colors"
+              class="faq-button flex justify-between items-center w-full px-8 py-6 text-left focus:outline-none hover:bg-neutral-100 transition-colors"
               data-target="faq-3">
-              <span class="text-lg font-medium text-secondary-900">Apakah data pribadi dan riwayat diagnosis saya
-                aman?</span>
-              <svg xmlns="http://www.w3.org/2000/svg"
-                class="faq-icon h-5 w-5 text-primary-600 transform transition-transform duration-200"
+              <span class="text-lg font-semibold text-neutral-900">Apakah data pribadi dan riwayat diagnosis saya aman?</span>
+              <svg class="faq-icon w-6 h-6 text-primary-600 transform transition-transform duration-200"
                 viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                   clip-rule="evenodd" />
               </svg>
             </button>
-            <div id="faq-3" class="faq-content hidden px-6 pb-4">
-              <p class="text-secondary-600">
+            <div id="faq-3" class="faq-content hidden px-8 pb-6">
+              <p class="text-neutral-600 leading-relaxed">
                 Ya, privasi data Anda adalah prioritas utama kami. Kami menggunakan standar keamanan data yang ketat
                 untuk melindungi informasi pribadi dan kesehatan Anda. Fitur riwayat diagnosis personal Anda hanya dapat
                 diakses melalui akun Anda yang telah terautentikasi.
@@ -376,46 +327,42 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-neutral-50 rounded-3xl border border-neutral-200 overflow-hidden">
             <button
-              class="faq-button flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none hover:bg-gray-50 transition-colors"
+              class="faq-button flex justify-between items-center w-full px-8 py-6 text-left focus:outline-none hover:bg-neutral-100 transition-colors"
               data-target="faq-4">
-              <span class="text-lg font-medium text-secondary-900">Apakah saya bisa melihat riwayat diagnosis saya di
-                kemudian hari?</span>
-              <svg xmlns="http://www.w3.org/2000/svg"
-                class="faq-icon h-5 w-5 text-primary-600 transform transition-transform duration-200"
+              <span class="text-lg font-semibold text-neutral-900">Apakah saya bisa melihat riwayat diagnosis saya di kemudian hari?</span>
+              <svg class="faq-icon w-6 h-6 text-primary-600 transform transition-transform duration-200"
                 viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                   clip-rule="evenodd" />
               </svg>
             </button>
-            <div id="faq-4" class="faq-content hidden px-6 pb-4">
-              <p class="text-secondary-600">
-                Tentu saja! Setelah Anda mendaftar akun di GangguanHati, Anda dapat dengan mudah mengakses dan memantau
+            <div id="faq-4" class="faq-content hidden px-8 pb-6">
+              <p class="text-neutral-600 leading-relaxed">
+                Tentu saja! Setelah Anda mendaftar akun di PeduliHati, Anda dapat dengan mudah mengakses dan memantau
                 riwayat semua diagnosis yang pernah Anda lakukan. Ini sangat berguna untuk melacak perubahan atau
                 membagikan informasi awal ini dengan dokter Anda.
               </p>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="bg-neutral-50 rounded-3xl border border-neutral-200 overflow-hidden">
             <button
-              class="faq-button flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none hover:bg-gray-50 transition-colors"
+              class="faq-button flex justify-between items-center w-full px-8 py-6 text-left focus:outline-none hover:bg-neutral-100 transition-colors"
               data-target="faq-5">
-              <span class="text-lg font-medium text-secondary-900">Bisakah GangguanHati menggantikan kunjungan ke
-                dokter?</span>
-              <svg xmlns="http://www.w3.org/2000/svg"
-                class="faq-icon h-5 w-5 text-primary-600 transform transition-transform duration-200"
+              <span class="text-lg font-semibold text-neutral-900">Bisakah PeduliHati menggantikan kunjungan ke dokter?</span>
+              <svg class="faq-icon w-6 h-6 text-primary-600 transform transition-transform duration-200"
                 viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                   clip-rule="evenodd" />
               </svg>
             </button>
-            <div id="faq-5" class="faq-content hidden px-6 pb-4">
-              <p class="text-secondary-600">
-                Tidak, GangguanHati tidak dapat menggantikan peran dokter atau profesional medis. Sistem kami berfungsi
+            <div id="faq-5" class="faq-content hidden px-8 pb-6">
+              <p class="text-neutral-600 leading-relaxed">
+                Tidak, PeduliHati tidak dapat menggantikan peran dokter atau profesional medis. Sistem kami berfungsi
                 sebagai alat bantu deteksi dini dan informasi awal untuk membantu Anda lebih proaktif dalam menjaga
                 kesehatan hati. Untuk diagnosis akhir, konsultasi, dan rencana pengobatan, Anda tetap harus memeriksakan
                 diri ke dokter spesialis.
@@ -428,61 +375,55 @@
   </section>
 
   <!-- Team Section -->
-  <section class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4 md:px-8 lg:px-12 xl:px-16">
-      <div class="text-left max-w-4xl mb-16 mb-20 animate-fade-in">
-        <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">Tim Pengembang Kami</h2>
-        <p class="text-xl text-secondary-600 leading-relaxed">Kami adalah Mahasiswa Informatika Universitas Jenderal
-          Soedirman yang membangun solusi cerdas untuk deteksi dini gangguan hati.</p>
+  <section class="py-24 bg-neutral-50">
+    <div class="container mx-auto px-6 lg:px-8">
+      <div class="text-center max-w-4xl mx-auto mb-20 animate-fade-in">
+        <h2 class="text-3xl lg:text-4xl font-bold text-neutral-900 mb-6">Tim Pengembang Kami</h2>
+        <p class="text-xl text-neutral-600 leading-relaxed">
+          Kami adalah Mahasiswa Informatika Universitas Jenderal Soedirman yang membangun solusi cerdas untuk deteksi dini gangguan hati.
+        </p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
         <!-- Magdalena -->
         <a href="https://github.com/magdlenar" target="_blank"
-          class="text-primary-200 hover:text-white transition-colors duration-200">
-          <div
-            class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-100">
-            <div class="relative h-96">
+          class="group block animate-slide-up">
+          <div class="bg-white rounded-3xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-3">
+            <div class="relative h-96 overflow-hidden">
               {% load static %}
               <img src="{% static 'img/lena.jpg' %}" alt="Magdalena Rohmannawati"
-                class="w-full h-full object-cover object-center">
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              </div>
-              <div
-                class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <h3 class="text-xl font-medium mb-4 text-center">Magdalena Rohmannawati</h3>
+                class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <h3 class="text-xl font-semibold mb-3 text-center">Magdalena Rohmannawati</h3>
                 <div class="flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
+                  <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </a>
 
-
         <!-- Brian -->
         <a href="https://github.com/buriane" target="_blank"
-          class="text-primary-200 hover:text-white transition-colors duration-200">
-          <div
-            class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-200">
-            <div class="relative h-96">
+          class="group block animate-slide-up" style="animation-delay: 0.1s;">
+          <div class="bg-white rounded-3xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-3">
+            <div class="relative h-96 overflow-hidden">
               <img src="/static/img/brian.jpg" alt="Brian Cahya Purnama"
-                class="w-full h-full object-cover object-center">
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              </div>
-              <div
-                class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <h3 class="text-xl font-medium mb-4 text-center">Brian Cahya Purnama</h3>
+                class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <h3 class="text-xl font-semibold mb-3 text-center">Brian Cahya Purnama</h3>
                 <div class="flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
+                  <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
@@ -491,23 +432,20 @@
 
         <!-- Afiftha -->
         <a href="https://github.com/KangJ0n0" target="_blank"
-          class="text-primary-200 hover:text-white transition-colors duration-200">
-          <div
-            class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-300">
-            <div class="relative h-96">
+          class="group block animate-slide-up" style="animation-delay: 0.2s;">
+          <div class="bg-white rounded-3xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-3">
+            <div class="relative h-96 overflow-hidden">
               <img src="/static/img/afif.jpg" alt="Afiftha Ravi Aufa Yubiharto"
-                class="w-full h-full object-cover object-center">
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              </div>
-              <div
-                class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <h3 class="text-xl font-medium mb-4 text-center">Afiftha Ravi Aufa Yubiharto</h3>
+                class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <h3 class="text-xl font-semibold mb-3 text-center">Afiftha Ravi Aufa Yubiharto</h3>
                 <div class="flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
+                  <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
@@ -516,51 +454,57 @@
 
         <!-- Sultan -->
         <a href="https://github.com/msultanalhakim" target="_blank"
-          class="text-primary-200 hover:text-white transition-colors duration-200">
-          <div
-            class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-400">
-            <div class="relative h-96">
-              <img src="/static/img/sultan.jpg" alt="Muhammad Sultan Alhakim"
-                class="w-full h-full object-cover object-center">
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              </div>
-              <div
-                class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <h3 class="text-xl font-medium mb-4 text-center">Muhammad Sultan Alhakim</h3>
+          class="group block animate-slide-up" style="animation-delay: 0.3s;">
+          <div class="bg-white rounded-3xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-3">
+            <div class="relative h-96 overflow-hidden">
+              <img src="/static/img/sultan.png" alt="Muhammad Sultan Alhakim"
+                class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <h3 class="text-xl font-semibold mb-3 text-center">Muhammad Sultan Alhakim</h3>
                 <div class="flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
+                  <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </a>
-
       </div>
     </div>
   </section>
 
   <!-- CTA Section -->
-  <section class="py-20 bg-gradient-to-r from-primary-600 to-accent-700 relative overflow-hidden">
-    <div
-      class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] opacity-10 bg-cover bg-center">
+  <section class="py-24 bg-gradient-to-br from-primary-600 to-primary-800 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-full">
+      <div class="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full filter blur-3xl"></div>
     </div>
-    <div class="container mx-auto px-4 md:px-8 relative">
-      <div class="max-w-3xl mx-auto text-center text-white">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6">Mulai Gunakan Aplikasi Sekarang</h2>
-        <p class="text-xl text-primary-100 mb-10">Coba fitur diagnosis awal penyakit gangguan hati kami. Ditenagai oleh
-          teknologi Naive Bayes, sistem kami akan menganalisis gejala yang Anda alami untuk memberikan pemahaman awal
-          yang informatif mengenai potensi kondisi hati Anda.</p>
-        <div class="flex flex-wrap justify-center gap-4">
+    
+    <div class="container mx-auto px-6 lg:px-8 relative z-10">
+      <div class="max-w-4xl mx-auto text-center text-white">
+        <h2 class="text-4xl lg:text-5xl font-bold mb-8 leading-tight">
+          Mulai Gunakan Aplikasi Sekarang
+        </h2>
+        <p class="text-xl lg:text-2xl text-primary-100 mb-12 leading-relaxed">
+          Coba fitur diagnosis awal penyakit gangguan hati kami. Ditenagai oleh teknologi Naive Bayes, sistem kami akan menganalisis gejala yang Anda alami untuk memberikan pemahaman awal yang informatif mengenai potensi kondisi hati Anda.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <a href="{% url 'konsultasi' %}"
-            class="bg-white text-primary-700 px-8 py-4 rounded-lg font-medium hover:bg-primary-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-            Mulai Diagnosa </a>
+            class="bg-white text-primary-700 px-10 py-5 rounded-2xl font-bold hover:bg-primary-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center gap-3">
+            <span>Mulai Diagnosa</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
           <a href="{% url 'register' %}"
-            class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-medium hover:bg-white/10 transition-colors">
-            Daftar Akun </a>
+            class="bg-transparent border-2 border-white text-white px-10 py-5 rounded-2xl font-bold hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
+            Daftar Akun
+          </a>
         </div>
       </div>
     </div>

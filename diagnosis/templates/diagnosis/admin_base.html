@@ -24,7 +24,7 @@
                     boxShadow: { 
                         'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                         'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                     }
+                    }
                 }
             }
         }
@@ -62,7 +62,6 @@
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-bg); border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-bg); }
         
-        /* Penyesuaian kelas lebar sidebar & margin konten utama */
         #admin-sidebar.sidebar-expanded { width: var(--sidebar-width); }
         #admin-sidebar.sidebar-collapsed { width: var(--sidebar-width-collapsed); }
         #main-content.main-content-expanded { margin-left: var(--sidebar-width); }
@@ -98,7 +97,13 @@
         #collapse-sidebar i { transition: transform 0.3s ease; }
         #admin-sidebar.sidebar-collapsed #collapse-sidebar i { transform: rotate(180deg); }
 
-        /* Menyembunyikan teks menggunakan kelas Tailwind pada JS */
+        /* Modal styles */
+        .modal-overlay { /* Ini diterapkan pada #logout-modal */
+            transition: opacity 0.3s ease;
+        }
+        .modal-content { /* Ini diterapkan pada div di dalam #logout-modal */
+            transition: transform 0.3s ease, opacity 0.3s ease; /* Tambahkan opacity untuk fade-in/out konten */
+        }
     </style>
 </head>
 
@@ -110,7 +115,7 @@
                     <div class="bg-primary-500 h-8 w-8 rounded-md flex items-center justify-center">
                         <i class="fas fa-heartbeat text-white"></i>
                     </div>
-                    <h1 class="text-lg font-semibold text-slate-800 sidebar-text">Admin Panel</h1>
+                    <h1 class="text-lg font-semibold text-slate-800 sidebar-text">PeduliHati</h1>
                 </div>
                 <button id="collapse-sidebar" class="ml-auto text-slate-400 hover:text-slate-600 lg:block hidden p-1 rounded-md hover:bg-slate-100">
                     <i class="fas fa-chevron-left"></i>
@@ -179,13 +184,12 @@
                     </div>
                 </div>
                 {% endif %}
-                {# TOMBOL KELUAR DENGAN PERINGATAN #}
-                <a href="{% url 'logout' %}" 
-                   id="logout-button"  {# Tambahkan ID untuk JavaScript #}
+                <button type="button" 
+                   id="open-logout-modal-button" 
                    class="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center justify-center space-x-2 transition-colors">
                     <i class="fas fa-sign-out-alt"></i>
                     <span class="sidebar-text">Keluar</span>
-                </a>
+                </button>
             </div>
         </aside>
 
@@ -244,7 +248,7 @@
                         {% include 'diagnosis/admin_partials/penyakit_content.html' %}
                     {% else %}
                          <div class="bg-white p-6 rounded-lg shadow-card">
-                            <p class="text-center text-slate-500">Selamat datang di Panel Admin. Silakan pilih menu di samping.</p>
+                             <p class="text-center text-slate-500">Selamat datang di Panel Admin. Silakan pilih menu di samping.</p>
                          </div>
                     {% endif %}
                 {% endblock admin_content %}
@@ -252,14 +256,36 @@
         </div>
     </div>
 
+    <div id="logout-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-50 modal-overlay opacity-0 pointer-events-none">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4 modal-content transform scale-95 opacity-0">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                <h3 class="text-lg font-semibold text-slate-800">Konfirmasi Keluar</h3>
+                <button id="close-logout-modal-button" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            <div class="py-4">
+                <p class="text-slate-600">Anda yakin ingin keluar dari sesi ini?</p>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
+                <button id="cancel-logout-button" type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors">
+                    Batal
+                </button>
+                <a href="{% url 'logout' %}" id="confirm-logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center space-x-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Ya, Keluar</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const adminSidebar = document.getElementById('admin-sidebar');
-            const collapseSidebarBtn = document.getElementById('collapse-sidebar'); // Tombol chevron
+            const collapseSidebarBtn = document.getElementById('collapse-sidebar');
             const mainContent = document.getElementById('main-content');
             
-            // Mobile menu toggle (ini untuk tombol hamburger)
             if (mobileMenuButton && adminSidebar) {
                 mobileMenuButton.addEventListener('click', () => {
                     adminSidebar.classList.toggle('sidebar-mobile-hidden');
@@ -267,76 +293,121 @@
                 });
             }
 
-            // Sidebar collapse functionality (ini untuk tombol chevron di desktop)
             let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
             function applySidebarState() {
+                if (!adminSidebar) return; // Guard clause
                 const sidebarTexts = adminSidebar.querySelectorAll('.sidebar-text');
                 const menuIconWrappers = adminSidebar.querySelectorAll('.menu-icon-wrapper');
 
                 if (sidebarCollapsed) {
                     adminSidebar.classList.remove('sidebar-expanded');
-                    adminSidebar.classList.add('sidebar-collapsed'); // CSS akan memutar ikon chevron di sini
-                    mainContent.classList.remove('main-content-expanded');
-                    mainContent.classList.add('main-content-collapsed');
-                    // Tidak perlu mengubah innerHTML ikon lagi
-                    
+                    adminSidebar.classList.add('sidebar-collapsed'); 
+                    if (mainContent) {
+                        mainContent.classList.remove('main-content-expanded');
+                        mainContent.classList.add('main-content-collapsed');
+                    }
                     sidebarTexts.forEach(el => { el.classList.add('lg:hidden', 'opacity-0'); }); 
                     menuIconWrappers.forEach(el => { 
                         el.classList.add('mx-auto');
-                        el.parentElement.classList.add('justify-center');
+                        if (el.parentElement) el.parentElement.classList.add('justify-center');
                     });
                 } else {
                     adminSidebar.classList.add('sidebar-expanded');
-                    adminSidebar.classList.remove('sidebar-collapsed'); // CSS akan mengembalikan rotasi ikon chevron
-                    mainContent.classList.add('main-content-expanded');
-                    mainContent.classList.remove('main-content-collapsed');
-                    // Tidak perlu mengubah innerHTML ikon lagi
-                    
+                    adminSidebar.classList.remove('sidebar-collapsed'); 
+                    if (mainContent) {
+                        mainContent.classList.add('main-content-expanded');
+                        mainContent.classList.remove('main-content-collapsed');
+                    }
                     sidebarTexts.forEach(el => { el.classList.remove('lg:hidden', 'opacity-0'); });
                     menuIconWrappers.forEach(el => { 
                         el.classList.remove('mx-auto'); 
-                        el.parentElement.classList.remove('justify-center');
+                        if (el.parentElement) el.parentElement.classList.remove('justify-center');
                     });
                 }
             }
 
             if (collapseSidebarBtn && mainContent && adminSidebar) {
                 applySidebarState(); 
-
                 collapseSidebarBtn.addEventListener('click', () => {
                     sidebarCollapsed = !sidebarCollapsed;
                     localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
-                    applySidebarState(); // Panggil fungsi untuk menerapkan perubahan kelas (dan rotasi CSS)
+                    applySidebarState(); 
                 });
+            } else {
+                 applySidebarState(); // Coba terapkan state sidebar meskipun tombol collapse tidak ada di semua halaman
             }
 
-            // Click outside to close mobile sidebar
             document.addEventListener('click', function(event) {
-                if (window.innerWidth < 1024 && adminSidebar) { 
+                if (window.innerWidth < 1024 && adminSidebar && adminSidebar.classList.contains('sidebar-mobile-visible')) { 
                     const isClickInsideSidebar = adminSidebar.contains(event.target);
                     const isClickOnMobileButton = mobileMenuButton && mobileMenuButton.contains(event.target);
 
-                    if (!isClickInsideSidebar && !isClickOnMobileButton && adminSidebar.classList.contains('sidebar-mobile-visible')) {
+                    if (!isClickInsideSidebar && !isClickOnMobileButton) {
                         adminSidebar.classList.add('sidebar-mobile-hidden');
                         adminSidebar.classList.remove('sidebar-mobile-visible');
                     }
                 }
             });
 
-            const logoutButton = document.getElementById('logout-button');
-            if (logoutButton) {
-                logoutButton.addEventListener('click', function (event) {
-                    // Mencegah aksi default dari link (langsung redirect)
-                    event.preventDefault(); 
+            // Logout Modal Functionality
+            const openLogoutModalButton = document.getElementById('open-logout-modal-button');
+            const logoutModal = document.getElementById('logout-modal'); // Ini adalah overlay (modal-overlay)
+            const closeLogoutModalButton = document.getElementById('close-logout-modal-button');
+            const cancelLogoutButton = document.getElementById('cancel-logout-button');
+            // const confirmLogoutButton = document.getElementById('confirm-logout-button'); // Tidak perlu variabel jika hanya untuk navigasi
+            
+            // Elemen modal-content adalah anak dari logoutModal
+            const modalContent = logoutModal ? logoutModal.querySelector('.modal-content') : null;
+
+            function showLogoutModal() {
+                if (logoutModal && modalContent) {
+                    logoutModal.classList.remove('pointer-events-none');
+                    logoutModal.classList.remove('opacity-0');
+                    logoutModal.classList.add('opacity-100');
+
+                    modalContent.classList.remove('opacity-0', 'scale-95');
+                    modalContent.classList.add('opacity-100', 'scale-100');
+                } else {
+                    console.error("Elemen modal atau konten modal tidak ditemukan untuk ditampilkan.");
+                }
+            }
+
+            function hideLogoutModal() {
+                if (logoutModal && modalContent) {
+                    logoutModal.classList.remove('opacity-100');
+                    logoutModal.classList.add('opacity-0');
                     
-                    // Tampilkan dialog konfirmasi
-                    if (confirm('Anda yakin ingin keluar?')) {
-                        // Jika pengguna mengklik "OK", lanjutkan ke URL logout
-                        window.location.href = this.href;
-                    } else {
-                        // Jika pengguna mengklik "Cancel", tidak terjadi apa-apa
-                        return false;
+                    modalContent.classList.remove('opacity-100', 'scale-100');
+                    modalContent.classList.add('opacity-0', 'scale-95');
+
+                    setTimeout(() => {
+                        logoutModal.classList.add('pointer-events-none');
+                    }, 300); // Sesuaikan dengan durasi transisi CSS
+                } else {
+                    console.error("Elemen modal atau konten modal tidak ditemukan untuk disembunyikan.");
+                }
+            }
+
+            if (openLogoutModalButton && logoutModal && closeLogoutModalButton && cancelLogoutButton && modalContent) {
+                openLogoutModalButton.addEventListener('click', function (event) {
+                    event.preventDefault(); 
+                    showLogoutModal();
+                });
+
+                closeLogoutModalButton.addEventListener('click', function () {
+                    hideLogoutModal();
+                });
+
+                cancelLogoutButton.addEventListener('click', function () {
+                    hideLogoutModal();
+                });
+
+                logoutModal.addEventListener('click', function(event) {
+                    // Menutup modal hanya jika klik dilakukan pada overlay (logoutModal)
+                    // dan bukan pada konten di dalamnya (modalContent)
+                    if (event.target === logoutModal) { 
+                        hideLogoutModal();
                     }
                 });
             }

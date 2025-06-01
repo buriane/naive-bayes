@@ -1,5 +1,4 @@
 <div class="space-y-6">
-    <!-- Header Section -->
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-semibold text-slate-800">Manajemen Pengguna</h2>
         <button onclick="openModal('createModal')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md flex items-center space-x-2 transition-colors">
@@ -8,7 +7,6 @@
         </button>
     </div>
 
-    <!-- Table Section -->
     <div class="bg-white rounded-lg shadow-card overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
@@ -40,7 +38,7 @@
                                 <i class="fas fa-edit"></i>
                             </button>
                             {% if user.id_pengguna != request.session.user_id %}
-                            <button onclick="confirmDelete('{{ user.id_pengguna }}')" 
+                            <button onclick="openDeletePenggunaConfirmationModal('{{ user.id_pengguna }}')" 
                                     class="text-red-600 hover:text-red-900">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
@@ -59,11 +57,9 @@
         </div>
     </div>
 
-    <!-- Pagination -->
     {% include 'diagnosis/admin_partials/pagination.html' %}
 </div>
 
-<!-- Create Modal -->
 <div id="createModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-slate-200">
@@ -115,7 +111,6 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
 <div id="editModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b border-slate-200">
@@ -167,7 +162,31 @@
     </div>
 </div>
 
-<!-- Delete Form -->
+<div id="deletePenggunaModal" class="fixed inset-0 z-50 items-center justify-center bg-slate-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800">Konfirmasi Hapus Pengguna</h3>
+            <button type="button" onclick="closeModal('deletePenggunaModal')" class="text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+        </div>
+        <div class="py-4">
+            <p class="text-slate-600">Anda yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat diurungkan.</p>
+            <p class="text-sm text-slate-500 mt-2">Pengguna ID: <span id="deletePenggunaIdText"></span></p>
+        </div>
+        <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
+            <button type="button" onclick="closeModal('deletePenggunaModal')" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors">
+                Batal
+            </button>
+            <button id="confirmDeletePenggunaButton" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center space-x-2">
+                <i class="fas fa-trash-alt"></i>
+                <span>Ya, Hapus</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <form id="deleteForm" method="POST" class="hidden">
     {% csrf_token %}
     <input type="hidden" name="action" value="delete">
@@ -175,14 +194,19 @@
 </form>
 
 <script>
+let userIdToDeleteForModal = null; // Variabel untuk menyimpan ID pengguna yang akan dihapus via modal
+
 function openModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
     document.getElementById(modalId).classList.add('flex');
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-    document.getElementById(modalId).classList.remove('flex');
+    const modal = document.getElementById(modalId);
+    if (modal) { // Tambahkan pengecekan null
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 }
 
 function openEditModal(id, nama, email, role) {
@@ -193,18 +217,57 @@ function openEditModal(id, nama, email, role) {
     openModal('editModal');
 }
 
-function confirmDelete(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-        document.getElementById('delete_id_pengguna').value = id;
-        document.getElementById('deleteForm').submit();
+// Fungsi baru untuk membuka modal konfirmasi hapus pengguna
+function openDeletePenggunaConfirmationModal(id) {
+    userIdToDeleteForModal = id;
+    const deletePenggunaIdText = document.getElementById('deletePenggunaIdText');
+    if (deletePenggunaIdText) {
+        deletePenggunaIdText.textContent = id;
     }
+    openModal('deletePenggunaModal'); // Menggunakan fungsi openModal yang sudah ada
 }
 
-// Close modal when clicking outside
+// Fungsi confirmDelete(id) yang lama dimodifikasi/digantikan oleh openDeletePenggunaConfirmationModal
+// function confirmDelete(id) {
+//     if (confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
+//         document.getElementById('delete_id_pengguna').value = id;
+//         document.getElementById('deleteForm').submit();
+//     }
+// }
+
+// Event listener untuk tombol konfirmasi di dalam modal hapus pengguna
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmDelPenggunaBtn = document.getElementById('confirmDeletePenggunaButton');
+    if (confirmDelPenggunaBtn) {
+        confirmDelPenggunaBtn.addEventListener('click', function() {
+            if (userIdToDeleteForModal) {
+                document.getElementById('delete_id_pengguna').value = userIdToDeleteForModal;
+                document.getElementById('deleteForm').submit();
+                // Tidak perlu closeModal secara eksplisit karena halaman akan redirect/reload
+            } else {
+                console.error('User ID untuk dihapus tidak diatur.');
+                closeModal('deletePenggunaModal');
+            }
+        });
+    }
+    // Tombol close dan cancel pada deletePenggunaModal sudah dihandle oleh onclick="closeModal('deletePenggunaModal')"
+});
+
+
+// Close modal when clicking outside (existing, unchanged)
 window.onclick = function(event) {
-    if (event.target.classList.contains('fixed')) {
-        event.target.classList.add('hidden');
-        event.target.classList.remove('flex');
+    const createModal = document.getElementById('createModal');
+    const editModal = document.getElementById('editModal');
+    const deletePenggunaModal = document.getElementById('deletePenggunaModal');
+
+    if (event.target == createModal) {
+        closeModal('createModal');
+    }
+    if (event.target == editModal) {
+        closeModal('editModal');
+    }
+    if (event.target == deletePenggunaModal) {
+        closeModal('deletePenggunaModal');
     }
 }
-</script> 
+</script>

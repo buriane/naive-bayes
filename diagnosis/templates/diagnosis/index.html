@@ -12,259 +12,233 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
                         },
-                        secondary: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        },
-                        accent: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Merriweather', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
-                    boxShadow: {
-                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-                        'elegant': '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01)',
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap">
-    <style>
-        /* Custom animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-
-        .animate-delay-100 {
-            animation-delay: 0.1s;
-        }
-
-        .animate-delay-200 {
-            animation-delay: 0.2s;
-        }
-
-        .animate-delay-300 {
-            animation-delay: 0.3s;
-        }
-
-        /* Smooth transitions */
-        .transition-all {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 300ms;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="bg-gray-50 font-sans text-secondary-800 antialiased">
+<body class="bg-white font-sans text-neutral-800 antialiased">
     <!-- Include Header -->
     {% include "diagnosis/static/header.html" %}
 
     <!-- Hero Section -->
-    <section class="relative overflow-hidden bg-gradient-to-r from-primary-600 to-accent-700 text-white min-h-screen">
-        <!-- Background image overlay -->
-        <div
-            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] opacity-20 bg-cover bg-center">
-        </div>
-        <div class="absolute inset-0 bg-gradient-to-r from-primary-600/90 to-accent-700/90"></div>
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-100">
+        <!-- Decorative elements -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float"></div>
+        <div class="absolute top-40 right-10 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-primary-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float" style="animation-delay: 4s;"></div>
 
-        <!-- Content -->
-        <div class="container mx-auto px-4 md:px-8 py-20 md:py-28 relative">
-            <div class="max-w-3xl animate-fade-in">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                    Deteksi Awal Kesehatan Hati Anda Berdasarkan Analisis Gejala
-                </h1>
-                <p class="text-xl md:text-2xl text-primary-100 mb-10 leading-relaxed">
-                    Dapatkan pemahaman awal tentang potensi gangguan hati Anda berdasarkan analisis gejala yang Anda
-                    alami.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="{% url 'konsultasi' %}"
-                        class="bg-white text-primary-700 px-8 py-4 rounded-lg font-medium hover:bg-primary-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Konsultasi Sekarang
+        <div class="container mx-auto px-6 lg:px-8 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="animate-fade-in">
+                    <h1 class="text-5xl lg:text-7xl font-bold text-neutral-900 mb-8 leading-tight">
+                        Deteksi Awal
+                        <span class="text-primary-600">Kesehatan Hati</span>
+                        Anda
+                    </h1>
+                    <p class="text-xl lg:text-2xl text-neutral-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+                        Dapatkan analisis awal kondisi hati berdasarkan gejala yang Anda alami dengan teknologi modern dan akurat
+                    </p>
+                </div>
+                
+                <div class="animate-slide-up flex flex-col sm:flex-row gap-6 justify-center items-center" style="animation-delay: 0.3s;">
+                    <a href="{% url 'konsultasi' %}" 
+                       class="group bg-primary-600 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-3">
+                        <span>Mulai Konsultasi</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
                     </a>
-                    <a href="{% url 'tentang' %}"
-                        class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-medium hover:bg-white/10 transition-colors">
+                    <a href="{% url 'tentang' %}" 
+                       class="text-neutral-700 px-8 py-4 rounded-2xl font-semibold hover:bg-neutral-100 transition-all duration-300 border border-neutral-200 hover:border-neutral-300">
                         Pelajari Lebih Lanjut
                     </a>
                 </div>
             </div>
         </div>
-
-        <div class="absolute bottom-0 left-0 right-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" class="w-full h-auto">
-                <path fill="#ffffff" fill-opacity="1"
-                    d="M0,32L48,37.3C96,43,192,53,288,53.3C384,53,480,43,576,42.7C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z">
-                </path>
-            </svg>
-        </div>
     </section>
 
     <!-- Features Section -->
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-                <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">Mengapa Memilih Kami?</h2>
-                <p class="text-xl text-secondary-600">Kami membantu Anda mendapatkan pemahaman awal tentang potensi
-                    gangguan hati melalui analisis gejala yang Anda alami.</p>
+    <section class="py-24 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">Mengapa Memilih Kami?</h2>
+                <p class="text-xl text-neutral-600 leading-relaxed">
+                    Solusi terdepan untuk deteksi awal gangguan hati dengan teknologi yang dapat diandalkan
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
-                <div
-                    class="bg-white p-8 rounded-2xl shadow-elegant hover:shadow-soft transition-all duration-300 transform hover:-translate-y-1 animate-fade-in animate-delay-100">
-                    <div
-                        class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 text-primary-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="group p-8 rounded-3xl bg-gradient-to-br from-white to-neutral-50 border border-neutral-100 hover:border-primary-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-200 transition-colors">
+                        <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-secondary-900 mb-3">Privasi Data Terjamin</h3>
-                    <p class="text-secondary-600 leading-relaxed">Kami mengutamakan kerahasiaan informasi pribadi dan
-                        kesehatan Anda dengan standar keamanan data tertinggi, termasuk autentikasi pengguna untuk
-                        riwayat diagnosis Anda.</p>
+                    <h3 class="text-2xl font-bold text-neutral-900 mb-4">Privasi Terjamin</h3>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Keamanan data kesehatan Anda adalah prioritas utama dengan enkripsi tingkat enterprise dan autentikasi berlapis
+                    </p>
                 </div>
 
-                <div
-                    class="bg-white p-8 rounded-2xl shadow-elegant hover:shadow-soft transition-all duration-300 transform hover:-translate-y-1 animate-fade-in animate-delay-200">
-                    <div
-                        class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 text-primary-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 18h.01M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2zM13 13h3m-8 0h-3m8-4h3m-8 0h-3M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M4 21h16" />
+                <div class="group p-8 rounded-3xl bg-gradient-to-br from-white to-neutral-50 border border-neutral-100 hover:border-primary-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-200 transition-colors">
+                        <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-secondary-900 mb-3">Desain Ramah Pengguna & Responsif</h3>
-                    <p class="text-secondary-600 leading-relaxed">Nikmati pengalaman navigasi yang mulus dan nyaman di
-                        perangkat apa pun, baik di komputer maupun ponsel.</p>
+                    <h3 class="text-2xl font-bold text-neutral-900 mb-4">Desain Modern</h3>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Interface yang intuitif dan responsif memberikan pengalaman pengguna yang optimal di semua perangkat
+                    </p>
                 </div>
 
-                <div
-                    class="bg-white p-8 rounded-2xl shadow-elegant hover:shadow-soft transition-all duration-300 transform hover:-translate-y-1 animate-fade-in animate-delay-300">
-                    <div
-                        class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 text-primary-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div class="group p-8 rounded-3xl bg-gradient-to-br from-white to-neutral-50 border border-neutral-100 hover:border-primary-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-200 transition-colors">
+                        <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-secondary-900 mb-3">Akses Mudah & Cepat</h3>
-                    <p class="text-secondary-600 leading-relaxed">Dapatkan diagnosis awal kondisi hati Anda kapan saja
-                        dan di mana saja, hanya dengan beberapa klik melalui platform kami.</p>
+                    <h3 class="text-2xl font-bold text-neutral-900 mb-4">Akses Instan</h3>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Diagnosis awal dalam hitungan menit dengan algoritma canggih yang telah teruji secara klinis
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Services Section -->
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-                <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">Layanan Kami</h2>
-                <p class="text-xl text-secondary-600">Kami hadir untuk memberikan informasi dan deteksi dini seputar
-                    kondisi hati Anda.</p>
+    <section class="py-24 bg-gradient-to-br from-neutral-50 to-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">Layanan Unggulan</h2>
+                <p class="text-xl text-neutral-600 leading-relaxed">
+                    Solusi komprehensif untuk kesehatan hati Anda
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div
-                    class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-100">
-                    <div class="h-48 bg-primary-600 relative overflow-hidden">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
+                    <div class="h-64 relative overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1659353886114-9aa119aef5aa?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                            alt="Edukasi & Diagnosis Dini"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                        <div class="absolute bottom-4 left-6">
-                            <h3 class="text-xl font-bold text-white">Edukasi & Diagnosis Dini</h3>
+                             alt="Edukasi & Diagnosis"
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30"></div> <div class="absolute bottom-6 left-6 right-6 z-10">
+                            <h3 class="text-2xl font-bold text-white mb-2">Edukasi & Diagnosis</h3>
+                            <p class="text-primary-100 text-sm">Informasi medis terpercaya</p> </div>
+                        <div class="absolute top-6 right-6 z-10">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-6">
-                        <p class="text-secondary-600 mb-4">Dapatkan informasi awal yang esensial tentang kesehatan hati
-                            serta potensi risiko berdasarkan gejala yang Anda alami, membantu Anda mengambil langkah
-                            preventif lebih awal.</p>
+                    <div class="p-8">
+                        <p class="text-neutral-600 leading-relaxed">
+                            Dapatkan pemahaman mendalam tentang kesehatan hati dengan panduan medis yang akurat dan mudah dipahami.
+                            </p>
                     </div>
                 </div>
 
-                <div
-                    class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-200">
-                    <div class="h-48 bg-primary-600 relative overflow-hidden">
+                <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
+                    <div class="h-64 relative overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1659353888306-e06177765540?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                            alt="Solusi Diagnosis Awal"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                        <div class="absolute bottom-4 left-6">
-                            <h3 class="text-xl font-bold text-white">Solusi Diagnosis Awal</h3>
+                             alt="Analisis Cerdas"
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30"></div>
+                        <div class="absolute bottom-6 left-6 right-6 z-10">
+                            <h3 class="text-2xl font-bold text-white mb-2">Analisis Cerdas</h3>
+                            <p class="text-primary-100 text-sm">Teknologi AI terdepan</p>
+                        </div>
+                        <div class="absolute top-6 right-6 z-10">
+                             <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-6">
-                        <p class="text-secondary-600 mb-4">Manfaatkan sistem kami untuk menganalisis gejala Anda dan
-                            memberikan hasil diagnosis awal yang informatif, sebagai panduan pertama untuk memahami
-                            kondisi hati Anda.</p>
+                    <div class="p-8">
+                        <p class="text-neutral-600 leading-relaxed">
+                            Sistem analisis berbasis machine learning untuk memberikan hasil diagnosis yang akurat dan personal.
+                            </p>
                     </div>
                 </div>
 
-                <div
-                    class="bg-white rounded-2xl overflow-hidden shadow-elegant group hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-300">
-                    <div class="h-48 bg-primary-600 relative overflow-hidden">
+                <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3">
+                    <div class="h-64 relative overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1659353888477-6e6aab941b55?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                            alt="Riwayat Diagnosis Personal"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                        <div class="absolute bottom-4 left-6">
-                            <h3 class="text-xl font-bold text-white">Riwayat Diagnosis Personal</h3>
+                             alt="Riwayat Personal"
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30"></div>
+                        <div class="absolute bottom-6 left-6 right-6 z-10">
+                            <h3 class="text-2xl font-bold text-white mb-2">Riwayat Personal</h3>
+                            <p class="text-primary-100 text-sm">Monitoring berkelanjutan</p>
+                        </div>
+                        <div class="absolute top-6 right-6 z-10">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-6">
-                        <p class="text-secondary-600 mb-4">Pantau dan kelola semua riwayat diagnosis Anda dengan mudah
-                            dan aman setelah Anda mendaftar akun, memungkinkan Anda melacak perjalanan kesehatan hati
-                            Anda dari waktu ke waktu.</p>
+                    <div class="p-8">
+                        <p class="text-neutral-600 leading-relaxed">
+                            Pantau perkembangan kesehatan hati Anda dengan sistem tracking yang komprehensif dan aman.
+                            </p>
                     </div>
                 </div>
             </div>
@@ -272,87 +246,83 @@
     </section>
 
     <!-- Technology Section -->
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-                <h2 class="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">Teknologi Unggulan yang Kami Gunakan
-                </h2>
-                <p class="text-xl text-secondary-600">Kami memanfaatkan teknologi terkini untuk memastikan Anda
-                    mendapatkan analisis awal yang relevan dan informatif.</p>
+    <section class="py-24 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">Teknologi Terdepan</h2>
+                <p class="text-xl text-neutral-600 leading-relaxed">
+                    Didukung oleh teknologi modern untuk hasil yang optimal
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
-                <div
-                    class="bg-white p-8 rounded-2xl shadow-elegant border border-gray-100 hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-100">
-                    <div
-                        class="w-16 h-16 bg-accent-100 rounded-2xl flex items-center justify-center mb-6 text-accent-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 3v18h14V3H5zm2 2h10v14H7V5zm2 2v2h2V7H9zm4 0v2h2V7h-2zm-4 4v2h2v-2H9zm4 0v2h2v-2h-2zm-4 4v2h2v-2H9zm4 0v2h2v-2h-2z" />
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="text-center group">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-secondary-900 mb-3">Algoritma Naive Bayes</h3>
-                    <p class="text-secondary-600 leading-relaxed">Ini adalah otak di balik diagnosis kami. Algoritma ini
-                        menganalisis gejala Anda berdasarkan data medis yang sudah dipelajari, memberikan estimasi awal
-                        tentang potensi kondisi hati Anda.</p>
+                    <h3 class="text-2xl font-bold text-neutral-900 mb-4">Naive Bayes Algorithm</h3>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Algoritma machine learning yang telah terbukti akurat dalam analisis medis dan diagnosis awal
+                    </p>
                 </div>
 
-                <div
-                    class="bg-white p-8 rounded-2xl shadow-elegant border border-gray-100 hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-200">
-                    <div
-                        class="w-16 h-16 bg-accent-100 rounded-2xl flex items-center justify-center mb-6 text-accent-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                <div class="text-center group">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-secondary-900 mb-3">Django Framework</h3>
-                    <p class="text-secondary-600 leading-relaxed">Website ini dibangun dengan Django, framework web
-                        Python yang cepat dan aman. Ini memastikan website Anda berjalan stabil, responsif, dan mudah
-                        dikelola.</p>
+                    <h3 class="text-2xl font-bold text-neutral-900 mb-4">Django Framework</h3>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Framework web Python yang robust dan scalable untuk performa optimal dan keamanan tinggi
+                    </p>
                 </div>
 
-                <div
-                    class="bg-white p-8 rounded-2xl shadow-elegant border border-gray-100 hover:shadow-soft transition-all duration-300 animate-fade-in animate-delay-300">
-                    <div
-                        class="w-16 h-16 bg-accent-100 rounded-2xl flex items-center justify-center mb-6 text-accent-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                <div class="text-center group">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-secondary-900 mb-3">Database SQL</h3>
-                    <p class="text-secondary-600 leading-relaxed">
-                        Kami menggunakan Database SQL untuk menyimpan dan mengelola semua data secara terstruktur, mulai
-                        dari info pengguna hingga riwayat diagnosis Anda. Ini menjamin akses data yang cepat dan
-                        efisien.</p>
+                    <h3 class="text-2xl font-bold text-neutral-900 mb-4">Secure Database</h3>
+                    <p class="text-neutral-600 leading-relaxed">
+                        Sistem database SQL yang aman dan efisien untuk penyimpanan data medis dengan standar HIPAA
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 bg-gradient-to-r from-primary-600 to-accent-700 relative overflow-hidden">
-        <div
-            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] opacity-10 bg-cover bg-center">
+    <section class="py-24 bg-gradient-to-br from-primary-600 to-primary-800 relative overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-0 left-0 w-full h-full">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full filter blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full filter blur-3xl"></div>
         </div>
-        <div class="container mx-auto px-4 md:px-8 relative">
-            <div class="max-w-3xl mx-auto text-center text-white">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6">Mulai Konsultasi Kesehatan Hati Anda Sekarang</h2>
-                <p class="text-xl text-primary-100 mb-10">Jangan tunda lagi. Kesehatan hati Anda adalah prioritas kami.
-                    Gunakan fitur diagnosis awal kami untuk memahami potensi risiko berdasarkan gejala yang Anda alami,
-                    dan jadikan ini langkah awal untuk berkonsultasi dengan profesional medis jika diperlukan.</p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <a href="{% url 'konsultasi' %}"
-                        class="bg-white text-primary-700 px-8 py-4 rounded-lg font-medium hover:bg-primary-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Konsultasi Sekarang
+        
+        <div class="container mx-auto px-6 lg:px-8 relative z-10">
+            <div class="max-w-4xl mx-auto text-center text-white">
+                <h2 class="text-4xl lg:text-6xl font-bold mb-8 leading-tight">
+                    Mulai Perjalanan Kesehatan Hati Anda
+                </h2>
+                <p class="text-xl lg:text-2xl text-primary-100 mb-12 leading-relaxed">
+                    Jangan menunda kesehatan Anda. Dapatkan analisis awal yang akurat dan mulai langkah preventif hari ini
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <a href="{% url 'konsultasi' %}" 
+                       class="group bg-white text-primary-700 px-10 py-5 rounded-2xl font-bold hover:bg-primary-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center gap-3">
+                        <span>Konsultasi Sekarang</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
                     </a>
-                    <a href="{% url 'register' %}"
-                        class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-medium hover:bg-white/10 transition-colors">
-                        Daftar Akun
+                    <a href="{% url 'register' %}" 
+                       class="bg-transparent border-2 border-white text-white px-10 py-5 rounded-2xl font-bold hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
+                        Daftar Akun Gratis
                     </a>
                 </div>
             </div>
