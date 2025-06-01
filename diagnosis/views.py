@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Diagnosis, Gejala, Laporandiagnosis, Laporangejala, Pengguna
 from django.db import connection
 from django.db.models import Q
@@ -308,145 +308,253 @@ def testing_view(request):
         'gejala_list': gejala_list,
     })
 
+# --- Role-based Access Control Decorators ---
+def role_required(allowed_roles):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            if not request.session.get('user_id'):
+                messages.error(request, 'Silakan login terlebih dahulu.')
+                return redirect('login')
+            
+            user_role = request.session.get('user_role')
+            if user_role not in allowed_roles:
+                messages.error(request, 'Anda tidak memiliki akses ke halaman ini.')
+                return redirect('admin_beranda')
+            
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
 # --- Admin Panel Views ---
+
 @login_required_custom
+@role_required(['admin', 'pakar'])
 def admin_beranda(request):
-    if request.session.get('user_role') != 'admin':
-        messages.error(request, 'Anda tidak memiliki akses ke halaman ini.')
-        return redirect('homepage')
-
-    total_laporan = Laporandiagnosis.objects.count()
-    total_gejala = Gejala.objects.count()
-    total_penyakit = Diagnosis.objects.count()
-    konsultasi_today = Laporandiagnosis.objects.filter(tanggal_diagnosis=date.today()).count()
-
-    penyakit_data_for_chart = Laporandiagnosis.objects.values(
-        'id_diagnosis__nama_diagnosis'
-    ).annotate(
-        jumlah=Count('id_diagnosis_id')
-    ).order_by('-jumlah')
-    penyakit_terdiagnosis_top = list(penyakit_data_for_chart[:5])
-
-    riwayat_terbaru_beranda = Laporandiagnosis.objects.select_related('id_diagnosis', 'id_pengguna').order_by('-tanggal_diagnosis')[:5]
-
-    chart_labels = [item['id_diagnosis__nama_diagnosis'] for item in penyakit_terdiagnosis_top]
-    chart_data = [item['jumlah'] for item in penyakit_terdiagnosis_top]
-
-    diagnosis_trend_labels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"] # Data dummy
-    diagnosis_trend_data = [12, 19, 3, 5, 2, 3, 7] # Data dummy
-
     context = {
         'page_title': 'Beranda Admin',
         'active_section': 'beranda',
-        'total_laporan': total_laporan,
-        'total_gejala': total_gejala,
-        'total_penyakit': total_penyakit,
-        'konsultasi_today': konsultasi_today,
-        'penyakit_terdiagnosis': penyakit_terdiagnosis_top,
-        'riwayat_terbaru_beranda': riwayat_terbaru_beranda,
-        'chart_labels': chart_labels,
-        'chart_data': chart_data,
-        'diagnosis_trend_labels': diagnosis_trend_labels,
-        'diagnosis_trend_data': diagnosis_trend_data,
-        'user_name': request.session.get('user_name', 'Admin')
     }
     return render(request, 'diagnosis/admin_base.html', context)
 
 @login_required_custom
+@role_required(['admin'])
 def admin_riwayat(request):
-    if request.session.get('user_role') != 'admin':
-        messages.error(request, 'Anda tidak memiliki akses ke halaman ini.')
-        return redirect('homepage')
-
-    search_query = request.GET.get('search', '')
-    # PERBAIKAN: Urutkan berdasarkan id_laporandiagnosis secara ascending
-    laporan_list_all = Laporandiagnosis.objects.select_related('id_diagnosis', 'id_pengguna').order_by('id_laporandiagnosis')
-
-    if search_query:
-        filters = Q(id_pengguna__nama_pengguna__icontains=search_query) | \
-                  Q(id_diagnosis__nama_diagnosis__icontains=search_query)
-        if search_query.isdigit():
-            try:
-                filters |= Q(id_laporandiagnosis=int(search_query))
-            except ValueError:
-                pass
-        laporan_list_all = laporan_list_all.filter(filters)
+    riwayat_list = Laporandiagnosis.objects.all().select_related(
+        'id_diagnosis', 'id_pengguna'
+    ).order_by('-tanggal_diagnosis')
     
-    paginator = Paginator(laporan_list_all, 10)
+    paginator = Paginator(riwayat_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    
     context = {
-        'page_title': 'Riwayat Konsultasi (Admin)',
+        'page_title': 'Riwayat Diagnosis',
         'active_section': 'riwayat',
         'page_obj': page_obj,
-        'search_query': search_query,
-        'user_name': request.session.get('user_name', 'Admin')
     }
     return render(request, 'diagnosis/admin_base.html', context)
 
 @login_required_custom
-def admin_gejala(request):
-    if request.session.get('user_role') != 'admin':
-        messages.error(request, 'Anda tidak memiliki akses ke halaman ini.')
-        return redirect('homepage')
+@role_required(['admin'])
+def admin_pengguna(request):
+    pengguna_list = Pengguna.objects.all().order_by('-id_pengguna')
     
-    search_query = request.GET.get('search', '')
-    # PERBAIKAN: Urutkan berdasarkan id_gejala secara ascending
-    gejala_list_all = Gejala.objects.all().order_by('id_gejala')
-
-    if search_query:
-        filters = Q(kode_gejala__icontains=search_query) | \
-                  Q(nama_gejala__icontains=search_query)
-        if search_query.isdigit():
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'create':
             try:
-                filters |= Q(id_gejala=int(search_query))
-            except ValueError:
-                pass
-        gejala_list_all = gejala_list_all.filter(filters)
-
-    paginator = Paginator(gejala_list_all, 15)
+                nama = request.POST.get('nama_pengguna')
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                role = request.POST.get('role')
+                
+                if Pengguna.objects.filter(email=email).exists():
+                    messages.error(request, 'Email sudah terdaftar.')
+                else:
+                    new_user = Pengguna(
+                        nama_pengguna=nama,
+                        email=email,
+                        password=make_password(password),
+                        role=role
+                    )
+                    new_user.save()
+                    messages.success(request, 'Pengguna berhasil ditambahkan.')
+            except Exception as e:
+                messages.error(request, f'Gagal menambahkan pengguna: {str(e)}')
+                
+        elif action == 'update':
+            try:
+                user_id = request.POST.get('id_pengguna')
+                user = Pengguna.objects.get(id_pengguna=user_id)
+                
+                user.nama_pengguna = request.POST.get('nama_pengguna')
+                user.email = request.POST.get('email')
+                if request.POST.get('password'):
+                    user.password = make_password(request.POST.get('password'))
+                user.role = request.POST.get('role')
+                
+                user.save()
+                messages.success(request, 'Data pengguna berhasil diperbarui.')
+            except Pengguna.DoesNotExist:
+                messages.error(request, 'Pengguna tidak ditemukan.')
+            except Exception as e:
+                messages.error(request, f'Gagal memperbarui pengguna: {str(e)}')
+                
+        elif action == 'delete':
+            try:
+                user_id = request.POST.get('id_pengguna')
+                user = Pengguna.objects.get(id_pengguna=user_id)
+                
+                # Prevent self-deletion
+                if user.id_pengguna == request.session.get('user_id'):
+                    messages.error(request, 'Tidak dapat menghapus akun sendiri.')
+                else:
+                    user.delete()
+                    messages.success(request, 'Pengguna berhasil dihapus.')
+            except Pengguna.DoesNotExist:
+                messages.error(request, 'Pengguna tidak ditemukan.')
+            except Exception as e:
+                messages.error(request, f'Gagal menghapus pengguna: {str(e)}')
+    
+    paginator = Paginator(pengguna_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
     context = {
-        'page_title': 'Manajemen Gejala (Admin)',
+        'page_title': 'Manajemen Pengguna',
+        'active_section': 'pengguna',
+        'page_obj': page_obj,
+    }
+    return render(request, 'diagnosis/admin_base.html', context)
+
+@login_required_custom
+@role_required(['pakar'])
+def admin_gejala(request):
+    gejala_list = Gejala.objects.all().order_by('kode_gejala')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'create':
+            try:
+                kode = request.POST.get('kode_gejala')
+                nama = request.POST.get('nama_gejala')
+                pertanyaan = request.POST.get('pertanyaan_gejala')
+                
+                if Gejala.objects.filter(kode_gejala=kode).exists():
+                    messages.error(request, 'Kode gejala sudah ada.')
+                else:
+                    new_gejala = Gejala(
+                        kode_gejala=kode,
+                        nama_gejala=nama,
+                        pertanyaan_gejala=pertanyaan
+                    )
+                    new_gejala.save()
+                    messages.success(request, 'Gejala berhasil ditambahkan.')
+            except Exception as e:
+                messages.error(request, f'Gagal menambahkan gejala: {str(e)}')
+                
+        elif action == 'update':
+            try:
+                gejala_id = request.POST.get('id_gejala')
+                gejala = Gejala.objects.get(id_gejala=gejala_id)
+                
+                gejala.kode_gejala = request.POST.get('kode_gejala')
+                gejala.nama_gejala = request.POST.get('nama_gejala')
+                gejala.pertanyaan_gejala = request.POST.get('pertanyaan_gejala')
+                
+                gejala.save()
+                messages.success(request, 'Data gejala berhasil diperbarui.')
+            except Gejala.DoesNotExist:
+                messages.error(request, 'Gejala tidak ditemukan.')
+            except Exception as e:
+                messages.error(request, f'Gagal memperbarui gejala: {str(e)}')
+                
+        elif action == 'delete':
+            try:
+                gejala_id = request.POST.get('id_gejala')
+                gejala = Gejala.objects.get(id_gejala=gejala_id)
+                gejala.delete()
+                messages.success(request, 'Gejala berhasil dihapus.')
+            except Gejala.DoesNotExist:
+                messages.error(request, 'Gejala tidak ditemukan.')
+            except Exception as e:
+                messages.error(request, f'Gagal menghapus gejala: {str(e)}')
+    
+    paginator = Paginator(gejala_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_title': 'Manajemen Gejala',
         'active_section': 'gejala',
         'page_obj': page_obj,
-        'search_query': search_query,
-        'user_name': request.session.get('user_name', 'Admin')
     }
     return render(request, 'diagnosis/admin_base.html', context)
 
 @login_required_custom
+@role_required(['pakar'])
 def admin_penyakit(request):
-    if request.session.get('user_role') != 'admin':
-        messages.error(request, 'Anda tidak memiliki akses ke halaman ini.')
-        return redirect('homepage')
-
-    search_query = request.GET.get('search', '')
-    # Urutkan berdasarkan id_diagnosis secara ascending
-    penyakit_list_all = Diagnosis.objects.all().order_by('id_diagnosis')
-
-    if search_query:
-        filters = Q(nama_diagnosis__icontains=search_query) | \
-                  Q(deskripsi_diagnosis__icontains=search_query)
-        if search_query.isdigit():
+    penyakit_list = Diagnosis.objects.all().order_by('id_diagnosis')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'create':
             try:
-                filters |= Q(id_diagnosis=int(search_query))
-            except ValueError:
-                pass
-        penyakit_list_all = penyakit_list_all.filter(filters)
-
-    paginator = Paginator(penyakit_list_all, 15)
+                nama = request.POST.get('nama_diagnosis')
+                deskripsi = request.POST.get('deskripsi_diagnosis')
+                solusi = request.POST.get('solusi_diagnosis')
+                gambar = request.POST.get('gambar_diagnosis')
+                
+                new_penyakit = Diagnosis(
+                    nama_diagnosis=nama,
+                    deskripsi_diagnosis=deskripsi,
+                    solusi_diagnosis=solusi,
+                    gambar_diagnosis=gambar
+                )
+                new_penyakit.save()
+                messages.success(request, 'Penyakit berhasil ditambahkan.')
+            except Exception as e:
+                messages.error(request, f'Gagal menambahkan penyakit: {str(e)}')
+                
+        elif action == 'update':
+            try:
+                penyakit_id = request.POST.get('id_diagnosis')
+                penyakit = Diagnosis.objects.get(id_diagnosis=penyakit_id)
+                
+                penyakit.nama_diagnosis = request.POST.get('nama_diagnosis')
+                penyakit.deskripsi_diagnosis = request.POST.get('deskripsi_diagnosis')
+                penyakit.solusi_diagnosis = request.POST.get('solusi_diagnosis')
+                penyakit.gambar_diagnosis = request.POST.get('gambar_diagnosis')
+                
+                penyakit.save()
+                messages.success(request, 'Data penyakit berhasil diperbarui.')
+            except Diagnosis.DoesNotExist:
+                messages.error(request, 'Penyakit tidak ditemukan.')
+            except Exception as e:
+                messages.error(request, f'Gagal memperbarui penyakit: {str(e)}')
+                
+        elif action == 'delete':
+            try:
+                penyakit_id = request.POST.get('id_diagnosis')
+                penyakit = Diagnosis.objects.get(id_diagnosis=penyakit_id)
+                penyakit.delete()
+                messages.success(request, 'Penyakit berhasil dihapus.')
+            except Diagnosis.DoesNotExist:
+                messages.error(request, 'Penyakit tidak ditemukan.')
+            except Exception as e:
+                messages.error(request, f'Gagal menghapus penyakit: {str(e)}')
+    
+    paginator = Paginator(penyakit_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    
     context = {
-        'page_title': 'Manajemen Penyakit (Admin)',
+        'page_title': 'Manajemen Penyakit',
         'active_section': 'penyakit',
         'page_obj': page_obj,
-        'search_query': search_query,
-        'user_name': request.session.get('user_name', 'Admin')
     }
     return render(request, 'diagnosis/admin_base.html', context)
