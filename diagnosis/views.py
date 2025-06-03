@@ -231,12 +231,7 @@ def hasil(request):
     nb_probabilities = {}
     for diagnosis, prob in nb_results:
         # Kalikan dengan 100 untuk mendapatkan persentase kecil seperti dalam dokumentasi
-        # PERBAIKAN: Gunakan Decimal untuk presisi tinggi
-        from decimal import Decimal, getcontext
-        getcontext().prec = 28  # Set precision tinggi
-        
-        percentage = Decimal(str(prob)) * Decimal('100')
-        nb_probabilities[diagnosis.id_diagnosis] = float(percentage)
+        nb_probabilities[diagnosis.id_diagnosis] = prob * 100
 
     # PERBAIKAN: Gunakan HANYA Naive Bayes untuk hasil akhir (bukan hybrid)
     # Karena dokumentasi menunjukkan hasil akhir menggunakan pure Naive Bayes
@@ -256,6 +251,14 @@ def hasil(request):
     # Get the top diagnosis
     top_diagnosis, final_probability, rule_prob, nb_prob = final_results[0]
 
+    # TAMBAHAN: Siapkan data semua probabilitas untuk ditampilkan
+    all_probabilities = []
+    for diagnosis, nb_score, rule_score, final_score in final_results:
+        all_probabilities.append({
+            'diagnosis': diagnosis,
+            'probability': nb_score
+        })
+
     # Store the diagnosis result
     user_id = request.session.get('user_id', None)
     
@@ -266,17 +269,13 @@ def hasil(request):
     else:
         new_report_id = 1
     
-    # PERBAIKAN: Simpan dengan precision tinggi
-    from decimal import Decimal
-    probability_decimal = Decimal(str(final_probability))
-    
     # Create a new diagnosis report
     new_report = Laporandiagnosis(
         id_laporandiagnosis=new_report_id,
         id_pengguna_id=user_id,
         id_diagnosis=top_diagnosis,
         tanggal_diagnosis=date.today(),
-        probabilitas=probability_decimal
+        probabilitas=final_probability
     )
     new_report.save()
 
@@ -305,6 +304,7 @@ def hasil(request):
         'probability': final_probability,
         'selected_gejala': selected_gejala,
         'date': date.today(),
+        'all_probabilities': all_probabilities,
     })
 
 @login_required_custom
@@ -342,18 +342,88 @@ def detail_hasil(request, laporan_id):
              messages.error(request, 'Anda tidak diizinkan untuk melihat detail laporan ini.')
              return redirect('riwayat' if user_role_session != 'admin' else 'homepage')
 
-        # PERBAIKAN DI SINI:
-        # Asumsikan field ForeignKey di model Laporangejala yang menunjuk ke Laporandiagnosis
-        # bernama 'id_laporandiagnosis'
+        # Get gejala yang dipilih pada laporan ini
         gejala_reports_for_laporan = Laporangejala.objects.filter(
             id_laporandiagnosis=laporan_obj, value=1 
         ).select_related('id_gejala') 
-        # Alternatif jika nama fieldnya id_laporandiagnosis_id (kurang umum untuk nama field Django):
-        # gejala_reports_for_laporan = Laporangejala.objects.filter(
-        #     id_laporandiagnosis_id=laporan_obj.id_laporandiagnosis, value=1 
-        # ).select_related('id_gejala')
         
         selected_gejala_from_report_objects = [gr.id_gejala for gr in gejala_reports_for_laporan]
+        
+        # TAMBAHAN: Hitung ulang probabilitas semua penyakit berdasarkan gejala yang tersimpan
+        gejala_ids = [gr.id_gejala.id_gejala for gr in gejala_reports_for_laporan]
+        
+        if gejala_ids:  # Jika ada gejala yang tersimpan
+            # Get all diagnoses and gejala (sama seperti di fungsi hasil)
+            all_diagnoses = list(Diagnosis.objects.all())
+            all_gejala = list(Gejala.objects.all())
+
+            # Define knowledge base rules (sama seperti di fungsi hasil)
+            knowledge_base = {
+                'Hepatitis A': [1, 3, 4, 5, 7],    # G01, G03, G04, G05, G07
+                'Hepatitis B': [3, 6, 7, 8, 9],    # G03, G06, G07, G08, G09
+                'Hepatitis C': [1, 2, 3, 10],      # G01, G02, G03, G10
+                'Sirosis Hati': [7, 11, 12],       # G07, G11, G12
+                'Kolestasis': [8, 9, 13],          # G08, G09, G13
+            }
+
+            # --- NAIVE BAYES CALCULATION (sama seperti di fungsi hasil) ---
+            
+            # Konstanta sesuai dokumentasi
+            N_VALUE_FOR_EACH_CLASS = 1
+            TOTAL_CLASSES = 5
+            P_VALUE = 1 / TOTAL_CLASSES
+            TOTAL_SYMPTOMS_M = 13
+
+            # Perhitungan conditional probabilities
+            conditional_probs = {}
+            prior_probability = 1 / TOTAL_CLASSES
+
+            for diagnosis in all_diagnoses:
+                conditional_probs[diagnosis.id_diagnosis] = {}
+                diagnosis_name = diagnosis.nama_diagnosis
+                
+                for gejala in all_gejala:
+                    if diagnosis_name in knowledge_base and gejala.id_gejala in knowledge_base[diagnosis_name]:
+                        nc = 1
+                    else:
+                        nc = 0
+                    
+                    prob_symptom_given_disease = (nc + (TOTAL_SYMPTOMS_M * P_VALUE)) / \
+                                                 (N_VALUE_FOR_EACH_CLASS + TOTAL_SYMPTOMS_M)
+                    
+                    conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = prob_symptom_given_disease
+
+            # Perhitungan probabilitas untuk setiap penyakit
+            nb_results = []
+            
+            for diagnosis in all_diagnoses:
+                posterior_probability = prior_probability
+                
+                for patient_gejala_id in gejala_ids:
+                    prob = conditional_probs[diagnosis.id_diagnosis].get(patient_gejala_id)
+                    if prob is not None:
+                        posterior_probability *= prob
+                
+                nb_results.append((diagnosis, posterior_probability))
+
+            # Sort berdasarkan probabilitas tertinggi
+            nb_results.sort(key=lambda x: x[1], reverse=True)
+            
+            # Konversi ke persentase
+            nb_probabilities = {}
+            for diagnosis, prob in nb_results:
+                nb_probabilities[diagnosis.id_diagnosis] = prob * 100
+
+            # Siapkan data semua probabilitas untuk ditampilkan
+            all_probabilities = []
+            for diagnosis, prob in nb_results:
+                all_probabilities.append({
+                    'diagnosis': diagnosis,
+                    'probability': prob * 100
+                })
+        else:
+            # Jika tidak ada gejala, buat list kosong
+            all_probabilities = []
         
         return render(request, 'diagnosis/hasil.html', {
             'diagnosis': laporan_obj.id_diagnosis,
@@ -363,7 +433,8 @@ def detail_hasil(request, laporan_id):
             'laporan_pengguna': laporan_obj.id_pengguna,
             'is_detail_view': True,
             'laporan_id': laporan_id,
-            'page_title': f"Detail Laporan #{laporan_id}"
+            'page_title': f"Detail Laporan #{laporan_id}",
+            'all_probabilities': all_probabilities,
         })
     except Laporandiagnosis.DoesNotExist:
         messages.error(request, 'Laporan diagnosis tidak ditemukan.')
