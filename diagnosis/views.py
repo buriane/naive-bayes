@@ -227,32 +227,39 @@ def hasil(request):
     # Sort berdasarkan probabilitas tertinggi
     nb_results.sort(key=lambda x: x[1], reverse=True)
     
-    # 1. Hitung total probabilitas posterior
-    total_posterior_sum = sum(prob for diagnosis, prob in nb_results)
+    # Konversi ke persentase untuk tampilan (sesuai tabel dalam dokumentasi)
+    nb_probabilities = {}
+    for diagnosis, prob in nb_results:
+        # Kalikan dengan 100 untuk mendapatkan persentase kecil seperti dalam dokumentasi
+        nb_probabilities[diagnosis.id_diagnosis] = prob * 100
+
+    # PERBAIKAN: Gunakan HANYA Naive Bayes untuk hasil akhir (bukan hybrid)
+    # Karena dokumentasi menunjukkan hasil akhir menggunakan pure Naive Bayes
     
-    # 2. Normalisasi probabilitas dan konversi ke persentase
-    normalized_nb_results = []
-    for diagnosis, raw_prob in nb_results:
-        # Normalisasi: (raw_prob / total_sum) * 100
-        normalized_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum > 0 else 0
-        normalized_nb_results.append((diagnosis, raw_prob, normalized_prob))
-    
-    # Sort berdasarkan probabilitas ternormalisasi (highest first)
-    normalized_nb_results.sort(key=lambda x: x[2], reverse=True)
-    
-    # Get the top diagnosis and its probabilities
-    top_diagnosis, raw_probability, final_probability = normalized_nb_results[0]
-    
-    # Siapkan data semua probabilitas untuk ditampilkan
+    # Sort berdasarkan Naive Bayes probability saja
+    final_results = []
+    for diagnosis in all_diagnoses:
+        nb_score = nb_probabilities.get(diagnosis.id_diagnosis, 0)
+        rule_score = rule_scores.get(diagnosis.id_diagnosis, 0)  # Tetap hitung untuk referensi
+        
+        # Gunakan nb_score sebagai final probability (bukan kombinasi)
+        final_results.append((diagnosis, nb_score, rule_score, nb_score))
+
+    # Sort by Naive Bayes score (highest first)
+    final_results.sort(key=lambda x: x[1], reverse=True)
+
+    # Get the top diagnosis
+    top_diagnosis, final_probability, rule_prob, nb_prob = final_results[0]
+
+    # TAMBAHAN: Siapkan data semua probabilitas untuk ditampilkan
     all_probabilities = []
-    for diagnosis, raw_prob, norm_prob in normalized_nb_results:
+    for diagnosis, nb_score, rule_score, final_score in final_results:
         all_probabilities.append({
             'diagnosis': diagnosis,
-            'raw_probability': raw_prob,  # Raw probability (e.g. 0.00011721)
-            'probability': norm_prob      # Normalized percentage (e.g. 29.91)
+            'probability': nb_score
         })
 
-    # Store the diagnosis result with raw probability
+    # Store the diagnosis result
     user_id = request.session.get('user_id', None)
     
     # Generate auto-increment ID for the report
@@ -402,29 +409,17 @@ def detail_hasil(request, laporan_id):
             # Sort berdasarkan probabilitas tertinggi
             nb_results.sort(key=lambda x: x[1], reverse=True)
             
-            # 1. Hitung total probabilitas posterior
-            total_posterior_sum = sum(prob for diagnosis, prob in nb_results)
-            
-            # 2. Normalisasi probabilitas dan konversi ke persentase
-            normalized_nb_results = []
-            for diagnosis, raw_prob in nb_results:
-                # Normalisasi: (raw_prob / total_sum) * 100
-                normalized_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum > 0 else 0
-                normalized_nb_results.append((diagnosis, raw_prob, normalized_prob))
-            
-            # Sort berdasarkan probabilitas ternormalisasi (highest first)
-            normalized_nb_results.sort(key=lambda x: x[2], reverse=True)
-            
-            # Get the top diagnosis and its probabilities
-            top_diagnosis, raw_probability, final_probability = normalized_nb_results[0]
-            
+            # Konversi ke persentase
+            nb_probabilities = {}
+            for diagnosis, prob in nb_results:
+                nb_probabilities[diagnosis.id_diagnosis] = prob * 100
+
             # Siapkan data semua probabilitas untuk ditampilkan
             all_probabilities = []
-            for diagnosis, raw_prob, norm_prob in normalized_nb_results:
+            for diagnosis, prob in nb_results:
                 all_probabilities.append({
                     'diagnosis': diagnosis,
-                    'raw_probability': raw_prob,  # Raw probability (e.g. 0.00011721)
-                    'probability': norm_prob      # Normalized percentage (e.g. 29.91)
+                    'probability': prob * 100
                 })
         else:
             # Jika tidak ada gejala, buat list kosong
