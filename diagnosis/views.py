@@ -245,12 +245,18 @@ def hasil(request):
     
     # Siapkan data semua probabilitas untuk ditampilkan
     all_probabilities = []
-    for diagnosis, raw_prob, norm_prob in normalized_nb_results:
+    for diagnosis, raw_prob in nb_results:  # nb_results only has 2 values
+        # Calculate normalized percentage
+        norm_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum > 0 else 0
         all_probabilities.append({
             'diagnosis': diagnosis,
             'raw_probability': raw_prob,  # Raw probability (e.g. 0.00011721)
-            'probability': norm_prob      # Normalized percentage (e.g. 29.91)
+            'probability': raw_prob,      # Raw probability for display
+            'percentage': norm_prob       # Normalized percentage
         })
+
+    # Sort all_probabilities by probability in descending order
+    all_probabilities.sort(key=lambda x: x['probability'], reverse=True)
 
     # Store the diagnosis result with raw probability
     user_id = request.session.get('user_id', None)
@@ -420,12 +426,18 @@ def detail_hasil(request, laporan_id):
             
             # Siapkan data semua probabilitas untuk ditampilkan
             all_probabilities = []
-            for diagnosis, raw_prob, norm_prob in normalized_nb_results:
+            for diagnosis, raw_prob in nb_results:  # nb_results only has 2 values
+                # Calculate normalized percentage
+                norm_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum > 0 else 0
                 all_probabilities.append({
                     'diagnosis': diagnosis,
                     'raw_probability': raw_prob,  # Raw probability (e.g. 0.00011721)
-                    'probability': norm_prob      # Normalized percentage (e.g. 29.91)
+                    'probability': raw_prob,      # Raw probability for display
+                    'percentage': norm_prob       # Normalized percentage
                 })
+
+            # Sort all_probabilities by probability in descending order
+            all_probabilities.sort(key=lambda x: x['probability'], reverse=True)
         else:
             # Jika tidak ada gejala, buat list kosong
             all_probabilities = []
