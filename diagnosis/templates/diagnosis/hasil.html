@@ -406,22 +406,15 @@
               <div class="space-y-4">
                 {% for item in all_probabilities %}
                 <div class="p-4 bg-gradient-to-r from-neutral-50 to-neutral-100 border border-neutral-200 rounded-2xl">
-                  <div class="flex items-center justify-between mb-3">
-                    <span class="text-neutral-900 font-semibold text-sm">{{ item.diagnosis.nama_diagnosis }}</span>
-                    <span class="text-lg font-bold 
-                      {% if item.probability >= 70 %}text-red-600
-                      {% elif item.probability >= 40 %}text-yellow-600
-                      {% else %}text-green-600{% endif %}">
-                      {{ item.probability|floatformat:4 }}
-                    </span>
-                  </div>
-                  <div class="w-full bg-neutral-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-1000 ease-out
-                      {% if item.probability >= 70 %}bg-gradient-to-r from-red-400 to-red-600
-                      {% elif item.probability >= 40 %}bg-gradient-to-r from-yellow-400 to-yellow-600
-                      {% else %}bg-gradient-to-r from-green-400 to-green-600{% endif %}"
-                      style="width: {% if item.probability > 0.01 %}{{ item.probability|floatformat:2 }}{% else %}0.5{% endif %}%; 
-                             animation-delay: {{ forloop.counter|add:4 }}00ms;">
+                  <div class="flex items-center justify-between">
+                    <span class="text-neutral-900 font-semibold">{{ item.diagnosis.nama_diagnosis }}</span>
+                    <div class="text-right">
+                      <div class="text-lg font-bold text-neutral-900">
+                        {{ item.probability|floatformat:7 }}
+                      </div>
+                      <div class="text-sm text-neutral-600">
+                        ({{ item.percentage|floatformat:2 }}%)
+                      </div>
                     </div>
                   </div>
                   {% if forloop.first %}
