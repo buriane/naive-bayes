@@ -100,110 +100,42 @@
         </div>
     </section>
 
-    <!-- Summary Statistics -->
+    <!-- Summary Statistics & Filters Section -->
     <section class="py-12 bg-white">
         <div class="container mx-auto px-6 lg:px-8">
-            <div class="grid md:grid-cols-4 gap-6 animate-fade-in">
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-3xl shadow-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-blue-100 text-sm font-medium">Total Diagnosis</p>
-                            <p class="text-3xl font-bold">{{ total_count }}</p>
-                        </div>
-                        <div class="w-14 h-14 bg-blue-400 rounded-2xl flex items-center justify-center">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
+            <div class="bg-white rounded-3xl border border-neutral-200 p-8 shadow-lg animate-slide-up">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                    <!-- Summary Statistics -->
+                    <div class="flex-shrink-0">
+                        <div class="text-left">
+                            <p class="text-neutral-500 text-sm font-medium mb-1">Total Diagnosis</p>
+                            <p class="text-4xl font-bold text-primary-600">{{ total_count }}</p>
+                            <p class="text-neutral-400 text-xs">Riwayat tersimpan</p>
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-3xl shadow-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-red-100 text-sm font-medium">Risiko Tinggi</p>
-                            <p class="text-3xl font-bold">{{ high_risk }}</p>
-                        </div>
-                        <div class="w-14 h-14 bg-red-400 rounded-2xl flex items-center justify-center">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-3xl shadow-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-yellow-100 text-sm font-medium">Risiko Sedang</p>
-                            <p class="text-3xl font-bold">{{ medium_risk }}</p>
-                        </div>
-                        <div class="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-primary-500 to-primary-600 text-white p-6 rounded-3xl shadow-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-primary-100 text-sm font-medium">Risiko Rendah</p>
-                            <p class="text-3xl font-bold">{{ low_risk }}</p>
-                        </div>
-                        <div class="w-14 h-14 bg-primary-400 rounded-2xl flex items-center justify-center">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Filters and Controls -->
-    <section class="py-8 bg-neutral-50">
-        <div class="container mx-auto px-6 lg:px-8">
-            <div class="bg-white rounded-3xl border border-neutral-200 p-6 mb-8 animate-slide-up shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                    <!-- Filter Tabs -->
-                    <div class="flex flex-wrap gap-3">
-                        <button class="filter-tab active px-6 py-3 border border-neutral-300 rounded-2xl text-sm font-semibold transition-all bg-white text-neutral-700" data-filter="all">
-                            Semua Diagnosis
-                        </button>
-                        <button class="filter-tab px-6 py-3 border border-neutral-300 rounded-2xl text-sm font-semibold transition-all bg-white text-neutral-700" data-filter="high">
-                            Risiko Tinggi
-                        </button>
-                        <button class="filter-tab px-6 py-3 border border-neutral-300 rounded-2xl text-sm font-semibold transition-all bg-white text-neutral-700" data-filter="medium">
-                            Risiko Sedang
-                        </button>
-                        <button class="filter-tab px-6 py-3 border border-neutral-300 rounded-2xl text-sm font-semibold transition-all bg-white text-neutral-700" data-filter="low">
-                            Risiko Rendah
-                        </button>
-                    </div>
-
-                    <!-- Search -->
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="relative">
-                            <input type="text" 
-                                id="searchInput"
-                                placeholder="Cari diagnosis..." 
-                                class="pl-12 pr-4 py-3 border border-neutral-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-neutral-900 placeholder-neutral-500 min-w-[250px]">
-                            <svg class="w-5 h-5 text-neutral-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                            <button type="button" 
-                                    id="clearSearch" 
-                                    class="absolute right-4 top-4 text-neutral-400 hover:text-neutral-600 hidden">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    <!-- Search Filter -->
+                    <div class="flex-1 lg:max-w-md lg:ml-auto">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="relative flex-1">
+                                <input type="text" 
+                                    id="searchInput"
+                                    placeholder="Cari diagnosis..." 
+                                    class="w-full pl-12 pr-4 py-3 border border-neutral-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-neutral-900 placeholder-neutral-500">
+                                <svg class="w-5 h-5 text-neutral-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
-                            </button>
+                                <button type="button" 
+                                        id="clearSearch" 
+                                        class="absolute right-4 top-4 text-neutral-400 hover:text-neutral-600 hidden">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         
-                        <div id="searchInfo" class="text-sm text-neutral-600 flex items-center hidden">
+                        <div id="searchInfo" class="text-sm text-neutral-600 flex items-center mt-2 hidden">
                             <span id="searchResults"></span>
                         </div>
                     </div>
@@ -219,7 +151,6 @@
             <div class="space-y-6">
                 {% for diagnosis in riwayat_diagnosis %}
                 <div class="diagnosis-card bg-white rounded-3xl border border-neutral-200 p-8 animate-slide-up shadow-lg hover:shadow-xl transition-all duration-300" 
-                     data-risk="{% if diagnosis.probabilitas >= 70 %}high{% elif diagnosis.probabilitas >= 40 %}medium{% else %}low{% endif %}"
                      style="animation-delay: {{ forloop.counter0|add:1|floatformat:1 }}00ms;">
                     <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
                         <!-- Main Info -->
@@ -232,13 +163,6 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-3 mb-3 flex-wrap">
                                     <h3 class="text-xl font-bold text-neutral-900">{{ diagnosis.id_diagnosis.nama_diagnosis }}</h3>
-                                    {% if diagnosis.probabilitas >= 70 %}
-                                        <span class="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-semibold border border-red-200">Risiko Tinggi</span>
-                                    {% elif diagnosis.probabilitas >= 40 %}
-                                        <span class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-semibold border border-yellow-200">Risiko Sedang</span>
-                                    {% else %}
-                                        <span class="bg-primary-100 text-primary-800 px-4 py-2 rounded-full text-sm font-semibold border border-primary-200">Risiko Rendah</span>
-                                    {% endif %}
                                     {% if forloop.first %}
                                         <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">Terbaru</span>
                                     {% endif %}
@@ -258,11 +182,11 @@
                         <!-- Probability and Actions -->
                         <div class="xl:text-right space-y-4 flex-shrink-0">
                             <div>
-                                <div class="text-3xl font-bold {% if diagnosis.probabilitas >= 70 %}text-red-600{% elif diagnosis.probabilitas >= 40 %}text-yellow-600{% else %}text-primary-600{% endif %} mb-2">
+                                <div class="text-3xl font-bold text-primary-600 mb-2">
                                     {{ diagnosis.probabilitas|floatformat:1 }}%
                                 </div>
                                 <div class="w-32 bg-neutral-200 rounded-full h-3">
-                                    <div class="{% if diagnosis.probabilitas >= 70 %}bg-red-500{% elif diagnosis.probabilitas >= 40 %}bg-yellow-500{% else %}bg-primary-500{% endif %} h-3 rounded-full transition-all duration-500" 
+                                    <div class="bg-primary-500 h-3 rounded-full transition-all duration-500" 
                                          style="width: {{ diagnosis.probabilitas }}%"></div>
                                 </div>
                             </div>
@@ -307,32 +231,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const filterTabs = document.querySelectorAll('.filter-tab');
             const diagnosisCards = document.querySelectorAll('.diagnosis-card');
             const searchInput = document.getElementById('searchInput');
             const clearButton = document.getElementById('clearSearch');
             const searchInfo = document.getElementById('searchInfo');
             const searchResults = document.getElementById('searchResults');
-            
-            let currentFilter = 'all';
-            
-            // Filter functionality
-            filterTabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    filterTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    currentFilter = this.getAttribute('data-filter');
-                    applyFilters();
-                    
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                });
-            });
 
             // Search functionality
             let searchTimeout;
@@ -360,20 +263,17 @@
             function applyFilters() {
                 const searchTerm = searchInput.value.toLowerCase().trim();
                 let visibleCount = 0;
-                let filteredCount = 0;
+                let totalCount = diagnosisCards.length;
                 
                 diagnosisCards.forEach(card => {
                     const title = card.querySelector('h3').textContent.toLowerCase();
                     const description = card.querySelector('p').textContent.toLowerCase();
-                    const cardRisk = card.getAttribute('data-risk');
                     
                     const matchesSearch = !searchTerm || 
                                         title.includes(searchTerm) || 
                                         description.includes(searchTerm);
                     
-                    const matchesFilter = currentFilter === 'all' || cardRisk === currentFilter;
-                    
-                    if (matchesSearch && matchesFilter) {
+                    if (matchesSearch) {
                         card.style.display = 'block';
                         card.style.opacity = '1';
                         visibleCount++;
@@ -381,20 +281,16 @@
                         card.style.display = 'none';
                         card.style.opacity = '0';
                     }
-                    
-                    if (matchesFilter) {
-                        filteredCount++;
-                    }
                 });
                 
                 if (searchTerm) {
-                    searchResults.textContent = `Menampilkan ${visibleCount} dari ${filteredCount} hasil`;
+                    searchResults.textContent = `Menampilkan ${visibleCount} dari ${totalCount} hasil`;
                     searchInfo.classList.remove('hidden');
                 } else {
                     searchInfo.classList.add('hidden');
                 }
                 
-                showNoResultsMessage(visibleCount === 0 && (searchTerm || currentFilter !== 'all'));
+                showNoResultsMessage(visibleCount === 0 && searchTerm);
             }
             
             function showNoResultsMessage(show) {
@@ -412,9 +308,9 @@
                                 </svg>
                             </div>
                             <h3 class="text-xl font-bold text-neutral-700 mb-3">Tidak ada hasil ditemukan</h3>
-                            <p class="text-neutral-500 mb-6">Coba ubah kata kunci pencarian atau filter yang dipilih.</p>
+                            <p class="text-neutral-500 mb-6">Coba ubah kata kunci pencarian.</p>
                             <button onclick="resetFilters()" class="px-6 py-3 bg-primary-600 text-white rounded-2xl font-semibold hover:bg-primary-700 transition-colors">
-                                Reset Filter
+                                Reset Pencarian
                             </button>
                         </div>
                     `;
@@ -432,11 +328,6 @@
                 searchInput.value = '';
                 clearButton.classList.add('hidden');
                 searchInfo.classList.add('hidden');
-                
-                filterTabs.forEach(t => t.classList.remove('active'));
-                document.querySelector('[data-filter="all"]').classList.add('active');
-                currentFilter = 'all';
-                
                 applyFilters();
                 searchInput.focus();
             };
