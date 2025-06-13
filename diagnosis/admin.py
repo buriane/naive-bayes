@@ -20,7 +20,7 @@ class DiagnosisAdmin(admin.ModelAdmin):
         }),
         ('Media dan Solusi', {
             'fields': ('gambar_diagnosis', 'solusi_diagnosis'),
-            'classes': ('collapse',)
+            'classes': ('collapse')
         }),
     )
 

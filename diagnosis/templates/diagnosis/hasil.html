@@ -252,22 +252,24 @@
               <div class="grid md:grid-cols-2 gap-12 items-center">
                 <!-- Diagnosis Image -->
                 <div class="text-center">
+                  {% load static %}
                   {% if diagnosis.gambar_diagnosis %}
-                  <div class="relative group">
-                    <img
-                      src="{{ diagnosis.gambar_diagnosis }}"
-                      alt="{{ diagnosis.nama_diagnosis }}"
-                      class="w-full h-80 object-cover rounded-3xl shadow-xl mb-6 group-hover:shadow-2xl transition-all duration-300 diagnosis-image"
-                      onclick="openModal(this.src)"
-                    />
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
+                    <div class="relative group">
+                      <img
+                      src="{% static 'diagnosis/' %}{{ diagnosis.gambar_diagnosis }}"
+                        alt="{{ diagnosis.nama_diagnosis }}"
+                        class="w-full h-80 object-cover rounded-3xl shadow-xl mb-6 group-hover:shadow-2xl transition-all duration-300 diagnosis-image"
+                        onclick="openModal(this.src)"
+                      />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
                   {% else %}
-                  <div class="w-full h-80 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mb-6 shadow-xl">
-                    <svg class="h-20 w-20 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  </div>
+                    <div class="w-full h-80 bg-gradient-to-br from-primary-100 to-primary-200 rounded-3xl flex items-center justify-center mb-6 shadow-xl">
+                      <svg class="h-20 w-20 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
                   {% endif %}
                   <h3 class="text-3xl font-bold text-neutral-900 mb-4">{{ diagnosis.nama_diagnosis }}</h3>
                   <p class="text-lg text-neutral-600 leading-relaxed">{{ diagnosis.deskripsi_diagnosis }}</p>
