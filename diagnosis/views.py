@@ -523,7 +523,7 @@ def admin_beranda(request):
     ).order_by('-tanggal_diagnosis')[:5]
 
     context = {
-        'page_title': 'Beranda Admin',
+        'page_title': 'Beranda',
         'active_section': 'beranda',
         'diagnosis_stats': list(diagnosis_stats),
         'daily_diagnoses': {
