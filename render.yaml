@@ -1,61 +1,36 @@
-# =========================================================================
-#             File Konfigurasi Blueprint Render.com
-#         untuk Aplikasi Django + PostgreSQL (Infrastructure as Code)
-# =========================================================================
-#
-# File ini mendefinisikan semua layanan yang dibutuhkan oleh aplikasi Anda.
-# Render akan secara otomatis membuat dan menghubungkan semua layanan ini
-# saat Anda men-deploy dari repositori Git yang berisi file ini.
-
 services:
-  # -------------------------------------
-  # Layanan 1: Database PostgreSQL
-  # -------------------------------------
-  - type: postgres
+  - type: db
     name: db-liverdisease
-    databaseName: db_liverdisease # Nama database aktual yang akan dibuat
-    user: db_user # Nama pengguna untuk database ini
-    region: singapore # Pilih region terdekat Anda (contoh: singapore, oregon)
-    plan: starter # 'starter' adalah paket gratis dari Render.
-    # Versi PostgreSQL bisa ditentukan di sini jika perlu, contoh:
-    # postgresqlVersion: 15
+    databaseName: db_liverdisease
+    user: db_user
+    region: singapore
+    plan: starter
 
-  # -------------------------------------
-  # Layanan 2: Aplikasi Web Django
-  # -------------------------------------
   - type: web
-    name: sistem-pakar-hati
-    env: python # Menentukan lingkungan runtime adalah Python
-    region: singapore # Gunakan region yang sama dengan database untuk latensi rendah
-    plan: starter # 'starter' adalah paket gratis.
-    
-    # Perintah yang dijalankan saat kode baru di-push ke Git
-    buildCommand: "./build.sh"
-    
-    # Perintah untuk memulai server aplikasi Anda setelah build selesai
-    # PENTING: Ganti 'nama_proyek_django' dengan nama folder proyek Anda
-    # (folder yang berisi file wsgi.py)
-    startCommand: "gunicorn nama_proyek_django.wsgi"
+    name: liver_disease
+    env: python
+    region: singapore
+    plan: starter
 
-    # Variabel Lingkungan (Environment Variables)
-    # Ini adalah cara aman untuk mengelola konfigurasi sensitif
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+
+    startCommand: "gunicorn sistem_pakar_hati.wsgi"
+
     envVars:
-      # Otomatis mengambil URL koneksi dari layanan database di atas
       - key: DATABASE_URL
         fromService:
-          type: postgres # PERBAIKAN: Sesuaikan tipe di sini juga.
-          name: db-liverdiseases
+          type: db
+          name: db_liverdisease
           property: connectionString
 
-      # Render akan secara otomatis membuatkan nilai acak yang aman untuk SECRET_KEY
       - key: SECRET_KEY
         generateValue: true
 
-      # Menentukan versi Python untuk konsistensi dengan lingkungan lokal Anda
-      # Sesuaikan dengan versi yang Anda gunakan (contoh dari traceback Anda)
       - key: PYTHON_VERSION
         value: 3.12.4
 
-      # Memberitahu settings.py bahwa ini adalah lingkungan produksi (DEBUG=False)
       - key: IS_DEVELOPMENT
         value: false
+
+      - key: DJANGO_ALLOWED_HOSTS
+        value: .onrender.com
