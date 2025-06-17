@@ -138,164 +138,106 @@ def hasil(request):
     if request.method != 'POST':
         return redirect('konsultasi')
 
-    # Get selected symptoms from form
     gejala_ids = request.POST.getlist('gejala')
     if not gejala_ids:
         return redirect('konsultasi')
 
-    # Convert to integers
     gejala_ids = [int(gid) for gid in gejala_ids]
-
-    # Get all diagnoses and gejala
     all_diagnoses = list(Diagnosis.objects.all())
     all_gejala = list(Gejala.objects.all())
 
-    # Define knowledge base rules (sesuai dengan nc values dalam dokumentasi)
     knowledge_base = {
-        'Hepatitis A': [1, 3, 4, 5, 7],    # G01, G03, G04, G05, G07
-        'Hepatitis B': [3, 6, 7, 8, 9],    # G03, G06, G07, G08, G09
-        'Hepatitis C': [1, 2, 3, 10],      # G01, G02, G03, G10
-        'Sirosis Hati': [7, 11, 12],       # G07, G11, G12
-        'Kolestasis': [8, 9, 13],          # G08, G09, G13
+        'Hepatitis A': [1, 3, 4, 5, 7],
+        'Hepatitis B': [3, 6, 7, 8, 9],
+        'Hepatitis C': [1, 2, 3, 10],
+        'Sirosis Hati': [7, 11, 12],
+        'Kolestasis': [8, 9, 13],
     }
 
-    # Calculate rule-based scores (tetap untuk hybrid approach)
     rule_scores = {}
     for diagnosis in all_diagnoses:
-        diagnosis_name = diagnosis.nama_diagnosis
-        if diagnosis_name in knowledge_base:
-            required_symptoms = knowledge_base[diagnosis_name]
-            matched_symptoms = len(set(gejala_ids) & set(required_symptoms))
-            total_required = len(required_symptoms)
-            
-            rule_confidence = (matched_symptoms / total_required) * 100 if total_required > 0 else 0
-            rule_scores[diagnosis.id_diagnosis] = rule_confidence
-        else:
-            rule_scores[diagnosis.id_diagnosis] = 0
+        required_symptoms = knowledge_base.get(diagnosis.nama_diagnosis, [])
+        matched_symptoms = len(set(gejala_ids) & set(required_symptoms))
+        rule_confidence = (matched_symptoms / len(required_symptoms)) * 100 if required_symptoms else 0
+        rule_scores[diagnosis.id_diagnosis] = rule_confidence
 
-    # --- NAIVE BAYES CALCULATION SESUAI DOKUMENTASI ---
-    
-    # Konstanta sesuai dokumentasi
-    N_VALUE_FOR_EACH_CLASS = 1  # n = jumlah record pada data learning untuk setiap kelas
-    TOTAL_CLASSES = 5           # banyaknya jenis class penyakit
-    P_VALUE = 1 / TOTAL_CLASSES  # p = 1/5 = 0,2 (bukan 0,1667 seperti sebelumnya)
-    TOTAL_SYMPTOMS_M = 13       # m = jumlah parameter/gejala (sesuai dokumentasi: 13)
+    N_VALUE_FOR_EACH_CLASS = 1
+    TOTAL_CLASSES = 5
+    P_VALUE = 1 / TOTAL_CLASSES
+    TOTAL_SYMPTOMS_M = 13
 
-    # 1. Menentukan nilai nc untuk setiap kelas
-    # nc sudah ditentukan melalui knowledge_base
-
-    # 2. Melakukan perhitungan nilai P(ai|vj) serta perhitungan nilai P(vj)
     conditional_probs = {}
-    
-    # Prior Probability P(vj) - uniform untuk semua penyakit
-    prior_probability = 1 / TOTAL_CLASSES  # 0,2 untuk setiap penyakit
-
     for diagnosis in all_diagnoses:
         conditional_probs[diagnosis.id_diagnosis] = {}
-        diagnosis_name = diagnosis.nama_diagnosis
-        
         for gejala in all_gejala:
-            # Menentukan nc: 1 jika gejala ada dalam knowledge_base untuk penyakit ini, 0 jika tidak
-            if diagnosis_name in knowledge_base and gejala.id_gejala in knowledge_base[diagnosis_name]:
-                nc = 1
-            else:
-                nc = 0
-            
-            # Rumus P(ai|vj) = (nc + m * p) / (n + m)
-            prob_symptom_given_disease = (nc + (TOTAL_SYMPTOMS_M * P_VALUE)) / \
-                                         (N_VALUE_FOR_EACH_CLASS + TOTAL_SYMPTOMS_M)
-            
-            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = prob_symptom_given_disease
+            nc = 1 if gejala.id_gejala in knowledge_base.get(diagnosis.nama_diagnosis, []) else 0
+            prob = (nc + (TOTAL_SYMPTOMS_M * P_VALUE)) / (N_VALUE_FOR_EACH_CLASS + TOTAL_SYMPTOMS_M)
+            conditional_probs[diagnosis.id_diagnosis][gejala.id_gejala] = prob
 
-    # 3. Melakukan perhitungan P(ai|vj) x P(vj) untuk tiap kelas v
     nb_results = []
-    
-    for diagnosis in all_diagnoses:
-        # Mulai dengan P(vj) - prior probability
-        posterior_probability = prior_probability
-        
-        # Kalikan dengan P(ai|vj) untuk SEMUA gejala yang dipilih pasien
-        # Sesuai contoh dalam dokumentasi yang mengalikan semua gejala yang ada
-        for patient_gejala_id in gejala_ids:
-            prob = conditional_probs[diagnosis.id_diagnosis].get(patient_gejala_id)
-            if prob is not None:
-                posterior_probability *= prob
-        
-        nb_results.append((diagnosis, posterior_probability))
+    prior_probability = 1 / TOTAL_CLASSES
 
-    # 4. Menentukan nilai perkalian terbesar dari klasifikasi v
-    # Sort berdasarkan probabilitas tertinggi
+    for diagnosis in all_diagnoses:
+        posterior = prior_probability
+        for gid in gejala_ids:
+            posterior *= conditional_probs[diagnosis.id_diagnosis].get(gid, 1)
+        nb_results.append((diagnosis, posterior))
+
     nb_results.sort(key=lambda x: x[1], reverse=True)
-    
-    # 1. Hitung total probabilitas posterior
-    total_posterior_sum = sum(prob for diagnosis, prob in nb_results)
-    
-    # 2. Normalisasi probabilitas dan konversi ke persentase
+    total_posterior_sum = sum(prob for _, prob in nb_results)
+
     normalized_nb_results = []
     for diagnosis, raw_prob in nb_results:
-        # Normalisasi: (raw_prob / total_sum) * 100
-        normalized_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum > 0 else 0
-        normalized_nb_results.append((diagnosis, raw_prob, normalized_prob))
-    
-    # Sort berdasarkan probabilitas ternormalisasi (highest first)
+        normalized = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum else 0
+        normalized_nb_results.append((diagnosis, raw_prob, normalized))
+
     normalized_nb_results.sort(key=lambda x: x[2], reverse=True)
-    
-    # Get the top diagnosis and its probabilities
     top_diagnosis, raw_probability, final_probability = normalized_nb_results[0]
-    
-    # Siapkan data semua probabilitas untuk ditampilkan
+
     all_probabilities = []
-    for diagnosis, raw_prob in nb_results:  # nb_results only has 2 values
-        # Calculate normalized percentage
-        norm_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum > 0 else 0
+    for diagnosis, raw_prob in nb_results:
+        norm_prob = (raw_prob / total_posterior_sum) * 100 if total_posterior_sum else 0
         all_probabilities.append({
             'diagnosis': diagnosis,
-            'raw_probability': raw_prob,  # Raw probability (e.g. 0.00011721)
-            'probability': raw_prob,      # Raw probability for display
-            'percentage': norm_prob       # Normalized percentage
+            'raw_probability': raw_prob,
+            'probability': raw_prob,
+            'percentage': norm_prob
         })
 
-    # Sort all_probabilities by probability in descending order
     all_probabilities.sort(key=lambda x: x['probability'], reverse=True)
 
-    # Store the diagnosis result with raw probability
-    user_id = request.session.get('user_id', None)
-    
-    # Generate auto-increment ID for the report
-    last_report = Laporandiagnosis.objects.order_by('-id_laporandiagnosis').first()
-    if last_report:
-        new_report_id = last_report.id_laporandiagnosis + 1
-    else:
-        new_report_id = 1
-    
-    # Create a new diagnosis report
-    new_report = Laporandiagnosis(
-        id_laporandiagnosis=new_report_id,
-        id_pengguna_id=user_id,
+    user_id = request.session.get('user_id')
+    pengguna = None
+    if user_id:
+        try:
+            from .models import Pengguna
+            pengguna = Pengguna.objects.get(id_pengguna=user_id)
+        except Pengguna.DoesNotExist:
+            pass
+
+    new_report = Laporandiagnosis.objects.create(
+        id_pengguna=pengguna,
         id_diagnosis=top_diagnosis,
         tanggal_diagnosis=date.today(),
         probabilitas=final_probability
     )
-    new_report.save()
 
-    # Store all the symptoms
     for gejala in all_gejala:
+        # Tentukan apakah gejala dipilih atau tidak
+        value = gejala.id_gejala in gejala_ids
+
+        # Tentukan id_laporangejala baru
         last_gejala_report = Laporangejala.objects.order_by('-id_laporangejala').first()
-        if last_gejala_report:
-            new_gejala_id = last_gejala_report.id_laporangejala + 1
-        else:
-            new_gejala_id = 1
-        
-        value = 1 if gejala.id_gejala in gejala_ids else 0
-        laporangejala = Laporangejala(
+        new_gejala_id = last_gejala_report.id_laporangejala + 1 if last_gejala_report else 1
+
+        # Simpan ke database
+        Laporangejala.objects.create(
             id_laporangejala=new_gejala_id,
             id_laporandiagnosis=new_report,
-            id_gejala_id=gejala.id_gejala,
-            value=value
+            id_gejala=gejala,
+            value=value  # sekarang sudah didefinisikan
         )
-        laporangejala.save()
 
-    # Get selected symptoms
     selected_gejala = Gejala.objects.filter(id_gejala__in=gejala_ids)
 
     return render(request, 'diagnosis/hasil.html', {

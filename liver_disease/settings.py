@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,13 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(+@+e%_g=0q397u*m*_8$bq@r@ygt$n!07h+o0xa5u*$a61g@6'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-(+@+e%_g=0q397u*m*_8$bq@r@ygt$n!07h+o0xa5u*$a61g@6')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('IS_DEVELOPMENT', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -77,26 +81,33 @@ WSGI_APPLICATION = 'liver_disease.wsgi.application'
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'liver-disease',
-#         'USER': 'myuser',
-#         'PASSWORD': 'mypassword',
-#         'HOST': 'db',
-#         'PORT': '3306',
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'db_expertsystem',
+#        'USER': 'root',
+#        'PASSWORD': '',
+#        'HOST': 'localhost',
+#        'PORT': '3306',
+#    }
+# }
+
+# settings.py - SESUDAH
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'db_liverdisease',
+#         'USER': 'postgres',
+#         'PASSWORD': '1234',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
 #     }
 # }
 
-
-# Ini yang sebelumnya, buang komen terus pakai aja kalau lagi develop terus gantian yang diatas yang dijadiin komen soalnya buat develop di docker
 DATABASES = {
-    'default': {
-       'ENGINE': 'django.db.backends.mysql',
-       'NAME': 'db_expertsystem',
-       'USER': 'root',
-       'PASSWORD': '',
-       'HOST': 'localhost',
-       'PORT': '3306',
-   }
+    'default': dj_database_url.config(
+        # Gunakan DATABASE_URL dari Render, jika tidak ada, gunakan SQLite untuk development
+        default='postgresql://postgres:1234@localhost:5432/db_liverdisease',
+        conn_max_age=600
+    )
 }
 
 # Password validation
@@ -135,10 +146,26 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Tambahkan ini
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
 # Tambahkan ini agar Django tahu di mana mencari static files saat development
 STATICFILES_DIRS = [
     BASE_DIR / "diagnosis" / "static",
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 
 

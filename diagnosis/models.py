@@ -160,7 +160,7 @@ class Gejala(models.Model):
 
 
 class Laporandiagnosis(models.Model):
-    id_laporandiagnosis = models.BigIntegerField(db_column='id_laporanDiagnosis', primary_key=True)  # Field name made lowercase.
+    id_laporandiagnosis = models.BigAutoField(db_column='id_laporanDiagnosis', primary_key=True)
     id_pengguna = models.ForeignKey('Pengguna', models.DO_NOTHING, db_column='id_pengguna', blank=True, null=True)
     id_diagnosis = models.ForeignKey(Diagnosis, models.DO_NOTHING, db_column='id_diagnosis', blank=True, null=True)
     tanggal_diagnosis = models.DateField(blank=True, null=True)
@@ -172,10 +172,10 @@ class Laporandiagnosis(models.Model):
 
 
 class Laporangejala(models.Model):
-    id_laporangejala = models.BigIntegerField(db_column='id_laporanGejala', primary_key=True)  # Field name made lowercase.
-    id_laporandiagnosis = models.ForeignKey(Laporandiagnosis, models.DO_NOTHING, db_column='id_laporanDiagnosis', blank=True, null=True)  # Field name made lowercase.
+    id_laporangejala = models.BigIntegerField(db_column='id_laporanGejala', primary_key=True)
+    id_laporandiagnosis = models.ForeignKey(Laporandiagnosis, models.DO_NOTHING, db_column='id_laporanDiagnosis', blank=True, null=True)
     id_gejala = models.ForeignKey(Gejala, models.DO_NOTHING, db_column='id_gejala', blank=True, null=True)
-    value = models.IntegerField(blank=True, null=True)
+    value = models.BooleanField(default=False)  # ← perubahan di sini
 
     class Meta:
         managed = False
