@@ -43,8 +43,8 @@ services:
       # Otomatis mengambil URL koneksi dari layanan database di atas
       - key: DATABASE_URL
         fromService:
-          type: psql
-          name: db-liverdisease
+          type: postgres # PERBAIKAN: Sesuaikan tipe di sini juga.
+          name: db-liverdiseases
           property: connectionString
 
       # Render akan secara otomatis membuatkan nilai acak yang aman untuk SECRET_KEY
