@@ -11,7 +11,7 @@ services:
   # -------------------------------------
   # Layanan 1: Database PostgreSQL
   # -------------------------------------
-  - type: psql
+  - type: postgres
     name: db-liverdisease
     databaseName: db_liverdisease # Nama database aktual yang akan dibuat
     user: db_user # Nama pengguna untuk database ini
