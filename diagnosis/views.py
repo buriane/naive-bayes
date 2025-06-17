@@ -256,20 +256,14 @@ def riwayat(request):
     # Retrieve diagnosis history for the current user, ordered by date (newest first)
     riwayat_diagnosis = Laporandiagnosis.objects.filter(
         id_pengguna=user_id
-    ).select_related('id_diagnosis').order_by('-tanggal_diagnosis')
+    ).select_related('id_diagnosis').order_by('-tanggal_diagnosis', '-id_laporandiagnosis')
     
     # Calculate statistics
     total_count = riwayat_diagnosis.count()
-    high_risk = riwayat_diagnosis.filter(probabilitas__gte=70).count()
-    medium_risk = riwayat_diagnosis.filter(probabilitas__gte=40, probabilitas__lt=70).count()
-    low_risk = riwayat_diagnosis.filter(probabilitas__lt=40).count()
     
     return render(request, 'diagnosis/riwayat.html', {
         'riwayat_diagnosis': riwayat_diagnosis,
         'total_count': total_count,
-        'high_risk': high_risk,
-        'medium_risk': medium_risk,
-        'low_risk': low_risk,
     })
     
 def detail_hasil(request, laporan_id):
@@ -471,7 +465,7 @@ def admin_beranda(request):
     ).order_by('-tanggal_diagnosis')[:5]
 
     context = {
-        'page_title': 'Beranda Admin',
+        'page_title': 'Beranda',
         'active_section': 'beranda',
         'diagnosis_stats': list(diagnosis_stats),
         'daily_diagnoses': {
