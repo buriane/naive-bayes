@@ -1,0 +1,164 @@
+{% comment %}
+Data yang diharapkan dari view admin_riwayat:
+- page_obj (objek paginator untuk Laporandiagnosis)
+- search_query (string, query pencarian saat ini)
+{% endcomment %}
+
+<div class="bg-white rounded-lg shadow-card">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-slate-800">Riwayat Diagnosis</h3>
+        </div>
+
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama Pasien</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Diagnosis</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tanggal</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Probabilitas</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    {% for riwayat in page_obj %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">#{{ riwayat.id_laporandiagnosis }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ riwayat.id_pengguna.nama_pengguna|default:"Anonim" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ riwayat.id_diagnosis.nama_diagnosis }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ riwayat.tanggal_diagnosis|date:"d M Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if riwayat.probabilitas >= 80 %}bg-green-100 text-green-800
+                                {% elif riwayat.probabilitas >= 60 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ riwayat.probabilitas }}%
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{% url 'detail_hasil' riwayat.id_laporandiagnosis %}" 
+                               class="text-primary-600 hover:text-primary-900">
+                                <i class="fas fa-eye"></i> Detail
+                            </a>
+                            <form method="POST" action="{% url 'admin_riwayat' %}" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="laporan_id" value="{{ riwayat.id_laporandiagnosis }}">
+                                <button type="button" onclick="openDeleteRiwayatModal(this, '{{ riwayat.id_laporandiagnosis }}')" class="text-red-600 hover:text-red-900 ml-2">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include 'diagnosis/admin_partials/pagination.html' %}
+
+        {% else %}
+        <div class="text-center py-8">
+            <div class="text-slate-400 mb-2">
+                <i class="fas fa-history text-4xl"></i>
+            </div>
+            <p class="text-slate-500">Belum ada riwayat diagnosis.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div id="deleteRiwayatModal" class="fixed inset-0 z-50 items-center justify-center bg-slate-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800">Konfirmasi Hapus Riwayat</h3>
+            <button id="closeDeleteRiwayatModalButton" class="text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+        </div>
+        <div class="py-4">
+            <p class="text-slate-600">Anda yakin ingin menghapus riwayat diagnosis ini? Tindakan ini tidak dapat diurungkan.</p>
+            <p class="text-sm text-slate-500 mt-2">Riwayat ID: <span id="deleteRiwayatIdText"></span></p>
+        </div>
+        <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
+            <button id="cancelDeleteRiwayatButton" type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors">
+                Batal
+            </button>
+            <button id="confirmDeleteRiwayatButton" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center space-x-2">
+                <i class="fas fa-trash-alt"></i>
+                <span>Ya, Hapus</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let formToDeleteRiwayat = null;
+
+function openDeleteRiwayatModal(buttonElement, laporanId) {
+    event.preventDefault();
+    formToDeleteRiwayat = buttonElement.closest('form');
+    if (!formToDeleteRiwayat) {
+        console.error('Form tidak ditemukan untuk penghapusan riwayat.');
+        return;
+    }
+    const deleteRiwayatIdText = document.getElementById('deleteRiwayatIdText');
+    if (deleteRiwayatIdText) {
+        deleteRiwayatIdText.textContent = "#" + laporanId;
+    }
+
+    const modal = document.getElementById('deleteRiwayatModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeDeleteRiwayatModal() {
+    const modal = document.getElementById('deleteRiwayatModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    formToDeleteRiwayat = null; // Reset form
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmDelRiwayatBtn = document.getElementById('confirmDeleteRiwayatButton');
+    if (confirmDelRiwayatBtn) {
+        confirmDelRiwayatBtn.addEventListener('click', function() {
+            if (formToDeleteRiwayat) {
+                formToDeleteRiwayat.submit();
+            } else {
+                console.error('Tidak ada form yang tersimpan untuk penghapusan riwayat.');
+                closeDeleteRiwayatModal();
+            }
+        });
+    }
+
+    const closeDelRiwayatBtn = document.getElementById('closeDeleteRiwayatModalButton');
+    if (closeDelRiwayatBtn) {
+        closeDelRiwayatBtn.addEventListener('click', closeDeleteRiwayatModal);
+    }
+
+    const cancelDelRiwayatBtn = document.getElementById('cancelDeleteRiwayatButton');
+    if (cancelDelRiwayatBtn) {
+        cancelDelRiwayatBtn.addEventListener('click', closeDeleteRiwayatModal);
+    }
+    
+    const deleteRiwayatModalOverlay = document.getElementById('deleteRiwayatModal');
+    if (deleteRiwayatModalOverlay) {
+        deleteRiwayatModalOverlay.addEventListener('click', function(event) {
+            if (event.target === deleteRiwayatModalOverlay) { // Jika klik pada backdrop
+                closeDeleteRiwayatModal();
+            }
+        });
+    }
+});
+
+</script>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - Sistem Diagnosis Penyakit Gangguan Hati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .strength-weak { background-color: #ef4444; width: 25%; }
+        .strength-fair { background-color: #f97316; width: 50%; }
+        .strength-good { background-color: #eab308; width: 75%; }
+        .strength-strong { background-color: #22c55e; width: 100%; }
+    </style>
+</head>
+
+<body class="bg-neutral-50 font-sans text-neutral-800 antialiased">
+    <div class="min-h-screen flex flex-col">
+        <!-- Include Header -->
+        {% include "diagnosis/static/header.html" %}
+
+        <!-- Main Content -->
+        <main class="flex-1 flex items-center justify-center py-12 px-6 lg:px-8">
+            <div class="max-w-lg w-full animate-fade-in">
+                <div class="bg-white rounded-3xl border border-neutral-200 shadow-2xl overflow-hidden">
+                    <div class="px-8 pt-8 pb-6 text-center">
+                        <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-neutral-900 mb-3">Daftar Akun Baru</h2>
+                        <p class="text-neutral-600">Buat akun untuk mengakses riwayat diagnosis Anda</p>
+                    </div>
+
+                    <div class="p-8 pt-0">
+                        <!-- Display messages if any -->
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="mb-6 p-4 rounded-2xl border {% if message.tags == 'error' %}bg-red-50 text-red-700 border-red-200{% endif %} {% if message.tags == 'success' %}bg-primary-50 text-primary-700 border-primary-200{% endif %}">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {% if message.tags == 'error' %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    {% else %}
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    {% endif %}
+                                </svg>
+                                <span class="font-medium">{{ message }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <form class="space-y-6" id="registerForm" method="POST" action="{% url 'register' %}">
+                            {% csrf_token %}
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="firstName" class="block text-sm font-semibold text-neutral-700 mb-2">Nama Depan</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            </svg>
+                                        </div>
+                                        <input id="firstName" name="firstName" type="text" required
+                                            class="block w-full pl-12 pr-4 py-4 border border-neutral-300 rounded-2xl text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+                                            placeholder="Nama depan">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="lastName" class="block text-sm font-semibold text-neutral-700 mb-2">Nama Belakang</label>
+                                    <input id="lastName" name="lastName" type="text" required
+                                        class="block w-full px-4 py-4 border border-neutral-300 rounded-2xl text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+                                        placeholder="Nama belakang">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="email" class="block text-sm font-semibold text-neutral-700 mb-2">Email</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                                        </svg>
+                                    </div>
+                                    <input id="email" name="email" type="email" autocomplete="email" required
+                                        class="block w-full pl-12 pr-4 py-4 border border-neutral-300 rounded-2xl text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+                                        placeholder="nama@email.com">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="password" class="block text-sm font-semibold text-neutral-700 mb-2">Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                        </svg>
+                                    </div>
+                                    <input id="password" name="password" type="password" required
+                                        class="block w-full pl-12 pr-4 py-4 border border-neutral-300 rounded-2xl text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+                                        placeholder="••••••••">
+                                </div>
+                                <div class="mt-3">
+                                    <div class="flex justify-between text-xs text-neutral-500 mb-2">
+                                        <span>Kekuatan Password</span>
+                                        <span id="strengthText">Lemah</span>
+                                    </div>
+                                    <div class="w-full bg-neutral-200 rounded-full h-1">
+                                        <div id="strengthBar" class="password-strength strength-weak"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-semibold text-neutral-700 mb-2">Konfirmasi Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <input id="confirmPassword" name="confirmPassword" type="password" required
+                                        class="block w-full pl-12 pr-4 py-4 border border-neutral-300 rounded-2xl text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+                                        placeholder="••••••••">
+                                </div>
+                                <div id="passwordMatch" class="mt-2 text-sm hidden">
+                                    <span class="text-red-500 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Password tidak cocok
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <input id="terms" name="terms" type="checkbox" required
+                                    class="w-5 h-5 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded transition-colors mt-1">
+                                <label for="terms" class="ml-3 block text-sm text-neutral-700 leading-relaxed">
+                                    Saya menyetujui
+                                    <a href="" class="text-primary-600 hover:text-primary-500 transition-colors font-medium">Syarat & Ketentuan</a>
+                                    dan
+                                    <a href="" class="text-primary-600 hover:text-primary-500 transition-colors font-medium">Kebijakan Privasi</a>
+                                </label>
+                            </div>
+
+                            <div>
+                                <button type="submit"
+                                    class="w-full flex justify-center items-center gap-3 py-4 px-6 border border-transparent rounded-2xl shadow-lg text-base font-bold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl">
+                                    <span>Daftar Sekarang</span>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="mt-8 text-center">
+                            <p class="text-sm text-neutral-600">
+                                Sudah memiliki akun?
+                                <a href="{% url 'login' %}"
+                                    class="font-semibold text-primary-600 hover:text-primary-500 transition-colors">
+                                    Login sekarang
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-primary-600 to-primary-700 p-8 text-white">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold">Data Anda Aman</h3>
+                                <p class="text-primary-100 mt-1 text-sm">Informasi pribadi dilindungi dengan enkripsi tingkat enterprise</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-neutral-200 py-8">
+            <div class="container mx-auto px-6 lg:px-8 text-center">
+                <p class="text-neutral-600">&copy; {% now "Y" %} PeduliHati. Hak Cipta Dilindungi.</p>
+                <div class="mt-2 space-x-4">
+                    <a href="#" class="text-sm text-primary-600 hover:text-primary-700 transition-colors">Kebijakan Privasi</a>
+                    <a href="#" class="text-sm text-primary-600 hover:text-primary-700 transition-colors">Syarat & Ketentuan</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            const passwordMatch = document.getElementById('passwordMatch');
+
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                let text = '';
+
+                if (password.length >= 8) strength += 1;
+                if (password.length >= 12) strength += 1;
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/\d/.test(password)) strength += 1;
+                if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 1;
+
+                if (strength <= 2) {
+                    text = 'Lemah';
+                    strengthBar.className = 'password-strength strength-weak';
+                } else if (strength <= 3) {
+                    text = 'Sedang';
+                    strengthBar.className = 'password-strength strength-fair';
+                } else if (strength <= 4) {
+                    text = 'Baik';
+                    strengthBar.className = 'password-strength strength-good';
+                } else {
+                    text = 'Kuat';
+                    strengthBar.className = 'password-strength strength-strong';
+                }
+
+                strengthText.textContent = text;
+            }
+
+            function checkPasswordMatch() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (confirmPassword.length > 0) {
+                    if (password !== confirmPassword) {
+                        passwordMatch.classList.remove('hidden');
+                        confirmPasswordInput.classList.add('border-red-500');
+                        confirmPasswordInput.classList.remove('border-neutral-300');
+                    } else {
+                        passwordMatch.classList.add('hidden');
+                        confirmPasswordInput.classList.remove('border-red-500');
+                        confirmPasswordInput.classList.add('border-neutral-300');
+                    }
+                } else {
+                    passwordMatch.classList.add('hidden');
+                    confirmPasswordInput.classList.remove('border-red-500');
+                    confirmPasswordInput.classList.add('border-neutral-300');
+                }
+            }
+
+            passwordInput.addEventListener('input', function () {
+                checkPasswordStrength(this.value);
+                checkPasswordMatch();
+            });
+
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+            document.getElementById('registerForm').addEventListener('submit', function (e) {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    alert('Password dan konfirmasi password tidak cocok!');
+                    return false;
+                }
+
+                if (password.length < 6) {
+                    e.preventDefault();
+                    alert('Password minimal 6 karakter!');
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

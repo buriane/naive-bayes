@@ -1,0 +1,232 @@
+<!-- Header -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+        <!-- Logo and Brand -->
+        <div class="flex items-center">
+            <a href="{% url 'homepage' %}">
+                <div class="flex items-center mr-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-xl font-semibold text-secondary-900">PeduliHati</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                <a href="{% url 'homepage' %}"
+                    class="{% if request.resolver_match.url_name == 'homepage' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Beranda</a>
+                <a href="{% url 'konsultasi' %}"
+                    class="{% if request.resolver_match.url_name == 'konsultasi' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Konsultasi</a>
+                <a href="{% url 'riwayat' %}"
+                    class="{% if request.resolver_match.url_name == 'riwayat' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Riwayat</a>
+                <a href="{% url 'tentang' %}"
+                    class="{% if request.resolver_match.url_name == 'tentang' %}text-primary-600 border-b-2 border-primary-500{% else %}text-secondary-600 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500{% endif %} transition-colors pb-1">Tentang
+                    Kami</a>
+            </nav>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-4">
+            {% if request.session.user_id %}
+            <!-- User is logged in -->
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <span class="font-medium">
+                        <span class="text-gray-500">Selamat datang, </span>
+                        <span class="text-secondary-900">{{ request.session.user_name }}</span>
+                    </span>
+                </div>
+                <button onclick="openLogoutModal()"
+                    class="bg-red-600 text-white p-2.5 rounded-lg hover:bg-red-700 transition-colors shadow-sm hover:shadow group"
+                    title="Keluar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M14 8v-2a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h7a2 2 0 002-2v-2M7 12h14m-3-3l3 3-3 3"/>
+                    </svg>
+                </button>
+            </div>
+            {% else %}
+            <!-- User is not logged in -->
+            <a href="{% url 'login' %}"
+                class="hidden md:block text-primary-600 font-medium hover:text-primary-700 transition-colors">Masuk</a>
+            <a href="{% url 'register' %}"
+                class="hidden md:block bg-primary-600 text-white px-5 py-2.5 rounded-lg hover:bg-primary-700 transition-colors shadow-sm hover:shadow">Daftar</a>
+            {% endif %}
+
+            <!-- Mobile Menu Toggle Button -->
+            <button id="mobile-menu-toggle"
+                class="md:hidden text-secondary-600 hover:text-primary-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path id="mobile-menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-100 shadow-lg">
+        <div class="container mx-auto px-4 py-3 space-y-3">
+            <a href="{% url 'homepage' %}"
+                class="{% if request.resolver_match.url_name == 'homepage' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Beranda</a>
+            <a href="{% url 'konsultasi' %}"
+                class="{% if request.resolver_match.url_name == 'konsultasi' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Konsultasi</a>
+            <a href="{% url 'riwayat' %}"
+                class="{% if request.resolver_match.url_name == 'riwayat' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Riwayat</a>
+            <a href="{% url 'tentang' %}"
+                class="{% if request.resolver_match.url_name == 'tentang' %}text-primary-600 font-medium{% else %}text-secondary-600 hover:text-primary-600{% endif %} block py-2 transition-colors">Tentang Kami</a>
+
+            {% if request.session.user_id %}
+            <!-- Mobile - User is logged in -->
+            <div class="border-t border-gray-100 pt-3">
+                <div class="flex items-center justify-between py-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-medium">
+                            <span class="text-gray-500">Selamat datang, </span>
+                            <span class="text-secondary-900">{{ request.session.user_name }}</span>
+                        </span>
+                    </div>
+                    <button onclick="openLogoutModal()"
+                        class="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors" title="Keluar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <!-- Mobile - User is not logged in -->
+            <div class="flex space-x-4 py-3 border-t border-gray-100">
+                <a href="{% url 'login' %}"
+                    class="text-primary-600 font-medium hover:text-primary-700 transition-colors px-5 py-2">Masuk</a>
+                <a href="{% url 'register' %}"
+                    class="bg-primary-600 text-white px-5 py-2 rounded-lg hover:bg-primary-700 transition-colors">Daftar</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-gray-900">Konfirmasi Logout</h3>
+                </div>
+            </div>
+            <button onclick="closeLogoutModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+            <p class="text-sm text-gray-500">
+                Apakah Anda yakin ingin keluar dari akun Anda? Anda perlu masuk kembali untuk mengakses fitur yang memerlukan autentikasi.
+            </p>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+            <button onclick="closeLogoutModal()" 
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                Batal
+            </button>
+            <button onclick="confirmLogout()" 
+                class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                Ya, Keluar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for toggle mobile menu and logout modal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+
+        mobileMenuToggle.addEventListener('click', function () {
+            mobileMenu.classList.toggle('hidden');
+
+            // Change icon to X when menu is open
+            if (!mobileMenu.classList.contains('hidden')) {
+                mobileMenuIcon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+            } else {
+                mobileMenuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+            }
+        });
+    });
+
+    // Function to open logout modal
+    function openLogoutModal() {
+        const modal = document.getElementById('logoutModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modal.classList.remove('hidden');
+        
+        // Trigger animation
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Function to close logout modal
+    function closeLogoutModal() {
+        const modal = document.getElementById('logoutModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        // Trigger animation
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }, 300);
+    }
+
+    // Function to confirm logout
+    function confirmLogout() {
+        window.location.href = "{% url 'logout' %}";
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeLogoutModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('logoutModal');
+            if (!modal.classList.contains('hidden')) {
+                closeLogoutModal();
+            }
+        }
+    });
+</script>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Diagnosis - Sistem Diagnosis Penyakit Gangguan Hati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        neutral: {
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .filter-tab {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .filter-tab:hover {
+            background-color: #f0fdf4;
+            color: #15803d;
+            border-color: #86efac;
+            transform: translateY(-1px);
+        }
+        .filter-tab.active {
+            background-color: #16a34a !important;
+            color: white !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+        .filter-tab.active:hover {
+            background-color: #15803d !important;
+            border-color: #15803d !important;
+        }
+    </style>
+</head>
+<body class="bg-neutral-50 font-sans text-neutral-800 antialiased">
+    <!-- Include Header -->
+    {% include "diagnosis/static/header.html" %}
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-br from-primary-50 via-white to-primary-100 py-20">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center animate-fade-in">
+                <h1 class="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">
+                    Riwayat <span class="text-primary-600">Diagnosis Anda</span>
+                </h1>
+                <p class="text-xl text-neutral-600 leading-relaxed">
+                    Pantau perkembangan kesehatan hati Anda melalui riwayat diagnosis yang telah dilakukan
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Statistics & Filters Section -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-6 lg:px-8">
+            <div class="bg-white rounded-3xl border border-neutral-200 p-8 shadow-lg animate-slide-up">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                    <!-- Summary Statistics -->
+                    <div class="flex-shrink-0">
+                        <div class="text-left">
+                            <p class="text-neutral-500 text-sm font-medium mb-1">Total Diagnosis</p>
+                            <p class="text-4xl font-bold text-primary-600">{{ total_count }}</p>
+                            <p class="text-neutral-400 text-xs">Riwayat tersimpan</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Filter -->
+                    <div class="flex-1 lg:max-w-md lg:ml-auto">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="relative flex-1">
+                                <input type="text" 
+                                    id="searchInput"
+                                    placeholder="Cari diagnosis..." 
+                                    class="w-full pl-12 pr-4 py-3 border border-neutral-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-neutral-900 placeholder-neutral-500">
+                                <svg class="w-5 h-5 text-neutral-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <button type="button" 
+                                        id="clearSearch" 
+                                        class="absolute right-4 top-4 text-neutral-400 hover:text-neutral-600 hidden">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="searchInfo" class="text-sm text-neutral-600 flex items-center mt-2 hidden">
+                            <span id="searchResults"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diagnosis History List -->
+    <section class="py-8 bg-neutral-50">
+        <div class="container mx-auto px-6 lg:px-8">
+            {% if riwayat_diagnosis %}
+            <div class="space-y-6">
+                {% for diagnosis in riwayat_diagnosis %}
+                <div class="diagnosis-card bg-white rounded-3xl border border-neutral-200 p-8 animate-slide-up shadow-lg hover:shadow-xl transition-all duration-300" 
+                     style="animation-delay: {{ forloop.counter0|add:1|floatformat:1 }}00ms;">
+                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+                        <!-- Main Info -->
+                        <div class="flex items-start space-x-6 flex-1">
+                            <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-3 mb-3 flex-wrap">
+                                    <h3 class="text-xl font-bold text-neutral-900">{{ diagnosis.id_diagnosis.nama_diagnosis }}</h3>
+                                    {% if forloop.first %}
+                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">Terbaru</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-neutral-600 mb-4 leading-relaxed">{{ diagnosis.id_diagnosis.deskripsi_diagnosis|default:"Deskripsi diagnosis tidak tersedia" }}</p>
+                                <div class="flex items-center gap-6 text-sm text-neutral-500">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        {{ diagnosis.tanggal_diagnosis|date:"d M Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Probability and Actions -->
+                        <div class="xl:text-right space-y-4 flex-shrink-0">
+                            <div>
+                                <div class="text-3xl font-bold text-primary-600 mb-2">
+                                    {{ diagnosis.probabilitas|floatformat:1 }}%
+                                </div>
+                                <div class="w-32 bg-neutral-200 rounded-full h-3">
+                                    <div class="bg-primary-500 h-3 rounded-full transition-all duration-500" 
+                                         style="width: {{ diagnosis.probabilitas }}%"></div>
+                                </div>
+                            </div>
+                            <a href="{% url 'detail_hasil' diagnosis.id_laporandiagnosis %}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-2xl font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                <span>Lihat Detail</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- No Data Message -->
+            <div class="text-center py-20">
+                <div class="max-w-md mx-auto">
+                    <div class="w-24 h-24 bg-neutral-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-12 h-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-neutral-700 mb-3">Belum Ada Riwayat Diagnosis</h3>
+                    <p class="text-neutral-500 mb-8 leading-relaxed">Anda belum memiliki riwayat diagnosis. Mulai konsultasi untuk mendapatkan analisis kesehatan hati Anda.</p>
+                    <a href="{% url 'konsultasi' %}" 
+                       class="inline-flex items-center gap-3 px-8 py-4 bg-primary-600 text-white rounded-2xl font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        <span>Mulai Konsultasi</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    {% include "diagnosis/static/footer.html" %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const diagnosisCards = document.querySelectorAll('.diagnosis-card');
+            const searchInput = document.getElementById('searchInput');
+            const clearButton = document.getElementById('clearSearch');
+            const searchInfo = document.getElementById('searchInfo');
+            const searchResults = document.getElementById('searchResults');
+
+            // Search functionality
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                    
+                    if (this.value.trim()) {
+                        clearButton.classList.remove('hidden');
+                    } else {
+                        clearButton.classList.add('hidden');
+                    }
+                }, 300);
+            });
+
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                clearButton.classList.add('hidden');
+                searchInfo.classList.add('hidden');
+                applyFilters();
+                searchInput.focus();
+            });
+
+            function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let visibleCount = 0;
+                let totalCount = diagnosisCards.length;
+                
+                diagnosisCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    
+                    const matchesSearch = !searchTerm || 
+                                        title.includes(searchTerm) || 
+                                        description.includes(searchTerm);
+                    
+                    if (matchesSearch) {
+                        card.style.display = 'block';
+                        card.style.opacity = '1';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                        card.style.opacity = '0';
+                    }
+                });
+                
+                if (searchTerm) {
+                    searchResults.textContent = `Menampilkan ${visibleCount} dari ${totalCount} hasil`;
+                    searchInfo.classList.remove('hidden');
+                } else {
+                    searchInfo.classList.add('hidden');
+                }
+                
+                showNoResultsMessage(visibleCount === 0 && searchTerm);
+            }
+            
+            function showNoResultsMessage(show) {
+                let noResultsMsg = document.getElementById('noResultsMessage');
+                
+                if (show && !noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'noResultsMessage';
+                    noResultsMsg.className = 'text-center py-20 animate-fade-in';
+                    noResultsMsg.innerHTML = `
+                        <div class="max-w-md mx-auto">
+                            <div class="w-20 h-20 bg-neutral-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                <svg class="w-10 h-10 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-700 mb-3">Tidak ada hasil ditemukan</h3>
+                            <p class="text-neutral-500 mb-6">Coba ubah kata kunci pencarian.</p>
+                            <button onclick="resetFilters()" class="px-6 py-3 bg-primary-600 text-white rounded-2xl font-semibold hover:bg-primary-700 transition-colors">
+                                Reset Pencarian
+                            </button>
+                        </div>
+                    `;
+                    
+                    const cardsContainer = document.querySelector('.space-y-6');
+                    if (cardsContainer) {
+                        cardsContainer.parentNode.insertBefore(noResultsMsg, cardsContainer.nextSibling);
+                    }
+                } else if (!show && noResultsMsg) {
+                    noResultsMsg.remove();
+                }
+            }
+            
+            window.resetFilters = function() {
+                searchInput.value = '';
+                clearButton.classList.add('hidden');
+                searchInfo.classList.add('hidden');
+                applyFilters();
+                searchInput.focus();
+            };
+        });
+    </script>
+</body>
+</html>

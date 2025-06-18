@@ -1,0 +1,208 @@
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-slate-800">Manajemen Penyakit</h2>
+        <button onclick="openModal('createModal')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md flex items-center space-x-2 transition-colors">
+            <i class="fas fa-plus"></i>
+            <span>Tambah Penyakit</span>
+        </button>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-lg shadow-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama Penyakit</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Deskripsi</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Solusi</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    {% for penyakit in page_obj %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ penyakit.id_diagnosis }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ penyakit.nama_diagnosis }}</td>
+                        <td class="px-6 py-4 text-sm text-slate-900">
+                            <div class="max-h-20 overflow-y-auto">
+                                {{ penyakit.deskripsi_diagnosis|truncatechars:100 }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-900">
+                            <div class="max-h-20 overflow-y-auto">
+                                {{ penyakit.solusi_diagnosis|truncatechars:100 }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            <button onclick="openEditModal('{{ penyakit.id_diagnosis }}', '{{ penyakit.nama_diagnosis }}', '{{ penyakit.deskripsi_diagnosis }}', '{{ penyakit.solusi_diagnosis }}', '{{ penyakit.gambar_diagnosis }}')" 
+                                    class="text-primary-600 hover:text-primary-900">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="confirmDelete('{{ penyakit.id_diagnosis }}')" 
+                                    class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">
+                            Tidak ada data penyakit
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% include 'diagnosis/admin_partials/pagination.html' %}
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800">Tambah Penyakit Baru</h3>
+        </div>
+        <form method="POST" class="p-6 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+            
+            <div>
+                <label for="nama_diagnosis" class="block text-sm font-medium text-slate-700">Nama Penyakit</label>
+                <input type="text" name="nama_diagnosis" id="nama_diagnosis" required
+                       class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                       placeholder="Contoh: Hepatitis A">
+            </div>
+            
+            <div>
+                <label for="deskripsi_diagnosis" class="block text-sm font-medium text-slate-700">Deskripsi</label>
+                <textarea name="deskripsi_diagnosis" id="deskripsi_diagnosis" rows="4" required
+                          class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                          placeholder="Deskripsikan penyakit ini..."></textarea>
+            </div>
+            
+            <div>
+                <label for="solusi_diagnosis" class="block text-sm font-medium text-slate-700">Solusi</label>
+                <textarea name="solusi_diagnosis" id="solusi_diagnosis" rows="4" required
+                          class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                          placeholder="Berikan solusi atau saran penanganan..."></textarea>
+            </div>
+            
+            <div>
+                <label for="gambar_diagnosis" class="block text-sm font-medium text-slate-700">URL Gambar</label>
+                <input type="text" name="gambar_diagnosis" id="gambar_diagnosis"
+                       class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                       placeholder="URL gambar penyakit (opsional)">
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="closeModal('createModal')"
+                        class="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    Batal
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800">Edit Penyakit</h3>
+        </div>
+        <form method="POST" class="p-6 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="id_diagnosis" id="edit_id_diagnosis">
+            
+            <div>
+                <label for="edit_nama_diagnosis" class="block text-sm font-medium text-slate-700">Nama Penyakit</label>
+                <input type="text" name="nama_diagnosis" id="edit_nama_diagnosis" required
+                       class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+            </div>
+            
+            <div>
+                <label for="edit_deskripsi_diagnosis" class="block text-sm font-medium text-slate-700">Deskripsi</label>
+                <textarea name="deskripsi_diagnosis" id="edit_deskripsi_diagnosis" rows="4" required
+                          class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
+            </div>
+            
+            <div>
+                <label for="edit_solusi_diagnosis" class="block text-sm font-medium text-slate-700">Solusi</label>
+                <textarea name="solusi_diagnosis" id="edit_solusi_diagnosis" rows="4" required
+                          class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
+            </div>
+            
+            <div>
+                <label for="edit_gambar_diagnosis" class="block text-sm font-medium text-slate-700">URL Gambar</label>
+                <input type="text" name="gambar_diagnosis" id="edit_gambar_diagnosis"
+                       class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="closeModal('editModal')"
+                        class="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    Batal
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Form -->
+<form id="deleteForm" method="POST" class="hidden">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete">
+    <input type="hidden" name="id_diagnosis" id="delete_id_diagnosis">
+</form>
+
+<script>
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+    document.getElementById(modalId).classList.add('flex');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    document.getElementById(modalId).classList.remove('flex');
+}
+
+function openEditModal(id, nama, deskripsi, solusi, gambar) {
+    document.getElementById('edit_id_diagnosis').value = id;
+    document.getElementById('edit_nama_diagnosis').value = nama;
+    document.getElementById('edit_deskripsi_diagnosis').value = deskripsi;
+    document.getElementById('edit_solusi_diagnosis').value = solusi;
+    document.getElementById('edit_gambar_diagnosis').value = gambar || '';
+    openModal('editModal');
+}
+
+function confirmDelete(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus penyakit ini?')) {
+        document.getElementById('delete_id_diagnosis').value = id;
+        document.getElementById('deleteForm').submit();
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target.classList.contains('fixed')) {
+        event.target.classList.add('hidden');
+        event.target.classList.remove('flex');
+    }
+}
+</script>
